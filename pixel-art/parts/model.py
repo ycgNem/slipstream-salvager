@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / '_lib'))
-from sculpt import Mat, sd_box, sd_cyl, sd_ellipsoid, sd_capsule  # noqa: E402
+from sculpt import Mat, sd_box, sd_cyl, sd_ellipsoid, sd_capsule, sd_frustum  # noqa: E402
 
 # ---------------------------------------------------------------- Grip Treads
 # In the BODY's frame (anchor = body center, z = 0 on the ground): two tread pods either side of a
@@ -138,3 +138,129 @@ def jaws_mats():
         J_HINGE: Mat([0, 1, 2, 6], ink=0),
         J_PIN: Mat([7, 8, 9, 9], noInk=True),
     }
+
+
+# ---------------------------------------------------------------- M6 helpers
+
+def sd_seg_frustum(x, y, z, a, b, ra, rb):
+    """A capped cone from point a (radius ra) to point b (radius rb), any orientation."""
+    ux, uy, uz = b[0] - a[0], b[1] - a[1], b[2] - a[2]
+    L = math.sqrt(ux * ux + uy * uy + uz * uz)
+    ux, uy, uz = ux / L, uy / L, uz / L
+    px_, py_, pz = x - a[0], y - a[1], z - a[2]
+    s = px_ * ux + py_ * uy + pz * uz
+    qx, qy, qz = px_ - s * ux, py_ - s * uy, pz - s * uz
+    return sd_frustum(s, math.sqrt(qx * qx + qy * qy + qz * qz), 0.0, 0.0, ra, L, rb)
+
+
+def sd_round_rect(x, y, hx, hy, r):
+    """2D rounded rectangle (r <= min(hx, hy))."""
+    qx, qy = abs(x) - hx + r, abs(y) - hy + r
+    return math.sqrt(max(qx, 0.0) ** 2 + max(qy, 0.0) ** 2) + min(max(qx, qy), 0.0) - r
+
+
+# ---------------------------------------------------------------- Jump Jets (M6)
+# In the CARRIER's frame at the rear mount (origin = the mount point, ~3.75 units above the ground;
+# x = the carrier's forward, so its back is -x): two upright gold canisters side by side on a steel
+# strap, with a steel plate at the front that bolts onto the carrier, and a steel nozzle under each
+# can pointing down and back (the plume fires out behind them).
+
+JT_CAN, JT_STRAP, JT_NOZ, JT_THROAT, JT_BOLT, JT_PLATE = range(6)
+JET_Y = 2.25      # can centers, either side
+JET_X = -1.1      # can centers along the carrier
+JET_R = 1.55      # can radius
+JET_Z0, JET_Z1 = -0.6, 5.55  # can body bottom and top (capsule ends: rounded off)
+
+
+def jets_scene(h, x, y, z):
+    ay = abs(y)
+    cx, cy = x - JET_X, ay - JET_Y
+    # the cans: upright capsules, a dome on top
+    h.add(sd_capsule(cx, cy, z, 0.0, 0.0, JET_Z0, 0.0, 0.0, JET_Z1, JET_R), JT_CAN, cx, cy, z)
+    # the strap round both cans
+    band = max(sd_round_rect(cx, y, JET_R + 0.25, JET_Y + JET_R + 0.25, JET_R + 0.2), abs(z - 1.4) - 0.45)
+    h.add(band, JT_STRAP, cx, y, z)
+    # the plate between the cans that bolts onto the carrier's back
+    h.add(sd_box(x - 0.55, y, z - 1.4, 0.45, 1.4, 2.0, 0.25), JT_PLATE, x, y, z)
+    # nozzles: bells under the cans, angled down and back
+    a, b = (JET_X - 0.2, JET_Y, JET_Z0 - 0.9), (JET_X - 1.0, JET_Y, JET_Z0 - 2.3)
+    outer = sd_seg_frustum(x, ay, z, a, b, 0.95, 1.3)
+    inner = sd_seg_frustum(x, ay, z, (a[0] - 0.3, a[1], a[2] - 0.5), (b[0] - 0.3, b[1], b[2] - 0.6), 0.5, 0.95)
+    h.add(max(outer, -inner), JT_NOZ, x, y, z)
+    h.add(sd_seg_frustum(x, ay, z, a, (b[0] + 0.25, b[1], b[2] + 0.45), 0.6, 0.8), JT_THROAT, x, y, z)
+    # a bolt on the strap at the back, between the cans
+    h.add(sd_ellipsoid(cx + JET_R + 0.3, y, z - 1.4, 0.5, 0.6, 0.55), JT_BOLT)
+
+
+def jets_mats():
+    return {
+        JT_CAN: Mat([17, 18, 18, 28], ink=17),
+        JT_STRAP: Mat([2, 6, 7, 8], ink=2, group=JT_CAN),
+        JT_PLATE: Mat([1, 2, 6, 7], ink=0),
+        JT_NOZ: Mat([2, 6, 7, 8], ink=2),
+        JT_THROAT: Mat([0, 1, 1, 1], ink=0, group=JT_NOZ),
+        JT_BOLT: Mat([7, 8, 9, 9], noInk=True),
+    }
+
+
+# ---------------------------------------------------------------- Springs (M6)
+# In the BODY's frame (anchor = body center, z = 0 on the ground), like the treads: a coil bumper
+# either side of the body's footprint. Each is a gold coil spring lying along the body (its axis =
+# the body's forward) between two steel end plates. Set ~10.5 px out on the Scrapper and the
+# Bouncer (outside the Scrapper's treads, against the Bouncer's belt); the big pair for a Rammer
+# (part:bigsprings) sits ~14.6 px out, past its treads. The coils' turns are painted afterwards in
+# screen space (coil_turns), so every direction gets even 1 px gaps.
+
+S_COIL, S_CAP = range(2)
+COIL_Y = 10.5     # coil axis, either side
+COIL_X = -0.3     # coil center along the body
+COIL_Z = 3.0      # coil axis height
+COIL_R = 2.5      # coil radius
+COIL_L = 5.3      # coil half length
+BIG = dict(cy=14.6, cx=0.4, cz=3.3, length=7.0, radius=2.5)   # on a Rammer
+
+
+def coil_scene(h, x, y, z, cx=COIL_X, cy=0.0, cz=COIL_Z, length=COIL_L, side=1, radius=COIL_R, caps=True):
+    """One coil bumper with its axis along x through (cx, cy, cz). Hit coords: u = along the axis,
+    v = across (outward positive), w = up."""
+    u, v, w = x - cx, (y - cy) * side, z - cz
+    r = math.sqrt(v * v + w * w)
+    # the coil: a tube, its ends tucked into the plates
+    h.add(max(r - radius, abs(u) - length), S_COIL, u, v, w)
+    # end plates: steel discs a little smaller than the coil, capping its ends
+    if caps:
+        h.add(max(r - (radius - 0.5), abs(abs(u) - (length + 0.3)) - 0.3), S_CAP, u, v, w)
+
+
+def springs_scene(h, x, y, z):
+    side = 1 if y >= 0 else -1
+    coil_scene(h, x, y, z, cy=COIL_Y * side, side=side)
+
+
+def bigsprings_scene(h, x, y, z):
+    side = 1 if y >= 0 else -1
+    coil_scene(h, x, y, z, cx=BIG['cx'], cy=BIG['cy'] * side, cz=BIG['cz'], length=BIG['length'], side=side, radius=BIG['radius'])
+
+
+def springs_mats():
+    return {
+        S_COIL: Mat([17, 18, 18, 28], ink=17),
+        S_CAP: Mat([2, 6, 7, 8], ink=2),
+    }
+
+
+def coil_turns(img, grid, angle, pitch=3, gap_lit=17, gap_dark=24, slant=0.0):
+    """Paint the coil's turns onto a sculpted frame: along the coil's axis as it shows on screen,
+    every `pitch` px one dark gap px (the dark core between two turns), tilted a pixel across the
+    tube like a helix. Works per direction from the pixel's position along the projected axis, so
+    the gaps are 1 px everywhere (the axis is foreshortened differently in each direction)."""
+    k = math.sqrt(math.cos(angle) ** 2 + (0.6 * math.sin(angle)) ** 2)
+    for py_, row in enumerate(grid):
+        for px_, p in enumerate(row):
+            if not p or p.m != S_COIL or p.ink:
+                continue
+            # screen px along the axis from the coil's middle, plus a tilt from the angle round it
+            th = math.atan2(p.w, p.v)  # 0 = outward, pi/2 = top
+            s = p.u * k + slant * th / math.pi
+            if math.floor(s + 0.5) % pitch == pitch - 1:
+                img[py_][px_] = gap_lit if p.lvl >= 2 else gap_dark

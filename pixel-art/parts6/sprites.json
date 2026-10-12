@@ -1,0 +1,515 @@
+{
+ "name": "parts6",
+ "kind": "sprites",
+ "scale": 1,
+ "defaults": {
+  "place": "none",
+  "keepStrays": true
+ },
+ "sprites": [
+  {
+   "match": "part:springs:e",
+   "file": "parts6.png",
+   "rect": [
+    0,
+    40,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    16,
+    20
+   ]
+  },
+  {
+   "match": "part:springs:se",
+   "file": "parts6.png",
+   "rect": [
+    32,
+    40,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    16,
+    20
+   ]
+  },
+  {
+   "match": "part:springs:s",
+   "file": "parts6.png",
+   "rect": [
+    64,
+    40,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    16,
+    20
+   ]
+  },
+  {
+   "match": "part:springs:sw",
+   "file": "parts6.png",
+   "rect": [
+    96,
+    40,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    16,
+    20
+   ]
+  },
+  {
+   "match": "part:springs:w",
+   "file": "parts6.png",
+   "rect": [
+    128,
+    40,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    16,
+    20
+   ]
+  },
+  {
+   "match": "part:springs:nw",
+   "file": "parts6.png",
+   "rect": [
+    160,
+    40,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    16,
+    20
+   ]
+  },
+  {
+   "match": "part:springs:n",
+   "file": "parts6.png",
+   "rect": [
+    192,
+    40,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    16,
+    20
+   ]
+  },
+  {
+   "match": "part:springs:ne",
+   "file": "parts6.png",
+   "rect": [
+    224,
+    40,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    16,
+    20
+   ]
+  },
+  {
+   "match": "part:bigsprings:e",
+   "file": "parts6.png",
+   "rect": [
+    0,
+    0,
+    40,
+    40
+   ],
+   "frame": [
+    40,
+    40
+   ],
+   "origin": [
+    20,
+    26
+   ]
+  },
+  {
+   "match": "part:bigsprings:se",
+   "file": "parts6.png",
+   "rect": [
+    40,
+    0,
+    40,
+    40
+   ],
+   "frame": [
+    40,
+    40
+   ],
+   "origin": [
+    20,
+    26
+   ]
+  },
+  {
+   "match": "part:bigsprings:s",
+   "file": "parts6.png",
+   "rect": [
+    80,
+    0,
+    40,
+    40
+   ],
+   "frame": [
+    40,
+    40
+   ],
+   "origin": [
+    20,
+    26
+   ]
+  },
+  {
+   "match": "part:bigsprings:sw",
+   "file": "parts6.png",
+   "rect": [
+    120,
+    0,
+    40,
+    40
+   ],
+   "frame": [
+    40,
+    40
+   ],
+   "origin": [
+    20,
+    26
+   ]
+  },
+  {
+   "match": "part:bigsprings:w",
+   "file": "parts6.png",
+   "rect": [
+    160,
+    0,
+    40,
+    40
+   ],
+   "frame": [
+    40,
+    40
+   ],
+   "origin": [
+    20,
+    26
+   ]
+  },
+  {
+   "match": "part:bigsprings:nw",
+   "file": "parts6.png",
+   "rect": [
+    200,
+    0,
+    40,
+    40
+   ],
+   "frame": [
+    40,
+    40
+   ],
+   "origin": [
+    20,
+    26
+   ]
+  },
+  {
+   "match": "part:bigsprings:n",
+   "file": "parts6.png",
+   "rect": [
+    240,
+    0,
+    40,
+    40
+   ],
+   "frame": [
+    40,
+    40
+   ],
+   "origin": [
+    20,
+    26
+   ]
+  },
+  {
+   "match": "part:bigsprings:ne",
+   "file": "parts6.png",
+   "rect": [
+    280,
+    0,
+    40,
+    40
+   ],
+   "frame": [
+    40,
+    40
+   ],
+   "origin": [
+    20,
+    26
+   ]
+  },
+  {
+   "match": "part:jets:e",
+   "file": "parts6.png",
+   "rect": [
+    0,
+    72,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    8,
+    8
+   ]
+  },
+  {
+   "match": "part:jets:se",
+   "file": "parts6.png",
+   "rect": [
+    16,
+    72,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    8,
+    8
+   ]
+  },
+  {
+   "match": "part:jets:s",
+   "file": "parts6.png",
+   "rect": [
+    32,
+    72,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    8,
+    8
+   ]
+  },
+  {
+   "match": "part:jets:sw",
+   "file": "parts6.png",
+   "rect": [
+    48,
+    72,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    8,
+    8
+   ]
+  },
+  {
+   "match": "part:jets:w",
+   "file": "parts6.png",
+   "rect": [
+    64,
+    72,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    8,
+    8
+   ]
+  },
+  {
+   "match": "part:jets:nw",
+   "file": "parts6.png",
+   "rect": [
+    80,
+    72,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    8,
+    8
+   ]
+  },
+  {
+   "match": "part:jets:n",
+   "file": "parts6.png",
+   "rect": [
+    96,
+    72,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    8,
+    8
+   ]
+  },
+  {
+   "match": "part:jets:ne",
+   "file": "parts6.png",
+   "rect": [
+    112,
+    72,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    8,
+    8
+   ]
+  },
+  {
+   "match": "pickup:jets",
+   "file": "parts6.png",
+   "rect": [
+    0,
+    88,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    8,
+    12
+   ]
+  },
+  {
+   "match": "pickup:springs",
+   "file": "parts6.png",
+   "rect": [
+    16,
+    88,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    8,
+    12
+   ]
+  },
+  {
+   "match": "icon:part:jets",
+   "file": "parts6.png",
+   "rect": [
+    32,
+    88,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "icon:part:springs",
+   "file": "parts6.png",
+   "rect": [
+    48,
+    88,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  }
+ ]
+}
