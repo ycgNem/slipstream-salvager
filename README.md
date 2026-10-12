@@ -4,8 +4,10 @@ A pixel-art top-down action roguelike about a small, fast scrap robot that rips 
 with high-speed passes and bolts them onto itself. Your movement is your weapon: only a hit at full
 speed does damage, and every part you bolt on changes how you move and attack.
 
-This is the **first playable slice**: one arena, one enemy (the Rammer), one part (the Booster),
-three waves. Art is code-drawn placeholder art until the gameplay loop is approved.
+This is **a short run**: five yards, about 10-15 minutes. You pick your route by driving out
+through exit gates. There are two enemies (the Rammer and the Snapper, with plow and jaw variants)
+and four parts on three mounts (Booster, Grip Treads, Plow, Jaws). Hull and parts carry from yard
+to yard.
 
 - **Play online:** https://ycgnem.github.io/slipstream-salvager/ (add `?debug` for the tuning panel and flat mode; press ` or F1 in play).
 - **Play locally:** double-click `Play.bat` (or `npm run dev`).

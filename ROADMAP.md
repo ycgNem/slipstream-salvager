@@ -5,7 +5,8 @@ call and why, `PROGRESS.md` what's built, `HANDOFF.md` where the last session st
 
 **Status:** the owner approved every default in section 1 (2026-10-12). M0 and M1 are built. The
 owner said M1 "looks good, continue as planned" (2026-10-12), which lifted the scope fence: M2 took
-the critic's open points as defaults, and M3 is planned in PLAN.md section 8 and being built.
+the critic's open points as defaults, M3 (the short run, PLAN.md section 8) is built, and M4 (art)
+is under way with the pixel-art-studio skill. M5 (the public build) waits for the owner to push.
 
 **How every session runs:** start with *"Read ROADMAP.md and HANDOFF.md"*, then paste the phase's
 prompt. Build the phase, deciding small things alone and logging them in `DECISIONS.md`. Run the
@@ -215,8 +216,9 @@ stop for the owner's playtest.
   - **3d — Plow and Jaws.** Both parts, the Plow Rammer and the Jaw Snapper, code art.
   - **3e — Verify.** Every check, the qa-screens and indie-critic agents, fixes; stop for the owner.
   Prompt: *"Read ROADMAP.md, HANDOFF.md and PLAN.md section 8. Build the next unfinished M3 phase."*
-- **M4 — Art overhaul.** SpriteCook generation to STYLE.md's names and sizes, the import pipeline,
-  coverage at 100%.
+- **M4 — Art overhaul.** Sprites drawn with the pixel-art-studio skill (DECISIONS #65) to
+  STYLE.md's names and sizes, imported through `scripts/sprites-import.mjs`, coverage at 100%.
+  Imported art replaces the code-drawn placeholder of the same name, family by family.
 - **M5 — First public build.** GitHub repo, Pages, Windows installers, player-facing patch notes.
 
 ---

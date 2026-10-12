@@ -2,6 +2,42 @@
 
 What's built. Newest first.
 
+## 2026-10-12 — M3: a short run
+
+PLAN.md section 8, built in phases 3a-3d (DECISIONS #64-#75).
+
+- **The run:** five yards.
+  - The Ring first, The Heap last.
+  - In between, three of four middle yards, each a new layout: The Kennel (posts), Long Lanes (two
+    long walls), The Plow Pit (a central tower) and Jaw Yard (four blocks).
+  - You choose the next yard by driving out through one of two exit gates. The sign under each gate
+    shows that yard's salvage.
+  - Hull, bolted parts and the towed part carry over, and you get +1 hull after each yard.
+  - A wipe plays between yards, and you drive into the next one through the opposite gate, still
+    moving.
+  - Later yards add enemies to the last wave.
+  - Run results show yards cleared, time, tears, wrecks, jousts, top speed and your build. The title
+    screen shows your best run.
+- **Three mounts** on the player and on enemies (rear, sides, front). Enemies are data: a kind plus
+  parts on mounts.
+- **One tear rule for every part:** a teal hit on the side of an enemy where a part sits tears that
+  part off. A Plow comes off only in a joust.
+- **Four parts:**
+  - **Booster:** speed and the Burn.
+  - **Grip Treads:** grip, and a power-slide when you pull back at speed.
+  - **Plow:** ram at teal; it blocks a charge that meets your front.
+  - **Jaws:** bite on at teal, whip round and fling back out 40 px/s faster.
+- **The Snapper:** a small, fast hunter.
+  - It snaps short after a 0.45 s windup with its own lane.
+  - It slides after a snap, which opens its sides.
+  - Between snaps it circles you.
+  - It has a Plow Rammer and a Jaw Snapper variant.
+- **The HUD** shows three part slots. New hints cover each part, each enemy variant and the exits.
+- **Rammers** have 3 HP. The slipstream catches at 24 px.
+- **Placeholder art:** every new sprite is code-drawn (Snapper, three parts, posts, tower).
+- **Tests:** the drafter bot, M3 unit tests, and a run test (bots play every yard on many seeds
+  without breaking the sim). 81 tests.
+
 ## 2026-10-12 — M2: tune the loop (the critic's open points, as defaults)
 
 The owner said "looks good, continue as planned" with no notes, so M2 took the critic's open points
@@ -112,4 +148,6 @@ The owner said "looks good, continue as planned" with no notes, so M2 took the c
 | M1c — Salvage and the Booster | done |
 | M1d — Verify, hand over for playtest | done |
 | M2 — Tune the loop | done (critic's points as defaults) |
-| M3 — A short run | in progress |
+| M3 — A short run | done (5 yards, 4 parts, the Snapper) |
+| M4 — Art overhaul | in progress (pixel-art-studio) |
+| M5 — First public build | waits for the owner's go-ahead to push |

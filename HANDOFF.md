@@ -4,21 +4,19 @@ Read this first, every session.
 
 ## Where things stand (2026-10-12)
 
-- **Milestone 0 and Milestone 1 are built. Stopped for the owner's playtest.** Nothing past M1 gets
-  built until the owner says the core loop works (ROADMAP.md "Scope fence").
-- The owner approved every default in ROADMAP.md section 1 (Q1–Q11). DECISIONS.md runs #1–#53 (#47–#53 are the fixes from the critic's review).
-- **Live:** https://ycgnem.github.io/slipstream-salvager/ (tuning panel: https://ycgnem.github.io/slipstream-salvager/?debug). Repo: https://github.com/ycgNem/slipstream-salvager (public, like
-  Sprocket & Sprout; DECISIONS #54). `main` and `works` are pushed and identical. Pushing `main`
-  redeploys the site.
+- **M0-M3 are built; M4 (art) is under way.** The owner said M1 "looks good, continue as planned",
+  so M2 took the critic's open points as defaults and M3 built the short run from PLAN.md section 8.
+  Every call is in DECISIONS.md (#55-#63 are M2, #64-#75 are M3).
+- **What the live site shows is still M1.** The site at https://ycgnem.github.io/slipstream-salvager/
+  updates only when `main` is pushed, and **pushing waits for the owner** (see Releasing).
+- Repo: https://github.com/ycgNem/slipstream-salvager (public; DECISIONS #54). Day-to-day work is on
+  `works`.
 
-## How to playtest (for the owner)
+## How to play the current build (for the owner)
 
-1. Open **https://ycgnem.github.io/slipstream-salvager/** (or double-click **`Play.bat`** to run it locally at
-   `http://localhost:5173`; keep the black window open while you play).
-2. For the **tuning panel and flat mode**, add `?debug`: **https://ycgnem.github.io/slipstream-salvager/?debug** (in the
-   local dev server it's always on). Press **`** (backtick) or **F1** in play to open it. It also has **START WITH THE
-   BOOSTER**, so you can play a whole run with the part.
-3. Controls:
+1. Double-click **`Play.bat`** (it runs the game at `http://localhost:5173`; keep the black window
+   open while you play). The tuning panel is always on there: press **`** (backtick) or **F1** in play.
+2. Controls:
 
    | | Keyboard | Gamepad |
    |---|---|---|
@@ -28,54 +26,70 @@ Read this first, every session.
    | Pause | Esc or P | Start |
    | Music on/off | N | |
 
-4. What's there: three waves in one arena. Wave 1 is one Rammer, wave 2 two, wave 3 three. Build
-   speed until the claw turns teal, hit a Rammer's back to tear its booster off, tap E to bolt it on,
-   and feel how the Burn changes your lines. Your bolted part is your armor: a hit shatters it
-   instead of costing hull.
-5. **The playtest questions** are in ROADMAP.md section 3. Question 8 asks you to play once with
-   **flat mode** on. It removes the one thing: speed stops mattering for damage, and the Booster
-   becomes a plain +1 damage part instead of changing how you move. If that's about as fun, the
-   identity isn't carrying the game yet.
-6. **Turning now costs speed** (DECISIONS #47). PLAN always said it should; the first build didn't do
-   it. Hard U-turns and tight circles drop you out of Slipstream, while wide arcs and swerves don't.
-   If it feels sticky, raise `scrubLat` in the tuning panel (900 now; higher is more forgiving).
-7. If movement feels off, change the numbers in the tuning panel while you play, press **COPY** and
-   paste what it copies into your notes. Those are the numbers I'll put in `src/data/tuning.ts`.
+3. **The run** (PLAN.md section 8): five yards in a row, about 10-15 minutes.
+   - **The Ring** first (three waves of Rammers).
+   - Then three of the four middle yards, picked by **driving out through one of two exit gates**.
+     The sign under each gate shows the yard's salvage.
+     - **The Kennel:** Snappers; salvage the Grip Treads.
+     - **Long Lanes:** Rammers down two long lanes.
+     - **The Plow Pit:** a Plow Rammer round a central tower.
+     - **Jaw Yard:** Jaw Snappers among four blocks.
+   - **The Heap** last.
+   - Your hull, your bolted parts and the part on your cable carry over between yards. You get
+     **+1 hull** after each yard.
+4. **Four parts on three mounts**, each one changes how you move:
+   - **Booster** (rear): faster, and the Burn.
+   - **Grip Treads** (sides): pull back hard at speed to power-slide round.
+   - **Plow** (front): drive into enemies at teal to ram them, and it blocks a charge head-on.
+   - **Jaws** (front): a teal hit bites on, whips you round and slings you back out faster.
+5. **How to get a part:** hit the side of an enemy that carries it, at teal (Slipstream).
+   - A rear part comes off from behind, a side part from the side, a front part head-on.
+   - A Plow comes off only in a joust: Rip its charge nose to nose.
+   - Your parts are armor: a hit knocks one loose (cracked), and a second hit shatters it.
+6. **Dev shortcuts (local dev server, or `?debug` on a debug build):**
+   - `?yard=kennel` (or `lanes`, `pit`, `jaws`, `heap`) starts a run in that yard.
+   - The tuning panel has **START WITH** toggles for each part, flat mode, every number and **COPY**.
+7. **Defaults I chose for you, all reversible in the tuning panel** (DECISIONS #55-#75):
+   - A Rammer's front is armored: a teal hit there does 1, a side does 2, the back tears or does 4.
+     To go back to M1: `frontDamage` 2 and `rearDamage` 2.
+   - **The joust:** a teal Rip into a charge's nose stuns it. Change it with `joustStun` / `joustDeg`.
+   - **The slipstream:** a near miss by a charge lifts you to teal. Set `draftBoost` 0 to remove it.
+   - **Parts are knocked loose** before they shatter. `partLives` 1 makes them shatter on the
+     first hit.
+   - A tapped Rip stays a Rip even with the Booster; only holding revs a Burn (`burnTapTime`).
+   - Rammers have 3 HP (M1 had 4); `rammerHp`.
+8. **Playtest questions for M3:**
+   - Does the exit choice feel like a choice?
+   - Does each part change how you play the next yard?
+   - Is a 10-15 minute run the right length?
+   - Is any yard a wall?
 
-The Windows app also builds: double-click `Build desktop app.bat`; the installer and portable `.exe`
-land in `release/` (checked once on 2026-10-12, 0.1.0).
+The Windows app also builds: double-click `Build desktop app.bat`. The installer and portable
+`.exe` land in `release/`.
 
 ## What's next
 
-After the playtest, M2 is "tune the loop" (ROADMAP.md section 4): each of the owner's notes becomes
-one change commit ending "DECISIONS #N". Start the session with: *"Read ROADMAP.md and HANDOFF.md.
-Here are my playtest notes: …"*.
+- **The owner's playtest of the run.** Start the session with: *"Read ROADMAP.md and HANDOFF.md.
+  Here are my playtest notes: …"*. Each note becomes one commit ending "DECISIONS #N".
+- **M4, the art overhaul** (ROADMAP section 4). It uses the pixel-art-studio skill (the owner's
+  call, DECISIONS #65). Each family is a `pixel-art/<family>/build.py` that draws the sprites; its
+  `sprites.json` maps them to game names, and `node scripts/sprites-import.mjs` packs them into
+  `src/art/`. Imported art replaces the code-drawn placeholder of the same name, so the game works
+  with any subset.
+- **M5, the first public build:** the version, the service worker cache, patch notes and a push.
+  It waits for the owner's go-ahead.
 
-Open points from building M1 to raise with the owner (also in DECISIONS):
-- **The pillar rail** (#39): grazing a pillar turns you without losing speed (wall slides skip the
-  turn scrub). It might be a fun technique or an exploit; the playtest decides.
-- **The wave 1 safety net's way out** (#33): three Slipstream hits on the first Rammer's front at
-  1 HP shake its booster loose. That's a new rule, added because a bot got stuck.
+Open points for the owner (also in DECISIONS):
+- **Bot balance is a weak signal now.** The bots clear The Ring but rarely survive the middle
+  yards. The run test only checks that bots play every yard without breaking the sim, softlocking
+  or leaving the arena (#74). How hard the run is is the playtest's call.
+- **The pillar rail** (#39): grazing a pillar turns you without losing speed. It might be a
+  technique or an exploit.
+- **The wave 1 safety net's way out** (#33, now 2 hits, #55): two teal hits on the first Rammer's
+  front at 1 HP shake its booster loose.
+- **Coasting** (`coastHalf` 0.3 s): letting go of the stick drops you out of teal fast. The critic
+  suggested 0.6 s. It's a feel call; try it in the panel.
 - Gamepad support is written against the standard mapping but **untested on hardware**.
-
-The critic's design notes, left for the owner because they change rules, not bugs (from the review
-at the end of M1; its scripts are in `e2e/out/critic/`, mine in `e2e/out/fix/`):
-- **The rear tear is optional.** A bot that ignores backs and only hits fronts clears 34 of 40 runs,
-  against hit-and-run's 17, because front hits do full damage. The critic suggests armoring the front
-  (within ±60° of the front a Slipstream hit does 1, the sides 2, the back tears). Should the tear
-  be the way to win, or a bonus?
-- **The Booster rarely stays on.** A hit shatters it within about 12-18 s, so it's on for 10-27% of
-  fight time. The critic suggests a hit knocks it off as a pickup, and it shatters only if hit again
-  while loose. Use START WITH THE BOOSTER to judge the part itself.
-- **A tapped Burn** (DECISIONS #41): a tap is an instant Burn (locked for 0.43 s over about 106 px),
-  which is worse than a Rip. The critic suggests a short tap stays a plain Rip and only holding revs.
-  The new hint says to hold; the rule is yours.
-- **The joust:** a Slipstream Rip pressed head-on into a charging Rammer 30-90 px away wins outright
-  (about a 6-frame window). Keep it as a skill move with its own feedback, or cut it?
-- **Coasting:** letting go of the stick drops you out of Slipstream in about 7 frames (`coastHalf`
-  0.3 s). The critic suggests about 0.6 s above Cruise. That's a feel call; try it in the panel.
-- **The Rammer's back is hard to read at 1x** (its gold nozzle is about 3 px). It's an art overhaul
-  item, but the tear depends on it.
 
 ## How to run everything (for sessions)
 
@@ -87,38 +101,65 @@ Put the portable Node first in every shell:
 |---|---|---|
 | Play (dev) | `npm run dev` | port 5173; `.claude/launch.json` has a `game` entry on 5190 |
 | Typecheck | `npm run typecheck` | |
-| Unit tests | `npm test` | 53 tests: movement, combat, salvage, data, and the removal-test guards (bots on 8 seeds for wave 1, 40 seeds for the full slice) |
+| Unit tests | `npm test` | movement, combat, salvage, data, the M3 parts and Snapper (`m3.test.ts`), the run (`run.test.ts`) and the removal-test guards |
 | Strategy bots | `npx vite-node scripts/bots.ts` | prints what each bot achieved; use it when tuning |
 | Smoke test | `npm run e2e` | starts its own server; real key presses; must end with zero console errors |
-| Screenshot sweep | `npm run screens` (or `-- slip burn`) | every scene in `src/app/debug.ts`, PNGs + overlap audit in `e2e/out/screens/` |
+| Screenshot sweep | `npm run screens` (or `-- slip burn`) | every scene in `src/app/debug.ts` (all five middle yards and the Heap included), PNGs + overlap audit in `e2e/out/screens/` |
 | Sprite coverage | `npm run coverage` | every name in `src/render/names.ts` has art of the right size and anchor |
-| Code-art sheet | `node e2e/artsheet.mjs` | every sprite at 3x, and all 8 directions with the booster mounted |
-| Web build | `npm run build` / `Package for web.bat` | `dist/`, about 130 KB |
+| Art sheet | `node e2e/artsheet.mjs` | every sprite at 3x; `IMPORTED=1` draws the imported art over the placeholders |
+| Import art | `node scripts/sprites-import.mjs` | `pixel-art/<family>/sprites.json` → `src/art/<family>.png/.json` |
+| Web build | `npm run build` / `Package for web.bat` | `dist/` |
 | Windows app | `npm run dist:win` / `Build desktop app.bat` | `release/` |
 | App icons | `npm run icons` | code-drawn placeholder icon into `public/` and `build/` |
 
 Agents in `.claude/agents/`: `qa-screens` (visual QA, read-only) and `indie-critic` (design critique,
-read-only). The `art-director` comes with the art overhaul (M4).
+read-only).
 
 ## Code map
 
-- `src/sim/`: the rules, pure and deterministic. `world.ts` (state), `tick.ts` (system order),
-  `body.ts` (movement), `rip.ts` (Rip, Burn, tiers, tear-off), `rammer.ts` (AI, lanes, contacts),
-  `salvage.ts` (tow, pickups, bolting, armor), `waves.ts`, `events.ts`, `bots.ts` (strategy bots).
-- `src/data/`: `tuning.ts` (every number), `parts.ts`, `arena.ts`, `waves.ts`, `palette.ts`,
-  `dirs.ts`, `mounts.ts` (where parts sit on bodies; the claw tip).
-- `src/render/`: `atlas.ts` (sprites by name, from S&S), `renderer.ts`, `fx.ts`, `pixgeom.ts`
-  (lanes, lines, silhouettes), `names.ts` (every sprite name + size), `art/code/` (the placeholders).
-- `src/ui/`: `ui.ts` (kit with key/pad navigation), `font.ts` and `audit.ts` (from S&S), `hud.ts`,
-  `hints.ts`.
-- `src/app/`: `app.ts` (scaler, screens), `play.ts` (one encounter on screen; `autopilot` hook),
-  `tuning.ts` (dev panel, flat mode), `settings.ts`, `debug.ts` (scenes for the sweep).
-- `src/engine/`: loop, rng, input + gamepad, audio (synth SFX, engine hum, sfxr bank, music player
-  and the one song).
+- `src/sim/`: the rules, pure and deterministic.
+  - `world.ts`: state.
+  - `tick.ts`: system order.
+  - `body.ts`: movement; each part's stats and behaviors, the power-slide.
+  - `rip.ts`: Rip, Burn, tiers, and the hit resolver (zones, tears, the joust, the Jaws' latch).
+  - `enemies.ts`: what all enemies share: movement, walls, crushing loose parts, contacts with you,
+    the Plow's ram and block, drafts.
+  - `rammer.ts` and `snapper.ts`: each enemy's brain.
+  - `salvage.ts`: tow, pickups, bolting per mount, armor.
+  - `waves.ts`: waves, the yard clear, exits.
+  - `run.ts`: the run (yards, choices, the loadout carried between yards).
+  - `events.ts`.
+  - `bots.ts`: strategy bots, including the drafter.
+- `src/data/`:
+  - `tuning.ts`: every number.
+  - `parts.ts`: parts as data (stats, behaviors, how they tear).
+  - `mounts.ts`: rear, sides and front, where they sit on each body.
+  - `arena.ts`: six layouts.
+  - `waves.ts`: enemy specs.
+  - `yards.ts`: the run's yards.
+  - Also `palette.ts` and `dirs.ts`.
+- `src/render/`:
+  - `atlas.ts`: sprites by name, from S&S.
+  - `renderer.ts`.
+  - `fx.ts`.
+  - `pixgeom.ts`.
+  - `names.ts`: every sprite name and size.
+  - `art/code/`: the placeholders.
+  - `art/imported.ts`: loads `src/art/*.png/.json` over the placeholders.
+- `src/ui/`: `ui.ts`, `font.ts`, `audit.ts`, `hud.ts` (hull, wave, three part slots, gauge),
+  `hints.ts` (one-time hints).
+- `src/app/`:
+  - `app.ts`: scaler and screens.
+  - `play.ts`: a run on screen; yard banners, exit signs, the wipe between yards, run results.
+  - `tuning.ts`: the dev panel.
+  - `settings.ts`.
+  - `debug.ts`: scenes for the sweep.
+- `src/engine/`: loop, rng, input + gamepad, audio.
+- `pixel-art/<family>/`: art sources (build scripts) for the overhaul.
 
 ## Environment
 
-- Windows 11, no admin rights. git 2.55.
+- Windows 11, no admin rights. git 2.55. Python 3 with Pillow (for the pixel-art-studio skill).
 - Sprocket & Sprout's repo (`C:\Users\jacks\Documents\sprocket-and-sprout`) was the source of the
   engine layer. It is **read-only** for this project.
 - Playwright uses the installed Chrome (`PW_CHANNEL=chrome` by default in `e2e/serve.mjs`).
@@ -131,5 +172,5 @@ read-only). The `art-director` comes with the art overhaul (M4).
   deploys `dist/` to GitHub Pages (source: GitHub Actions). Check a run with `gh run list`.
 - Day-to-day work happens on `works`. To release, fast-forward `main` to `works` and push both.
   **Push only when the owner says so.**
-- The service worker caches the game (`public/sw.js`, cache `salvager-v1`). Bump the cache name when
-  a release must reach players who already have it open.
+- The service worker caches the game (`public/sw.js`). Bump the cache name when a release must
+  reach players who already have it open.
