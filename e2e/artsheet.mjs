@@ -8,6 +8,8 @@
 //                                    -> also e2e/out/artsheet-only.png: just names with those
 //                                       prefixes, at SCALE (default 6)
 //   ARENA=1 node e2e/artsheet.mjs    -> also e2e/out/artsheet-arena.png: a slice of the Ring at 3x
+//   IMPORTED=1 node e2e/artsheet.mjs -> the same sheets with the imported art (src/art/) on top of
+//                                       the code-drawn art, as the game draws it
 //
 // Fails (exit 1) if any name in allSpriteNames() came back as the missing-sprite placeholder, or
 // if a sprite's size or anchor differs from spriteSpec().
@@ -22,7 +24,7 @@ try {
   await page.route('**/__artsheet__', (r) =>
     r.fulfill({ contentType: 'text/html', body: '<!doctype html><meta charset="utf-8"><title>artsheet</title><body></body>' }));
   await page.goto(srv.url + '__artsheet__');
-  const res = await page.evaluate(async ([only, scaleOnly, arena]) => {
+  const res = await page.evaluate(async ([only, scaleOnly, arena, imported]) => {
     const art = await import('/src/render/art/code/index.ts');
     const atlas = await import('/src/render/atlas.ts');
     const namesMod = await import('/src/render/names.ts');
@@ -30,6 +32,10 @@ try {
     const dirsMod = await import('/src/data/dirs.ts');
     const { sprite, drawSprite, codeDrawn } = atlas;
     art.registerCodeArt();
+    if (imported) {
+      (await import('/src/render/art/imported.ts')).registerImportedArt();
+      await atlas.artReady();
+    }
 
     const names = namesMod.allSpriteNames();
     const t0 = performance.now();
@@ -207,7 +213,7 @@ try {
       arenaUrl = big.toDataURL('image/png');
     }
     return { bad, genMs, famMs, count: names.length, all, focus, arena: arenaUrl, dirs: c2.toDataURL('image/png') };
-  }, [process.env.ONLY ?? '', Number(process.env.SCALE ?? 6), !!process.env.ARENA]);
+  }, [process.env.ONLY ?? '', Number(process.env.SCALE ?? 6), !!process.env.ARENA, !!process.env.IMPORTED]);
 
   const save = (file, url) => fs.writeFileSync(`${OUT}/${file}`, Buffer.from(url.split(',')[1], 'base64'));
   save('artsheet.png', res.all);
