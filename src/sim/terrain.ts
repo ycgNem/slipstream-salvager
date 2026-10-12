@@ -5,9 +5,9 @@
 import type { FloorPatch } from '../data/arena';
 import { along, floorAt } from './arena';
 import { hasBehavior } from './body';
-import { dealDamage } from './rip';
+import { dealDamage, lunging } from './rip';
 import { hitPlayer } from './salvage';
-import { airborne, tierOf, type World } from './world';
+import { airborne, radiusOf, tierOf, type World } from './world';
 
 /** Where a crusher plate is in its beat ('warn': flashing, about to slam; 'down': just slammed),
  * and whether it slams this tick. */
@@ -50,15 +50,18 @@ export function updateCrushers(w: World) {
   for (const f of w.arena.floor ?? []) {
     if (f.kind !== 'crusher' || !crusherState(w, f).slam) continue;
     const r = f.rect, cx = r.x + r.w / 2, cy = r.y + r.h / 2;
-    const on = (x: number, y: number) => x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h;
+    // a centre on the plate (or, for something as big as The Compactor, its body over it)
+    const on = (x: number, y: number, pad = 0) => x >= r.x - pad && x < r.x + r.w + pad && y >= r.y - pad && y < r.y + r.h + pad;
     w.events.push({ k: 'press', x: cx, y: cy });
-    if (!p.air && !w.result && on(p.x, p.y)) {
+    // only what's slow gets pressed: at Cruise or faster you're over it before it lands (DECISIONS
+    // #97), so the lure is to make them stop there (a windup, a skid, a stuck landing)
+    if (!p.air && !w.result && p.speed < t.cruiseAt && on(p.x, p.y)) {
       // thrown off the plate, away from its middle (or back the way you came, dead centre)
       const away = Math.hypot(p.x - cx, p.y - cy) > 2 ? Math.atan2(p.y - cy, p.x - cx) : p.heading + Math.PI;
       hitPlayer(w, away);
     }
     for (const e of [...w.enemies]) {
-      if (!w.enemies.includes(e) || airborne(e) || !on(e.x, e.y)) continue;
+      if (!w.enemies.includes(e) || airborne(e) || lunging(e) || !on(e.x, e.y, e.kind === 'compactor' ? radiusOf(w, e) * 0.6 : 0)) continue;
       w.events.push({ k: 'pressed', id: e.id });
       dealDamage(w, e, t.crusherDamage, 'side', e.x, e.y);
     }

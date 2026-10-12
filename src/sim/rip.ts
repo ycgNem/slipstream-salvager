@@ -2,7 +2,7 @@
 // Jaws' latch, aim assist, and what a hit does at each speed tier and on each zone of an enemy.
 // Only Slipstream does damage or tears parts off; Cruise shoves and cancels a windup; Crawl
 // clanks. Flat mode drops the speed rule (the removal test A/B).
-import { wrapAngle } from '../data/dirs';
+import { dirAngle, dirOf, wrapAngle } from '../data/dirs';
 import { PARTS, type PartId } from '../data/parts';
 import type { MountSlot } from '../data/mounts';
 import { attackMode, hasBehavior } from './body';
@@ -254,6 +254,8 @@ export function inRearArc(w: World, r: Enemy): boolean {
  */
 export function hitZone(w: World, r: Enemy, from?: number): Zone {
   const p = w.player;
+  // The Compactor with its core open, stuck after a landing: every side is its back (DECISIONS #97)
+  if (r.kind === 'compactor' && r.state === 'land' && !hasAnyPart(r)) return 'rear';
   const off = Math.abs(wrapAngle((from ?? Math.atan2(p.y - r.y, p.x - r.x)) - r.face));
   if (off >= Math.PI - deg(w.t.rearArcDeg)) return 'rear';
   if (off <= deg(w.t.frontArcDeg)) return 'front';
@@ -276,6 +278,8 @@ export function stunEnemy(w: World, r: Enemy, dur: number) {
     r.t = 0;
     r.skidFor = dur;
     r.speed = 0;
+    // its facing snaps to its sprite's direction, so the back you see is the back the game uses
+    r.face = dirAngle(dirOf(r.face));
   }
 }
 
@@ -438,6 +442,10 @@ function damage(w: World, r: Enemy, n: number, zone: Zone, x: number, y: number)
     w.stats.wrecks++;
     const lost = Object.values(r.parts) as PartId[];
     w.events.push({ k: 'wreck', id: r.id, kind: r.kind, x: r.x, y: r.y, lost });
+    if (r.kind === 'compactor') {
+      // the Snappers it called in go down with it: wrecking it ends the yard (DECISIONS #97)
+      for (const o of w.enemies.splice(0)) w.events.push({ k: 'wreck', id: o.id, kind: o.kind, x: o.x, y: o.y, lost: [] });
+    }
   }
   return dealt;
 }

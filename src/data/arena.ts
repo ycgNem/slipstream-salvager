@@ -120,7 +120,8 @@ export const HURDLES = arena('hurdles', [
  * middle, posts out in the corners: a straight line (a Bouncer's roll, your bank shot on Springs)
  * goes back and forth across it (DECISIONS #92). */
 export const PINBALL = arena('pinball', [
-  lowWall(144, 128, 16, 104), lowWall(480, 128, 16, 104),
+  // the side walls part at the side gates' line (y 160-200), so you never drive in nose-first into one
+  lowWall(144, 112, 16, 48), lowWall(144, 200, 16, 48), lowWall(480, 112, 16, 48), lowWall(480, 200, 16, 48),
   lowWall(256, 72, 128, 16), lowWall(256, 272, 128, 16),
   pillar(320, 180),
   post(80, 64), post(560, 64), post(80, 296), post(560, 296),
@@ -137,7 +138,8 @@ export const SLICK = arena(
   [post(96, 72), post(544, 72), post(96, 288), post(544, 288)],
   { x: 320, y: 312, heading: Math.PI },
   [
-    { kind: 'oil', rect: { x: 208, y: 128, w: 224, h: 112 } },
+    // the oil runs right up to the strips, so they're the only grip round it (DECISIONS #97)
+    { kind: 'oil', rect: { x: 160, y: 96, w: 320, h: 176 } },
     strip(176, 80, 288, 16, 0), strip(480, 112, 16, 144, 1), strip(176, 272, 288, 16, 2), strip(144, 112, 16, 144, 3),
   ],
 );
@@ -164,9 +166,11 @@ export const PRESS = arena(
  * crusher plate in each corner. The plates hit it too. */
 export const FOUNDRY = arena(
   'foundry',
-  [pillar(224, 180), pillar(416, 180)],
+  // the pillars sit off the gates' line (and give it diagonal bank lines); the plates sit along the
+  // long walls, where a charge into the wall leaves it stunned
+  [pillar(224, 148), pillar(416, 212)],
   { x: 320, y: 184, heading: 0 },
-  [crusher(96, 80, 0), crusher(544, 80, 1.5), crusher(96, 280, 0.75), crusher(544, 280, 2.25)],
+  [crusher(176, 56, 0), crusher(464, 56, 1.5), crusher(176, 320, 0.75), crusher(464, 320, 2.25)],
 );
 
 /** The Heap: a broken ring of scrap piles, pillars and posts, round the middle. */

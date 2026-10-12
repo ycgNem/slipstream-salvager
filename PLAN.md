@@ -559,7 +559,7 @@ wall or pillar and carries on for the rest of its length. Its springs tear from 
 | **The Pinball** | four low walls facing each other across the yard round a pillar bumper, posts in the corners: a straight line goes back and forth | Springs | 2 Bouncers; 3 Bouncers; 2 Bouncers + Spring Rammer + 1 Snapper |
 
 The middle pool is now six yards; a run still visits three of them, two choices at each exit. The
-Heap gains a Hopper in its first wave and a Bouncer and a Spring Rammer in its last, and its sign
+Heap (two waves since DECISIONS #97) gains a Hopper in its first wave and a Bouncer and a Spring Rammer in its last, and its sign
 says "ALL SIX PARTS". Each new enemy and part gets one hint.
 
 ### 9.4 M7: terrain
@@ -581,9 +581,11 @@ of it is data (`floor` on an arena) and the same for you and the enemies where i
   leap, but the landing is clean (no hit, no recoil). With the Jump Jets bolted on, a ramp launch
   lands with their hit.
 - **Crusher plates** (32 × 32). Every 3 s a plate warns for 0.8 s (flashing danger red), then slams:
-  whatever stands on it takes a hit. You lose a part or a hull pip; **an enemy takes 2 damage** (a
-  Snapper or Bouncer is wrecked, a Rammer or Hopper left at 1). Airborne bodies are safe. Bait a
-  charge or a slam onto one. Each plate has its own phase, shown by its warning.
+  whatever stands on it **below Cruise** takes a hit (at speed you're over it before it lands;
+  DECISIONS #97). You lose a part or a hull pip; **an enemy takes 2 damage** (a Snapper or Bouncer
+  is wrecked, a Rammer or Hopper left at 1); a lunging enemy is over it too. Airborne bodies are
+  safe. Make them stop on one: a windup, a skid, a stuck landing. Each plate has its own phase,
+  shown by its warning.
 
 New yards (the middle pool becomes nine):
 
@@ -614,8 +616,13 @@ New yards (the middle pool becomes nine):
   holds (a near miss lifts you to Slipstream).
 - **It calls for help:** every 16 s, if fewer than two others are in the yard, a Snapper comes in
   through the farthest gate. More spares, and more trouble.
-- The yard: **The Compactor**, an open floor round two pillars (to bounce off and to hide behind)
-  with a crusher plate in each corner. The plates hit it too.
+- The yard: **The Compactor**, an open floor round two pillars set off the gates' line (to bounce
+  off and to hide behind), with two crusher plates along each long wall, where a charge into the
+  wall leaves it stunned. The plates hit it too.
+- **It can't be wrecked while it wears a part** (the safety net), so every fight ends in the
+  core-open act; each tear names the move it took, and core open and stuck after a landing, every
+  side of it counts as its back. Wrecking it takes the Snappers it called down with it
+  (DECISIONS #97).
 - A boss bar on the top wall band, left of the north gate: its name and a pip per hull point.
 - It ploughs through other enemies: a charge that meets one makes *it* recoil, not the boss.
 

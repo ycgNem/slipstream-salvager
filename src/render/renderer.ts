@@ -228,9 +228,9 @@ export function drawWorld(ctx: Ctx, w: World, fx: Fx, o: DrawOpts) {
     // dashed so a near head-on bounce doesn't tangle with the lane. The Compactor's bounces are
     // most of its charge: both are drawn, and once locked they're drawn like the lane itself
     const boss = r.kind === 'compactor', top = w.t.bossTopY;
-    let rest = r.kind === 'bouncer' ? w.t.rollStub : r.kind !== 'snapper' && !r.shove ? chargeLenOf(w, r) - l.len : 0;
+    let rest = r.kind === 'bouncer' ? w.t.rollStub : r.kind !== 'snapper' && (!r.shove || boss) ? chargeLenOf(w, r) - l.len : 0;
     let ex = r.x + Math.cos(l.angle) * l.len, ey = r.y + Math.sin(l.angle) * l.len, a1 = l.angle;
-    for (let b = 0; r.parts.sides === 'springs' && b < (boss ? w.t.bossBounces : 1) && rest > 8; b++) {
+    for (let b = 0; r.parts.sides === 'springs' && b < (boss ? (r.shove ? 1 : w.t.bossBounces) : 1) && rest > 8; b++) {
       const a2 = boss && ey <= top + 0.5 ? -a1 : reflectAt(w.arena, ex, ey, a1, rr);
       let len2 = Math.min(rest, laneLength(w.arena, ex, ey, a2, rest, rr));
       if (boss && Math.sin(a2) < -0.01) len2 = Math.min(len2, Math.max(0, (ey - top) / -Math.sin(a2)));

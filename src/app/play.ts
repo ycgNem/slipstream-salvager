@@ -45,6 +45,9 @@ function startYard(): YardId {
   return y && y in YARDS ? (y as YardId) : 'ring';
 }
 
+/** What The Compactor loses with each part (its tear text). */
+const BOSS_LOSS: Partial<Record<PartId, string>> = { booster: 'NO MORE CHARGE!', springs: 'NO MORE BOUNCE!', plow: 'FRONT EXPOSED!' };
+
 /** How a run starts: from the Garage (a chassis and modifiers), the daily run, or a debug scene. */
 export interface PlayOpts {
   seed?: number;
@@ -247,9 +250,11 @@ export class Play {
           break;
         }
         if (e.dmg === 0) {
-          // the wave 1 safety net held: a dull clank, no flash, and where to hit instead
+          // the wave 1 safety net held: a dull clank, no flash, and where to hit instead (the boss
+          // can't be wrecked while it wears a part: take it apart)
+          const boss = this.world.enemies.find((q) => q.id === e.id)?.kind === 'compactor';
           fx.sparks(e.x, e.y, 4, p.heading, 1.6, 70);
-          fx.text(e.x, e.y - 18, 'HIT ITS BACK!', C.white);
+          fx.text(e.x, e.y - 18, boss ? 'TEAR IT APART!' : 'HIT ITS BACK!', C.white);
           fx.addShake(1);
           a.sfx('clank');
           break;
@@ -363,14 +368,21 @@ export class Play {
         a.sfx(e.wall ? 'clank' : 'rip_crawl');
         break;
       case 'scrape': fx.sparks(e.x, e.y, 2, 0, Math.PI * 2, 50); a.sfx('scrape', 0.6); break;
-      case 'tear':
+      case 'tear': {
         this.note('torn', e.part);
         fx.dots(e.x, e.y, 18, [C.gold, C.gold2, C.gold3, C.white], 150, 0.6);
         fx.sparks(e.x, e.y, 8);
-        fx.text(e.x, e.y - 18, 'TORN OFF!', C.gold3);
+        // off The Compactor, say which move just went; the last one opens its core
+        const boss = this.world.enemies.find((q) => q.id === e.id);
+        if (boss?.kind === 'compactor') {
+          const open = !Object.keys(boss.parts).length;
+          fx.text(e.x, e.y - 30, open ? 'CORE OPEN!' : BOSS_LOSS[e.part] ?? 'TORN OFF!', open ? C.white : C.gold3);
+          if (open) fx.showBanner('CORE OPEN', "IT CAN ONLY LEAP NOW - HIT IT WHILE IT'S STUCK", 1.8);
+        } else fx.text(e.x, e.y - 18, 'TORN OFF!', C.gold3);
         fx.addShake(3);
         a.sfx('tear');
         break;
+      }
       case 'wreck':
         this.note('wrecked', e.kind);
         if (e.kind === 'compactor') {

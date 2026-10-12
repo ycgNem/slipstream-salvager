@@ -635,3 +635,30 @@ a number in the tuning panel, and the M1 rule is one setting away (given with ea
       frost otherwise (oil, the plates).
     - Passed to the art agent: the boss's springs and plow must be the imported parts' models at
       2x (the code ones aren't what drops).
+97. **The critic's M8 review** (indie-critic at e599e43), acted on.
+    - **The boss can't be skipped apart.** A bot that never jousted won with the Plow still on and
+      never saw the core-open act. Its wave is now under the safety net: it can't be wrecked while
+      it wears a part, and two more hits at 1 HP shake the next part loose. Its 0-damage text says
+      "TEAR IT APART!".
+    - **Booster-first no longer leaves a passive shover.** Its shove starts from 230 px (was 160,
+      where a person had a 0-frame joust window) and runs 120 px, and its Springs bounce a shove
+      once.
+    - **Each tear names the move it took** ("NO MORE CHARGE!", "NO MORE BOUNCE!", "FRONT EXPOSED!"),
+      and the last says "CORE OPEN!" with a banner. Core open and stuck after a landing, every side
+      counts as its back: the payoff for taking it apart.
+    - **Wrecking it ends the yard:** the Snappers it called go down with it (no clean-up chase).
+    - **The run was too long** (the critic's full bot runs: 293-327 s, 15-22 minutes for a person):
+      The Heap is two waves now (its first and its last), ~44 s for the bot instead of ~62 s.
+    - **Crusher plates failed the removal test** (The Press played the same without them). Now a
+      plate only presses what's slow: you at Cruise or faster are immune, and so is a lunging enemy,
+      so the lure is to make them stop on it (a windup, a skid, a stuck landing). The boss is pressed
+      by its body over a plate, not its centre, and the Foundry's plates moved to the long walls,
+      where a charge into the wall leaves it stunned.
+    - **The Slick's oil runs right up to its strips**, so they're the only grip round the lake (the
+      strips were redundant on open floor).
+    - **No more walls in your face at the door:** the Pinball's facing walls part at the side gates'
+      line, and the Foundry's pillars moved off it (to (224, 148) and (416, 212), diagonal banks).
+    - One slam per collision (a body already knocked back doesn't recoil again); a stunned body's
+      facing snaps to its sprite's direction, like a skid; the rev guard test now tests at Cruise,
+      where the bug was (it passed on the old code at a crawl).
+    - Not taken: the critic's other boost-strip idea (move one into the Kennel).
