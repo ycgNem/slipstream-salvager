@@ -10,6 +10,7 @@ import { allSpriteNames } from '../render/names';
 import { makeCanvas, ctx2d } from '../render/art/pixel';
 import { registerCodeArt } from '../render/art/code/index';
 import { registerImportedArt } from '../render/art/imported';
+import { resetBackground } from '../render/renderer';
 import { UI } from '../ui/ui';
 import { Play } from './play';
 import { loadBest, loadSettings, saveSettings, type Settings } from './settings';
@@ -46,7 +47,11 @@ export class App {
     this.ctx = canvas.getContext('2d')!;
     registerCodeArt();
     registerImportedArt();
-    artReady().then(() => (this.warm = allSpriteNames()));
+    artReady().then(() => {
+      // the floor may have been cached from the fallback tiles if PLAY came first
+      resetBackground();
+      this.warm = allSpriteNames();
+    });
     this.input.attach(canvas);
     this.input.onGesture = () => this.audio.unlock();
     this.ui.sfx = (id) => this.audio.sfx(id);

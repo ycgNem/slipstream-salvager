@@ -308,4 +308,30 @@ a number in the tuning panel, and the M1 rule is one setting away (given with ea
     call.
 75. **Dev conveniences:** `?yard=kennel` (in debug builds) starts a run in that yard; the tuning
     panel's START WITH row bolts any part on for the whole run.
+76. **M4, the art overhaul, family by family.** Two art agents worked with the pixel-art-studio
+    skill, one on the environment and one on the robots and parts. Each family went in only if it
+    beat its placeholder at 1x in play (STYLE.md "The art overhaul").
+    - **Imported:**
+      - The floor: fine grit, no per-tile feature, so no 16 px lattice.
+      - The walls: chamfered barrier blocks.
+      - The pillar, post and tower: olive scrap skips heaped with junk.
+      - The gates: olive slatted doors; red chevrons and lamps when they warn, a dark passage when
+        open.
+      - Dust, steam, smoke and sparks.
+      - The Snapper, the three new parts and their pickups.
+      - The four part icons, drawn as one set.
+    - **Kept:** the Scrapper, the Rammer, the booster, the plume, the slash, stars, shadows and the
+      hull pips, all from the code sculptor.
+    - Smoke moved to plum 0/2/6 (1/2/5 was invisible on the floor).
+    - Obstacles rise 8 px above their footprint, with a 12 px front face. A literal "8 px top face"
+      would give the tower a 48 px front wall.
+    - *Why:* the new floor and skips read as a scrapyard. The old floor read as bricks with a
+      repeated olive mark.
+77. **Fixes the art pass turned up:**
+    - The bottom wall row is drawn flush with the bottom edge, on its collision (it was 8 px low,
+      under the south gate).
+    - The background re-renders once the imported sheets load.
+    - Sprites pre-warm after the sheets load. An imported-only name draws blank while its sheet
+      loads, instead of as missing.
+    - The Snapper's jaws follow its head on the snap, windup and stun.
 

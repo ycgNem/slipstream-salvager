@@ -40,9 +40,9 @@ The game draws on a **640 × 360** logical canvas, scaled by whole numbers only.
 | Treads overlay (sides mount, M3) | 32 × 32 | (16, 20) | the two tread guards either side of the body's footprint | none |
 | Loose part (pickup) | 16 × 16 | (8, 12) | ≤ 14 × 12 | circle r = 7 |
 | Part icon (HUD) | 16 × 16 | (0, 0) | 14 × 14 | — |
-| Pillar | 32 × 40 | (0, 8) | footprint 32 × 32, top face 8 px tall | square 32 × 32 |
-| Post (M3) | 16 × 24 | (0, 8) | footprint 16 × 16, top face 8 px tall | square 16 × 16 |
-| Tower (M3) | 48 × 56 | (0, 8) | footprint 48 × 48, top face 8 px tall | square 48 × 48 |
+| Pillar | 32 × 40 | (0, 8) | footprint 32 × 32; rises 8 px above it (top face ~ the footprint, 12 px front face narrowing to the foot) | square 32 × 32 |
+| Post (M3) | 16 × 24 | (0, 8) | footprint 16 × 16; rises 8 px, like the pillar | square 16 × 16 |
+| Tower (M3) | 48 × 56 | (0, 8) | footprint 48 × 48; rises 8 px, like the pillar | square 48 × 48 |
 | Gate (wall opening) | 32 × 16 in the top and bottom walls, 16 × 32 in the side walls | (0, 0) | — | open while a Rammer enters |
 | Spark, dust, steam, smoke | 8 × 8 | (4, 4) | — | — |
 | Claw slash | 32 × 32 | (16, 16) | — | — |
@@ -131,7 +131,7 @@ reason.
 | **Salvage** | gold 18, amber 23, pale yellow 28 | parts, the tow cable glint, the "torn off" burst | enemy bodies |
 | Player body | rust and orange 20–22, 16, cream 63, plum outline 0 | the Scrapper | |
 | Rammer body | blues and slate 44–46, purple 50, sage 35 | the Rammer, so it reads as "not you" at a glance | |
-| Arena | warm neutrals 1–5, olive 24–25 | floor, walls, pillars; low contrast against each other | |
+| Arena | warm neutrals 1–5, olive 24–25 | floor, walls, pillars; low contrast against each other. Olive is the arena's painted steel: gate doors and the scrap skips | |
 
 Outline: `#2e222f` (0), 1 px, on every body, part and pickup. Shadows: plum 0 at ~35% as a solid
 dithered ellipse, never blurred. Light from the upper left: the top-left edges of a body get the
@@ -192,5 +192,15 @@ lightest ramp color.
 - **The bar:** an imported family replaces the code-drawn one only if it reads better at 1x in play
   (silhouette, facing, the thing that matters for play: the claw, the booster, the Snapper's side).
   If it doesn't, it isn't imported and the placeholder stays.
+- **What's imported (2026-10-12):**
+  - The arena: floor, walls, pillar, post, tower, gates.
+  - Dust, steam, smoke and sparks. Smoke is plum 0, 2 and 6: the old 1/2/5 vanished on the floor.
+    Sparks are white, frost and orange, never gold.
+  - The Snapper, the treads, plow and jaws (mounted and as pickups), and all four part icons.
+- **Still code-drawn, because a redraw didn't clearly beat them at 1x:**
+  - The Scrapper, the Rammer, the booster and its pickup, the plume and the slash.
+  - Stars, shadows and the hull pips.
+- The robots' build scripts share `pixel-art/_lib/sculpt.py`, a Python port of the code-art
+  sculptor that matches it pixel for pixel. Hand-placed details (eyes, teeth, bands) go on top.
 - West-side facings may be stored as mirrors (`flipX` in the recipe) where the light flip isn't
   noticeable at 1x; the build script decides per family.

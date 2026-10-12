@@ -42,13 +42,17 @@ function background(w: World): HTMLCanvasElement {
   const low = a.pillars.filter((r) => !obstacleSprite(r));
   const inLow = (cx: number, cy: number) => low.some((r) => cx * T >= r.x && cx * T < r.x + r.w && cy * T >= r.y && cy * T < r.y + r.h);
   const isWall = (cx: number, cy: number) => cx <= 0 || cy <= 0 || cx >= cols - 1 || cy >= rows - 1 || inLow(cx, cy);
-  for (let cy = 0; cy < rows; cy++)
+  for (let cy = 0; cy < rows; cy++) {
+    // 360 isn't a whole number of tiles: the bottom wall row sits flush with the bottom edge (on its
+    // collision, 344-360) and covers the last half-row of floor
+    const py = cy === rows - 1 ? a.h - T : cy * T;
     for (let cx = 0; cx < cols; cx++) {
       if (isWall(cx, cy)) {
         const m = (isWall(cx, cy - 1) ? 1 : 0) | (isWall(cx + 1, cy) ? 2 : 0) | (isWall(cx, cy + 1) ? 4 : 0) | (isWall(cx - 1, cy) ? 8 : 0);
-        drawSprite(x, sprite(`t:wall:${m}`), cx * T, cy * T);
-      } else drawSprite(x, sprite(`t:floor:${Math.floor(hash2(cx, cy, 7) * 4)}`), cx * T, cy * T);
+        drawSprite(x, sprite(`t:wall:${m}`), cx * T, py);
+      } else drawSprite(x, sprite(`t:floor:${Math.floor(hash2(cx, cy, 7) * 4)}`), cx * T, py);
     }
+  }
   bg = { arena: a, c };
   return c;
 }
