@@ -269,4 +269,43 @@ a number in the tuning panel, and the M1 rule is one setting away (given with ea
     packed through the existing import script into `src/art/`, and registered by name by the new
     `src/render/art/imported.ts`. *Why:* the owner asked for it (2026-10-12). A build script can be
     rerun and edited, so the art stays exact and on the palette, and nothing costs credits.
+66. **How the mounts and parts are built.** Enemies are data (`kind` plus parts on the same three
+    mounts as yours), and one rule tears any part: a Slipstream hit on the zone where it sits (back:
+    rear, side: the treads, front: the front part), except the Plow, which only comes off in a joust.
+    A hit on you knocks off the part on the side it came from (else the next in the order sides,
+    rear, front). Every part's behavior is a flag the sim checks (`attack: burn`, `brake: slide`,
+    `contact: plow`, `onHit: latch`), so flat mode switches them all off in one place (#50).
+67. **The Jaws whip you once round and fling you back out the way you came** (0.2 s, +40 px/s),
+    rather than a half-turn that left you on the far side facing back in. *Why:* a 180° orbit ends
+    with you heading straight back into the enemy you just bit. The full whip makes the Jaws a
+    rebound: hit and come back out, faster, so a pass never leaves you in the middle of a pack.
+68. **The Plow blocks a charge or snap that meets your front** (within 50° of your heading): the
+    attacker is stunned as in a joust, you're knocked back, nothing is lost. On a Plow Rammer the
+    plowed front takes no damage at all ("CLANG! JOUST IT").
+69. **Snappers circle you between snaps.** Close in and unable to snap (cooling down, or two already
+    winding up), a Snapper circles ~72 px out, each its own way round, side on to you; it only
+    bump-snaps when its cooldown is ready. Snap windup 0.45 s (0.25 tracking, 0.2 locked), cooldown
+    1.5-2.5 s, top speed 170, snap range 64. *Why:* the first version drove straight into you, every
+    bump started a point-blank snap you couldn't dodge, and a pack of three killed both bots in 15-60
+    s. Circling also shows its side, which is where the treads come off.
+70. **Rammer HP 3** (was 4). Front 1, side 2, back 4 (or the tear). *Why:* with the armored front
+    (#55), The Ring's six Rammers took the bots 250-400 s; a side hit plus any other hit now wrecks
+    one, and the back still wrecks it in one pass. The wave 1 safety net now holds after one side
+    hit and shakes the booster loose two hits later.
+71. **The slipstream is easier to catch: 24 px edge to edge** (was 16), still once per charge.
+72. **Between yards you drive in through the gate opposite the one you left by, still moving**
+    (150 px/s), so the run never stops (pillar 1). Enemies keep coming in through the gates farthest
+    from you. The exits are the side gates (one exit, the east gate, before The Heap). While a cleared
+    yard's exits are open, their stretch of wall lets you through.
+73. **Placeholder art for the M3 sprites is code-drawn** with the same sculptor as the slice
+    (`src/render/art/code/m3.ts`), at the final names and sizes, so the game never shows a missing
+    sprite while the pixel-art-studio sheets (#65) are drawn.
+74. **The drafter bot, and what the run test checks.** `drafterBot` plays the loop the M2 rules
+    are built round: bait a Rammer, step just out of the locked lane, catch the slipstream, chase
+    the tail, hit the back; kite Snappers at Slipstream and cut in when one slides. The bots are much
+    weaker than a person in crowds, so the run test checks the sim (no NaNs, nobody leaves the arena,
+    every exit works, damage gets dealt), not difficulty. Difficulty is the critic's and the owner's
+    call.
+75. **Dev conveniences:** `?yard=kennel` (in debug builds) starts a run in that yard; the tuning
+    panel's START WITH row bolts any part on for the whole run.
 

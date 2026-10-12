@@ -171,7 +171,7 @@ A heavy scrap bot with a **booster bolted to its back**. It is the slice's whole
     punished.
   - Then it charges straight along the lane at 330 px/s for up to ~260 px.
 - **Bumping it** outside a Rip bounces you off and starts its quick windup.
-- **Its slipstream:** a charge that passes within 16 px of you without hitting you drags you along
+- **Its slipstream:** a charge that passes within 24 px of you without hitting you drags you along
   in its wake: you're lifted to at least 220 px/s (Slipstream), so a tight dodge sets up the
   counter-pass (DECISIONS #61). Dodging wide is safe; dodging close pays.
 - **Recovers** after the charge: skids for 0.9 s, steaming, unable to turn. This is the opening. A
@@ -181,10 +181,11 @@ A heavy scrap bot with a **booster bolted to its back**. It is the slice's whole
 - A charge hit knocks your bolted part loose (or costs **1 hull pip** if you have none), throws you
   along the lane and kills your momentum.
 - At most two Rammers wind up at once, so a crowd stays readable.
-- **HP 4, and an armored front** (DECISIONS #55). Where a Slipstream hit lands decides what it does:
+- **HP 3, and an armored front** (DECISIONS #55, #70). Where a Slipstream hit lands decides what it does:
   within 60° of its front it **glances** off the plating for 1; on a side it does 2; in the back it
   **tears the booster off** (no damage), or, once the booster is gone, does 4, which wrecks it. So the
-  decisive pass is the one after its charge, from behind; chipping at its front always works, slowly.
+  decisive pass is the one after its charge, from behind; a side hit and one more also wreck it, and
+  chipping at its front always works, slowly.
 - **The joust:** a Slipstream Rip that meets a charge nose to nose (within 30° of head-on) stops it
   dead and stuns it for 1.3 s, back exposed, and you pass through unhurt (DECISIONS #56). A skill
   move with a window of a few frames.
@@ -384,11 +385,13 @@ Plow, which only comes off in a joust (8.4).
 A small, fast tread-bot that hunts in packs. The Rammer punishes straight lines and rewards a juke;
 the Snapper punishes loops and parking, and you beat it in a straight line.
 
-- Small (the Scrapper's size, radius 8), **HP 2**, top speed **175** (just under Slipstream: at
+- Small (the Scrapper's size, radius 8), **HP 2**, top speed **170** (under Slipstream: at
   Slipstream you outrun it; at Cruise it catches you), turns fast and faces where it's going.
-- **Hunts** you on an intercept line. A camper looping a pillar gets cut off.
-- **Snap:** within 70 px and roughly facing you, it stops and winds up for 0.35 s (a short red lane,
-  its own width, tracking for 0.2 s then locked), then lunges 80 px at 330 px/s. A bite is a hit.
+- **Hunts** you on an intercept line. A camper looping a pillar gets cut off. Close in and unable to
+  snap yet, it **circles** you ~72 px out, side on (DECISIONS #69).
+- **Snap:** within 64 px and roughly facing you, it stops and winds up for 0.45 s (a short red lane,
+  its own width, tracking for 0.25 s then locked), then lunges 80 px at 330 px/s. A bite is a hit.
+  1.5-2.5 s between snaps.
 - **Power-slide:** after a snap, or when you get behind it, it slides round on its treads to face
   you again (about 0.6 s), **broadside**. That's the opening: a Slipstream hit on its side tears its
   **Grip Treads** off. Its front glances (1), its back wrecks it (2).
