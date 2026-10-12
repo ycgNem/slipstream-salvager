@@ -265,7 +265,15 @@ family by family when it beats the placeholder.
   - **8a — The boss.** Built (DECISIONS #90).
   - **8b — The M6 review's fixes.** Built (DECISIONS #92).
   - **8c — Verify.** Both agents on M7 and M8, fixes, docs; the art agents on M7 and M8.
-- **M9 — The Garage** (PLAN.md 9.6): two chassis, unlocks, the Log, the daily run.
+- **M9 — The Garage** (PLAN.md 9.6).
+  - **9a — The chassis.** The Skiff and the Hauler: chassis as data (tuning overrides and a
+    behavior), carried by the run; their bodies (code-drawn); the Hauler's shove-bump; the Skiff's
+    part weight. Checks: movement tests (the Skiff holds Slipstream through a full-lock turn and the
+    Scrapper doesn't; the Hauler's bump cancels a windup), pacing with each chassis.
+  - **9b — The Garage and unlocks.** The screen, the unlock counts and conditions, the two
+    modifiers. Checks: unit tests for unlocks and modifiers; screens.
+  - **9c — The Log.** **9d — The daily run.**
+  - **9e — Verify.** Both agents, fixes, docs.
 - **0.3.0** is published only when the owner says so (HANDOFF "Releasing").
 
 Prompt: *"Read ROADMAP.md, HANDOFF.md and PLAN.md section 9. Build the next unfinished phase."*

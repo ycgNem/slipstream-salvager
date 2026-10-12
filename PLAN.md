@@ -622,12 +622,50 @@ New yards (the middle pool becomes nine):
 **The run becomes six yards:** The Ring, three middle yards (from nine), The Heap, The Compactor.
 The Heap has one exit, to the Compactor. Clearing it wins the run.
 
-### 9.6 M9: The Garage (outline)
+### 9.6 M9: The Garage
 
-- **Two more chassis**, each its own movement model (the removal test: different lines, not bigger
-  numbers): the **Skiff** (light: faster, turns tighter, 3 hull, parts weigh it down more) and the
-  **Hauler** (heavy: slower to build speed, 7 hull, bumps shove enemies like a Cruise hit).
-- **Unlocks** by playing (clear a run, tear 25 parts off, joust 10 charges...): chassis and run
-  modifiers. Never stat upgrades.
-- **The Log:** every enemy and part you've met, with its line.
-- **Daily run:** one seed a day, the same for everyone.
+**Two more chassis.** Each is its own movement model, so each draws different lines (the removal
+test: a chassis that only changed numbers would fail it). The speed tiers stay the same marks for
+every body (Crawl < 110, Cruise < 190, Slipstream), so what each chassis changes is how you get to
+Slipstream and how you keep it.
+
+| | **Scrapper** (the default) | **Skiff** (light) | **Hauler** (heavy) |
+|---|---|---|---|
+| Hull | 5 | 3 | 7 |
+| Top speed | 240 | 270 | 215 |
+| Acceleration above 60 px/s | 180 | 220 | 120 |
+| Turn rate (rest -> top) | 14 -> 4 | 10 -> 3.4 | 12 -> 4.4 |
+| Turn scrub starts at | 900 px/s^2 | 1300 | 650 |
+| Coast half-life | 0.3 s | 0.9 s | 0.25 s |
+| Brake | 900 px/s^2 | 300 | 1200 |
+| Bumping an enemy | you bounce off, losing 60% | you bounce off, losing 60%, thrown 40% further by hits | **a shove**: like a Cruise hit (it's pushed 24 px and its windup is cancelled), you keep 85% |
+| Parts | | **each bolted part costs 6% top speed** | |
+
+- **The Skiff glides.** It holds Slipstream through a full-lock turn (270 x 3.4 is under its scrub
+  line) and coasts nearly a second, but it turns wide, can hardly brake, and three hits scrap it.
+  Its line is the big sweeping arc, and it wants few parts.
+- **The Hauler bullies.** It's slow to Slipstream and its Slipstream band is narrow (215 against
+  190), so a hard turn drops it out. But it walks into enemies: a bump is a shove that cancels a
+  windup at any speed, and it has seven hull. Its line is in close, interrupting, then a run-up.
+- Each has its own body sprite (`pl:<chassis>:...`, the Scrapper's sizes and mounts) and carries
+  the same parts on the same mounts.
+
+**The Garage** is where a run starts: PLAY on the title opens it.
+- Pick a chassis (a card each: the body, its name, its line in a sentence; a locked one shows how
+  to unlock it) and any unlocked **run modifiers**, then START.
+- **Unlocks**, by playing, never stat upgrades:
+  - The Skiff: tear 20 parts off (over all your runs).
+  - The Hauler: joust 10 charges.
+  - **Bare Bones** (modifier): your parts don't carry between yards; every yard starts bare, so
+    every yard's salvage is the build. Unlock: clear The Heap.
+  - **No Breather** (modifier): the next wave comes in as soon as one is cleared. Unlock: win a
+    run.
+- What's unlocked and the lifetime counts persist (localStorage, like the bests).
+
+**The Log** (title -> LOG): every enemy and every part, a card each with its sprite, its name and
+its line ("A ROLL THAT BOUNCES OFF WALLS - CUT ACROSS IT"), and your counts (met, torn off,
+wrecked). One you haven't met is a dark silhouette and "???".
+
+**The daily run** (title -> DAILY): one seed a day from the date, the same for everyone, always the
+Scrapper with no modifiers. The title shows today's best (yards, time). Played again, it's the same
+yards, choices and waves.

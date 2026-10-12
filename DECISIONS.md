@@ -578,3 +578,15 @@ a number in the tuning panel, and the M1 rule is one setting away (given with ea
     - The search bots can't show what a shortcut is worth: even with the critic's leap plans
       (`scripts/pacing/hleap.ts`) the bot is slower with the Jets, because its value only looks a
       moment ahead. Judge the Jets in the Hurdles by play, not by the bot.
+93. **M9 planned in detail** (PLAN.md 9.6), from the outline in #82.
+    - A chassis is tuning overrides plus at most one behavior, so it's data like a part, and the
+      run carries it. The Skiff's identity is the turn it can hold at speed (its scrub line sits
+      above its own top-speed turn) and the coast; its cost is hull, braking and a weight per
+      part. The Hauler's is the shove-bump (the Cruise hit's interrupt at any speed, no button);
+      its cost is the run-up and a narrow Slipstream band.
+    - The tiers stay absolute for every chassis (DECISIONS #4's marks), so the chassis changes the
+      path to Slipstream, never what Slipstream means.
+    - Unlocks are for variety, never power: two chassis (sidegrades with real weaknesses) and two
+      modifiers that make a run different, not easier. The thresholds (20 tears, 10 jousts, clear
+      The Heap, win a run) are first guesses for the owner's playtest.
+    - The daily run fixes the chassis and modifiers so a day's results compare.
