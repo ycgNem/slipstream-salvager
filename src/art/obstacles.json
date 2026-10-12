@@ -1,0 +1,11 @@
+{
+ "name": "obstacles",
+ "kind": "sprites",
+ "file": "obstacles.png",
+ "palette": "Resurrect 64",
+ "sprites": [
+  {"match":"ob:pillar","r":[49,0,32,40],"o":[0,8]},
+  {"match":"ob:post","r":[82,0,16,24],"o":[0,8]},
+  {"match":"ob:tower","r":[0,0,48,56],"o":[0,8]}
+ ]
+}

@@ -1,0 +1,14 @@
+{
+ "name": "gates",
+ "kind": "sprites",
+ "file": "gates.png",
+ "palette": "Resurrect 64",
+ "sprites": [
+  {"match":"ob:gate:h:closed","r":[51,0,32,16],"o":[0,0]},
+  {"match":"ob:gate:h:open","r":[84,0,32,16],"o":[0,0]},
+  {"match":"ob:gate:h:warn","r":[0,33,32,16],"o":[0,0]},
+  {"match":"ob:gate:v:closed","r":[0,0,16,32],"o":[0,0]},
+  {"match":"ob:gate:v:open","r":[17,0,16,32],"o":[0,0]},
+  {"match":"ob:gate:v:warn","r":[34,0,16,32],"o":[0,0]}
+ ]
+}

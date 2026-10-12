@@ -1,0 +1,16 @@
+{
+ "name": "gates",
+ "kind": "sprites",
+ "scale": 1,
+ "defaults": {
+  "place": "none"
+ },
+ "sprites": [
+  {"match": "ob:gate:h:closed", "file": "out/gate_h_closed.png", "frame": [32, 16], "origin": [0, 0]},
+  {"match": "ob:gate:h:open", "file": "out/gate_h_open.png", "frame": [32, 16], "origin": [0, 0]},
+  {"match": "ob:gate:h:warn", "file": "out/gate_h_warn.png", "frame": [32, 16], "origin": [0, 0]},
+  {"match": "ob:gate:v:closed", "file": "out/gate_v_closed.png", "frame": [16, 32], "origin": [0, 0]},
+  {"match": "ob:gate:v:open", "file": "out/gate_v_open.png", "frame": [16, 32], "origin": [0, 0]},
+  {"match": "ob:gate:v:warn", "file": "out/gate_v_warn.png", "frame": [16, 32], "origin": [0, 0]}
+ ]
+}
