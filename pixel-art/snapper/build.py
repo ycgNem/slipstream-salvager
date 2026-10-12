@@ -163,6 +163,8 @@ def details(img, grid, a, p):
 
 
 ZMAX = 11
+# light bands: only edges turned well into the light get the palest purple (a tilted back stays lavender)
+BANDS = (-0.22, 0.32, 0.93)
 
 
 def streaks(img, angle, frame):
@@ -189,7 +191,7 @@ def streaks(img, angle, frame):
 
 def render(d, p):
     a = dir_angle(d)
-    img, grid = sculpt(W, H, OX, OY, a, scene(p), mats(p), zmax=ZMAX, zmin=0, outline=False)
+    img, grid = sculpt(W, H, OX, OY, a, scene(p), mats(p), zmax=ZMAX, zmin=0, outline=False, bands=BANDS)
     keep = details(img, grid, a, p)
     despeckle(img, keep)
     add_outline(img, 0)
@@ -204,7 +206,7 @@ def side_roll(d, amt):
     """Roll that lifts the camera-near flank into view (the slide)."""
     c = math.cos(dir_angle(d))
     if abs(c) < 0.1:
-        return amt  # facing straight up/down the screen: lean to its right
+        return amt * 0.65  # facing straight up/down the screen: lean to its right, less
     return -amt if c > 0 else amt
 
 
