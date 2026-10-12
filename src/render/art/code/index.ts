@@ -6,6 +6,7 @@ import { registerRammer } from './rammer';
 import { registerParts } from './parts';
 import { registerFx } from './fx';
 import { registerUi } from './ui';
+import { registerM3 } from './m3';
 
 export function registerCodeArt() {
   registerTiles();
@@ -14,4 +15,5 @@ export function registerCodeArt() {
   registerParts();
   registerFx();
   registerUi();
+  registerM3();
 }

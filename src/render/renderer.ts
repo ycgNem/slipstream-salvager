@@ -1,35 +1,47 @@
-// Draws one encounter into the 640x360 buffer: floor and walls (cached), gates, skid marks,
-// telegraph lanes, shadows, y-sorted bodies with their parts, the cable, the claw glow and heading
-// tick, effects and the wave banner. Every sprite is asked for by name (STYLE.md).
+// Draws one encounter into the 640x360 buffer: floor and walls (cached per arena), gates, skid
+// marks, telegraph lanes, shadows, y-sorted bodies with their parts on their mounts, the cable, the
+// claw glow and heading tick, effects and the wave banner. Every sprite is asked for by name
+// (STYLE.md).
 import { C, PALETTE } from '../data/palette';
 import { DIRS } from '../data/dirs';
-import { MOUNT_DIST, clawTip, rearMount } from '../data/mounts';
-import type { Gate } from '../data/arena';
+import { FRONT_DIST, MOUNT_DIST, clawTip, frontMount, rearMount, type MountPos } from '../data/mounts';
+import type { ArenaDef, Gate, Rect } from '../data/arena';
+import type { PartId } from '../data/parts';
 import { hash2 } from '../engine/rng';
 import { drawSprite, sprite } from './atlas';
 import { makeCanvas, ctx2d } from './art/pixel';
 import { crack, dot, lane, outline, pline, ring, silhouette } from './pixgeom';
 import type { Fx } from './fx';
-import { laneOf } from '../sim/rammer';
+import { laneOf } from '../sim/enemies';
 import { revving } from '../sim/rip';
 import { laneLength } from '../sim/arena';
-import type { Rammer, World } from '../sim/world';
+import type { Enemy, World } from '../sim/world';
 import { drawText, textWidth } from '../ui/font';
 
 type Ctx = CanvasRenderingContext2D;
 
 const TIER_GLOW: Record<string, [number, number]> = { crawl: [C.crawl, C.crawlHi], cruise: [C.cruise, C.cruiseHi], slip: [C.speed3, C.speed4] };
 
-let bg: HTMLCanvasElement | null = null;
+/** What sprite an obstacle uses, by its footprint; anything else (a long low wall) is wall tiles. */
+export function obstacleSprite(r: Rect): string | null {
+  if (r.w === 32 && r.h === 32) return 'ob:pillar';
+  if (r.w === 16 && r.h === 16) return 'ob:post';
+  if (r.w === 48 && r.h === 48) return 'ob:tower';
+  return null;
+}
 
-/** The floor and the ring wall, drawn once from tiles. */
+let bg: { arena: ArenaDef; c: HTMLCanvasElement } | null = null;
+
+/** The floor, the ring wall and any low walls inside it, drawn once per arena from tiles. */
 function background(w: World): HTMLCanvasElement {
-  if (bg) return bg;
+  if (bg && bg.arena === w.arena) return bg.c;
   const a = w.arena, T = 16;
   const c = makeCanvas(a.w, a.h);
   const x = ctx2d(c);
   const cols = Math.ceil(a.w / T), rows = Math.ceil(a.h / T);
-  const isWall = (cx: number, cy: number) => cx < 0 || cy < 0 || cx >= cols || cy >= rows || cx === 0 || cy === 0 || cx === cols - 1 || cy === rows - 1;
+  const low = a.pillars.filter((r) => !obstacleSprite(r));
+  const inLow = (cx: number, cy: number) => low.some((r) => cx * T >= r.x && cx * T < r.x + r.w && cy * T >= r.y && cy * T < r.y + r.h);
+  const isWall = (cx: number, cy: number) => cx <= 0 || cy <= 0 || cx >= cols - 1 || cy >= rows - 1 || inLow(cx, cy);
   for (let cy = 0; cy < rows; cy++)
     for (let cx = 0; cx < cols; cx++) {
       if (isWall(cx, cy)) {
@@ -37,7 +49,7 @@ function background(w: World): HTMLCanvasElement {
         drawSprite(x, sprite(`t:wall:${m}`), cx * T, cy * T);
       } else drawSprite(x, sprite(`t:floor:${Math.floor(hash2(cx, cy, 7) * 4)}`), cx * T, cy * T);
     }
-  bg = c;
+  bg = { arena: a, c };
   return c;
 }
 
@@ -47,24 +59,50 @@ export function resetBackground() {
 }
 
 function gateState(w: World, g: Gate, time: number): 'closed' | 'open' | 'warn' {
+  if (w.exits.some((e) => e.gate === g.id)) return 'open';
   if (w.wave.phase === 'warn' && w.wave.gates.some((x) => x.id === g.id)) return Math.floor(time * 7) % 2 ? 'warn' : 'closed';
-  if (w.rammers.some((r) => r.state === 'enter' && Math.hypot(r.x - g.spawn.x, r.y - g.spawn.y) < 40)) return 'open';
+  if (w.enemies.some((r) => r.state === 'enter' && Math.hypot(r.x - g.spawn.x, r.y - g.spawn.y) < 40)) return 'open';
   return 'closed';
-}
-
-function rammerSprite(r: Rammer, time: number): string {
-  const d = DIRS[dirOfFace(r.face)];
-  const f = Math.floor(time * (r.state === 'charge' ? 14 : 6)) % 2;
-  switch (r.state) {
-    case 'enter': case 'stalk': return `en:rammer:stalk:${d}:${f}`;
-    case 'windup': return `en:rammer:windup:${d}:${f}`;
-    case 'charge': return `en:rammer:charge:${d}:${f}`;
-    case 'skid': return r.slammed && r.t > 0.12 ? `en:rammer:stunned:${d}:${Math.floor(time * 4) % 2}` : `en:rammer:skid:${d}`;
-  }
 }
 
 function dirOfFace(a: number): number {
   return ((Math.round(a / (Math.PI / 4)) % 8) + 8) % 8;
+}
+
+/** An enemy's body sprite name this frame. */
+export function enemySprite(r: Enemy, time: number): string {
+  const d = DIRS[dirOfFace(r.face)];
+  if (r.kind === 'snapper') {
+    const f = Math.floor(time * (r.state === 'snap' ? 16 : 8)) % 2;
+    switch (r.state) {
+      case 'windup': return `en:snapper:windup:${d}:${f}`;
+      case 'snap': return `en:snapper:snap:${d}:${f}`;
+      case 'slide': return `en:snapper:slide:${d}`;
+      case 'stunned': return `en:snapper:stunned:${d}:${Math.floor(time * 4) % 2}`;
+      default: return `en:snapper:hunt:${d}:${r.speed > 5 ? f : 0}`;
+    }
+  }
+  const f = Math.floor(time * (r.state === 'charge' ? 14 : 6)) % 2;
+  switch (r.state) {
+    case 'windup': return `en:rammer:windup:${d}:${f}`;
+    case 'charge': return `en:rammer:charge:${d}:${f}`;
+    case 'skid': return r.slammed && r.t > 0.12 ? `en:rammer:stunned:${d}:${Math.floor(time * 4) % 2}` : `en:rammer:skid:${d}`;
+    default: return `en:rammer:stalk:${d}:${f}`;
+  }
+}
+
+/**
+ * Is this part of this enemy open to a tear right now? Then it glints gold (DECISIONS #60): a
+ * Rammer's booster when its back is open, the plow while it charges (joust it), a Snapper's treads
+ * while it slides broadside, its jaws while it winds up to snap.
+ */
+function tearable(r: Enemy, part: PartId): boolean {
+  switch (part) {
+    case 'booster': return r.state === 'skid' || r.state === 'charge' || (r.state === 'windup' && r.locked);
+    case 'plow': return r.state === 'charge';
+    case 'treads': return r.state === 'slide' || r.state === 'stunned';
+    case 'jaws': return r.state === 'windup' || r.state === 'stunned';
+  }
 }
 
 export interface DrawOpts {
@@ -82,10 +120,11 @@ export function drawWorld(ctx: Ctx, w: World, fx: Fx, o: DrawOpts) {
   fx.drawMarks(ctx);
 
   // telegraphs: under bodies, over the floor
-  for (const r of w.rammers) {
+  for (const r of w.enemies) {
     if (r.state !== 'windup') continue;
     const l = laneOf(w, r);
-    const sx = r.x + Math.cos(l.angle) * w.t.rammerRadius, sy = r.y + Math.sin(l.angle) * w.t.rammerRadius;
+    const rr = l.width / 2;
+    const sx = r.x + Math.cos(l.angle) * rr, sy = r.y + Math.sin(l.angle) * rr;
     if (r.locked) {
       const hot = Math.floor(o.time * 12) % 2 === 0;
       lane(ctx, sx, sy, l.angle, l.len, l.width, hot ? C.danger3 : C.danger2, C.danger1, { density: 2 });
@@ -98,26 +137,29 @@ export function drawWorld(ctx: Ctx, w: World, fx: Fx, o: DrawOpts) {
   }
 
   // shadows
-  for (const r of w.rammers) drawSprite(ctx, sprite('fx:shadow:l'), Math.round(r.x), Math.round(r.y) + 1);
+  for (const r of w.enemies) drawSprite(ctx, sprite(r.kind === 'rammer' ? 'fx:shadow:l' : 'fx:shadow:m'), Math.round(r.x), Math.round(r.y) + 1);
   for (const k of w.pickups) drawSprite(ctx, sprite('fx:shadow:s'), Math.round(k.x), Math.round(k.y) + 1);
   drawSprite(ctx, sprite('fx:shadow:m'), Math.round(p.x), Math.round(p.y) + 1);
 
   // y-sorted bodies
   const items: { y: number; draw: () => void }[] = [];
-  for (const pr of w.arena.pillars) items.push({ y: pr.y + pr.h, draw: () => drawSprite(ctx, sprite('ob:pillar'), pr.x, pr.y) });
+  for (const pr of w.arena.pillars) {
+    const name = obstacleSprite(pr);
+    if (name) items.push({ y: pr.y + pr.h, draw: () => drawSprite(ctx, sprite(name), pr.x, pr.y) });
+  }
   for (const k of w.pickups) {
     const bob = Math.floor(o.time * 3 + k.id) % 2;
     items.push({ y: k.y, draw: () => {
-      drawSprite(ctx, sprite('pickup:booster'), Math.round(k.x), Math.round(k.y) - bob);
+      drawSprite(ctx, sprite(`pickup:${k.part}`), Math.round(k.x), Math.round(k.y) - bob);
       if (k.cracked) crack(ctx, Math.round(k.x), Math.round(k.y) - bob - 5);
     } });
   }
-  for (const r of w.rammers) items.push({ y: r.y, draw: () => drawRammer(ctx, r, fx, o.time) });
+  for (const r of w.enemies) items.push({ y: r.y, draw: () => drawEnemy(ctx, r, fx, o.time) });
   items.push({ y: p.y, draw: () => drawPlayer(ctx, w, fx, o.time) });
   if (p.tow) {
     const tw = p.tow;
     items.push({ y: tw.y, draw: () => {
-      drawSprite(ctx, sprite('pickup:booster'), Math.round(tw.x), Math.round(tw.y) + 4);
+      drawSprite(ctx, sprite(`pickup:${tw.part}`), Math.round(tw.x), Math.round(tw.y) + 4);
       if (tw.cracked) crack(ctx, Math.round(tw.x), Math.round(tw.y) - 1);
     } });
   }
@@ -125,8 +167,8 @@ export function drawWorld(ctx: Ctx, w: World, fx: Fx, o: DrawOpts) {
   for (const it of items) it.draw();
 
   // stun stars
-  for (const r of w.rammers)
-    if (r.state === 'skid' && r.slammed) drawSprite(ctx, sprite(`fx:stars:${Math.floor(o.time * 10) % 4}`), Math.round(r.x), Math.round(r.y) - 22);
+  for (const r of w.enemies)
+    if ((r.state === 'skid' && r.slammed) || r.state === 'stunned') drawSprite(ctx, sprite(`fx:stars:${Math.floor(o.time * 10) % 4}`), Math.round(r.x), Math.round(r.y) - (r.kind === 'rammer' ? 22 : 16));
   if (p.stun > 0) drawSprite(ctx, sprite(`fx:stars:${Math.floor(o.time * 10) % 4}`), Math.round(p.x), Math.round(p.y) - 18);
 
   fx.draw(ctx);
@@ -134,28 +176,42 @@ export function drawWorld(ctx: Ctx, w: World, fx: Fx, o: DrawOpts) {
   drawBanner(ctx, fx);
 }
 
-function drawRammer(ctx: Ctx, r: Rammer, fx: Fx, time: number) {
-  const d = dirOfFace(r.face);
+/** Draw a mounted part (with an optional gold glint and crack) at a mount position. */
+function drawMounted(ctx: Ctx, name: string, x: number, y: number, m: MountPos, glint: boolean, cracked: boolean) {
+  const s = sprite(name);
+  if (glint) outline(ctx, s, name, x + m.dx, y + m.dy, C.gold3);
+  drawSprite(ctx, s, x + m.dx, y + m.dy);
+  if (cracked) crack(ctx, x + m.dx, y + m.dy);
+}
+
+function drawEnemy(ctx: Ctx, r: Enemy, fx: Fx, time: number) {
+  const d = dirOfFace(r.face), dn = DIRS[d];
   const shake = r.state === 'windup' ? (Math.floor(time * 30) % 2 ? 1 : -1) * (r.locked ? 1 : 0) : 0;
   const x = Math.round(r.x) + shake, y = Math.round(r.y);
-  const name = rammerSprite(r, time);
-  const m = rearMount(d, MOUNT_DIST.rammer);
-  // its back is open (committed, skidding or stunned): the booster glints gold, so the tear target
-  // reads at 1x (DECISIONS #60)
-  const open = r.state === 'skid' || r.state === 'charge' || (r.state === 'windup' && r.locked);
-  const part = () => {
-    if (!r.booster) return;
+  const name = enemySprite(r, time);
+  const blink = Math.floor(time * 10) % 2 === 0;
+  const rm = rearMount(d, r.kind === 'rammer' ? MOUNT_DIST.rammer : MOUNT_DIST.snapper);
+  const fm = frontMount(d, r.kind === 'rammer' ? FRONT_DIST.rammer : FRONT_DIST.snapper);
+  const rear = () => {
+    const part = r.parts.rear;
+    if (!part) return;
     // the flame shares the booster's anchor and goes under it (it starts at the nozzle)
-    if (r.state === 'charge') drawSprite(ctx, sprite(`fx:plume:${DIRS[d]}:${Math.floor(time * 20) % 2}`), x + m.dx, y + m.dy);
-    const bn = `part:booster:${DIRS[d]}`, bs = sprite(bn);
-    if (open && Math.floor(time * 10) % 2 === 0) outline(ctx, bs, bn, x + m.dx, y + m.dy, C.gold3);
-    drawSprite(ctx, bs, x + m.dx, y + m.dy);
+    if (part === 'booster' && r.state === 'charge') drawSprite(ctx, sprite(`fx:plume:${dn}:${Math.floor(time * 20) % 2}`), x + rm.dx, y + rm.dy);
+    drawMounted(ctx, `part:${part}:${dn}`, x, y, rm, tearable(r, part) && blink, false);
   };
-  if (m.behind) part();
+  const front = () => {
+    const part = r.parts.front;
+    if (part) drawMounted(ctx, `part:${part}:${dn}`, x, y, fm, tearable(r, part) && blink, false);
+  };
+  // the treads go under the body, sticking out either side
+  if (r.parts.sides) drawMounted(ctx, `part:${r.parts.sides}:${dn}`, x, y, { dx: 0, dy: 0, behind: true }, tearable(r, r.parts.sides) && blink, false);
+  if (rm.behind) rear();
+  if (fm.behind) front();
   const s = sprite(name);
   if (fx.flash.has(r.id)) ctx.drawImage(silhouette(s, name, C.white), x - s.ox, y - s.oy);
   else drawSprite(ctx, s, x, y);
-  if (!m.behind) part();
+  if (!rm.behind) rear();
+  if (!fm.behind) front();
 }
 
 function drawPlayer(ctx: Ctx, w: World, fx: Fx, time: number) {
@@ -171,23 +227,31 @@ function drawPlayer(ctx: Ctx, w: World, fx: Fx, time: number) {
   }
   // the tow cable, drawn as pixel geometry from the rear mount
   const m = rearMount(d, MOUNT_DIST.scrapper);
+  const fm = frontMount(d, FRONT_DIST.scrapper);
   if (p.tow) pline(ctx, x + m.dx, y + m.dy + 3, Math.round(p.tow.x), Math.round(p.tow.y) + 2, C.gold0);
 
   if (p.invuln > 0 && p.knock <= 0 && Math.floor(time * 20) % 2 === 0) return;
   const name = playerSprite(w, time);
-  const thrust = p.part === 'booster' && (revving(w) || p.rip?.burn || p.speed > 60);
-  const part = () => {
-    if (p.part !== 'booster') return;
+  const rearPart = p.parts.rear, frontPart = p.parts.front, sides = p.parts.sides;
+  const thrust = rearPart?.id === 'booster' && (revving(w) || p.rip?.burn || p.speed > 60);
+  const rear = () => {
+    if (!rearPart) return;
     if (thrust) drawSprite(ctx, sprite(`fx:plume:${dn}:${Math.floor(time * 24) % 2}`), x + m.dx, y + m.dy);
-    drawSprite(ctx, sprite(`part:booster:${dn}`), x + m.dx, y + m.dy);
-    if (p.partCracked) crack(ctx, x + m.dx, y + m.dy);
+    drawMounted(ctx, `part:${rearPart.id}:${dn}`, x, y, m, false, rearPart.cracked);
   };
-  if (m.behind) part();
+  const front = () => {
+    if (frontPart) drawMounted(ctx, `part:${frontPart.id}:${dn}`, x, y, fm, false, frontPart.cracked);
+  };
+  if (sides) drawMounted(ctx, `part:${sides.id}:${dn}`, x, y, { dx: 0, dy: 0, behind: true }, false, false);
+  if (m.behind) rear();
+  if (fm.behind) front();
   const s = sprite(name);
   if (fx.playerFlash > 0) ctx.drawImage(silhouette(s, name, C.danger3), x - s.ox, y - s.oy);
   else drawSprite(ctx, s, x, y);
-  if (!m.behind) part();
-  // bolting: wrench sparks at the mount
+  if (!m.behind) rear();
+  if (!fm.behind) front();
+  if (sides?.cracked) crack(ctx, x + 7, y - 2);
+  // bolting: wrench sparks at the mount the part is going on
   if (p.bolt !== null && Math.floor(time * 20) % 3 === 0) dot(ctx, x + m.dx + Math.round(Math.random() * 4 - 2), y + m.dy - 2, C.gold3);
   // the claw's tier glow and the heading tick (the exact angle the 8-way sprite can't show)
   const tip = clawTip(p.heading);
@@ -206,7 +270,7 @@ function drawPlayer(ctx: Ctx, w: World, fx: Fx, time: number) {
 export function playerSprite(w: World, time: number): string {
   const p = w.player, dn = DIRS[p.face];
   if (p.knock > 0 || p.stun > 0) return `pl:scrapper:hurt:${dn}`;
-  if (p.rip) return `pl:scrapper:rip:${dn}:${Math.floor(time * 20) % 2}`;
+  if (p.rip || p.latch) return `pl:scrapper:rip:${dn}:${Math.floor(time * 20) % 2}`;
   // treads advance with distance travelled, not time
   const f = Math.floor((p.x + p.y) / 3) % 2 === 0 ? 0 : 1;
   return `pl:scrapper:drive:${dn}:${p.speed > 2 ? f : 0}`;

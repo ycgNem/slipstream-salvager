@@ -72,6 +72,28 @@ export const DEFAULT_TUNING = {
   /** let go of Rip sooner than this and it's a plain Rip, not a Burn (DECISIONS #57) */
   burnTapTime: 0.15,
 
+  // ---- the Grip Treads (PLAN.md 8.4) ----
+  treadsTopMul: 0.92,
+  treadsTurnMul: 1.35,
+  /** you grip harder: turn scrub starts at this times the sideways pull */
+  treadsGripMul: 1.4,
+  /** the power-slide that replaces the brake: how fast you swing round (rad/s)... */
+  slideTurn: 9,
+  /** ...and the share of your speed a full 180° slide keeps */
+  slideKeep: 0.88,
+
+  // ---- the Plow ----
+  plowAccMul: 0.8,
+  /** contact within this of your heading is a ram hit */
+  plowConeDeg: 50,
+  /** how long a ram hit lets you plough through */
+  plowTime: 0.18,
+
+  // ---- the Jaws ----
+  /** the swing round the bitten enemy (s) and the extra speed it flings you out with */
+  latchTime: 0.2,
+  slingBoost: 40,
+
   // ---- salvage ----
   boltTime: 0.7,
   boltSteerMul: 0.5,
@@ -129,6 +151,29 @@ export const DEFAULT_TUNING = {
   shoveSpeed: 220,
   shoveRange: 140,
 
+  // ---- the Snapper (PLAN.md 8.3) ----
+  snapperHp: 2,
+  snapperRadius: 8,
+  snapperTop: 175,
+  snapperAcc: 420,
+  snapperTurn: 9,
+  snapperStrippedTop: 110,
+  snapperStrippedTurn: 3,
+  /** it snaps when you're this close and within snapConeDeg of its nose */
+  snapRange: 70,
+  snapConeDeg: 35,
+  snapWindup: 0.35,
+  snapLock: 0.15,
+  snapSpeed: 330,
+  snapDist: 80,
+  /** after a snap it power-slides round to face you, broadside (s) */
+  snapSlide: 0.6,
+  snapCdMin: 1.0,
+  snapCdMax: 1.8,
+  maxSnaps: 2,
+  /** a Jaw Snapper's bite throws you this much harder */
+  jawFling: 1.7,
+
   // ---- the encounter ----
   bannerTime: 1.5,
   gateWarn: 1.0,
@@ -155,8 +200,10 @@ export const TUNING_GROUPS: { title: string; keys: [TuningKey, number][] }[] = [
   { title: 'Tiers', keys: [['cruiseAt', 5], ['slipAt', 5]] },
   { title: 'Rip', keys: [['ripTime', 0.02], ['ripImpulse', 10], ['ripCooldown', 0.05], ['aimAssistDeg', 1], ['slipDamage', 1], ['frontDamage', 1], ['rearDamage', 1], ['frontArcDeg', 5], ['cruiseShove', 2], ['cruiseKeep', 0.05], ['hitstopSlip', 1], ['passThrough', 0.02]] },
   { title: 'Booster', keys: [['boosterTopMul', 0.025], ['boosterTurnLowMul', 0.05], ['boosterTurnHighMul', 0.05], ['burnAccel', 10], ['burnMax', 10], ['burnTime', 0.05], ['burnCooldown', 0.05], ['burnWallStun', 0.05], ['burnTapTime', 0.01]] },
+  { title: 'Treads, Plow, Jaws', keys: [['treadsTopMul', 0.02], ['treadsTurnMul', 0.05], ['treadsGripMul', 0.05], ['slideTurn', 0.5], ['slideKeep', 0.02], ['plowAccMul', 0.05], ['plowConeDeg', 5], ['latchTime', 0.02], ['slingBoost', 5]] },
   { title: 'Salvage', keys: [['boltTime', 0.05], ['boltSteerMul', 0.05], ['rearArcDeg', 5], ['partLives', 1]] },
   { title: 'Hull', keys: [['hull', 1], ['invulnTime', 0.1], ['knockSpeed', 10], ['bumpKeep', 0.05]] },
+  { title: 'Snapper', keys: [['snapperHp', 1], ['snapperTop', 5], ['snapperAcc', 20], ['snapperTurn', 0.5], ['snapRange', 5], ['snapConeDeg', 5], ['snapWindup', 0.05], ['snapLock', 0.05], ['snapSpeed', 10], ['snapDist', 5], ['snapSlide', 0.05], ['snapCdMin', 0.1], ['snapCdMax', 0.1], ['maxSnaps', 1], ['jawFling', 0.1]] },
   { title: 'Flat mode', keys: [['flatDamage', 1], ['flatPartDamage', 1]] },
   { title: 'Rammer', keys: [['rammerHp', 1], ['stalkSpeed', 5], ['stalkTurn', 0.5], ['strippedTurn', 0.25], ['windupFar', 0.05], ['lockFar', 0.05], ['windupNear', 0.05], ['lockNear', 0.05], ['nearDist', 5], ['chargeRange', 10], ['leadFrac', 0.05], ['chargeSpeed', 10], ['chargeDist', 10], ['skidTime', 0.05], ['joustStun', 0.1], ['joustDeg', 5], ['draftGap', 1], ['draftBoost', 5], ['chargeCdMin', 0.1], ['chargeCdMax', 0.1], ['maxWindups', 1]] },
 ];

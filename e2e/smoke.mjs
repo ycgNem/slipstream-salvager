@@ -41,7 +41,7 @@ try {
   await wait(500);
   await page.keyboard.up('KeyA');
   await wait(2500);
-  const rammers = await page.evaluate(() => window.__app.play.world.rammers.length);
+  const rammers = await page.evaluate(() => window.__app.play.world.enemies.length);
   check(rammers >= 1, `wave 1 sends a Rammer in (${rammers})`);
   await shot('03-wave1');
 

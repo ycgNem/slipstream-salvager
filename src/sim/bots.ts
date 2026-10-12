@@ -3,9 +3,9 @@
 // standing still, brawling at medium speed, waiting and countering, hit-and-run, and two routes
 // (tight pillar loops vs long straight lanes) for the Booster's route-flip check.
 import { wrapAngle } from '../data/dirs';
-import { laneOf } from './rammer';
+import { laneOf } from './enemies';
 import { laneLength, lineOfSight } from './arena';
-import type { InputFrame, Rammer, World } from './world';
+import { hasAnyPart, type InputFrame, type Rammer, type World } from './world';
 
 export type Bot = (w: World) => InputFrame;
 
@@ -16,7 +16,7 @@ const toward = (w: World, x: number, y: number, m = 1): { x: number; y: number }
 
 function nearest(w: World): Rammer | null {
   let best: Rammer | null = null, bd = Infinity;
-  for (const r of w.rammers) {
+  for (const r of w.enemies) {
     const d = Math.hypot(r.x - w.player.x, r.y - w.player.y);
     if (d < bd) { bd = d; best = r; }
   }
@@ -26,7 +26,7 @@ function nearest(w: World): Rammer | null {
 /** Is the player in a winding-up Rammer's lane? Returns the dodge direction, or null. */
 function dodge(w: World, margin = 10): { x: number; y: number } | null {
   const p = w.player;
-  for (const r of w.rammers) {
+  for (const r of w.enemies) {
     if (r.state !== 'windup' && r.state !== 'charge') continue;
     const l = laneOf(w, r);
     const cx = Math.cos(l.angle), cy = Math.sin(l.angle);
@@ -115,14 +115,15 @@ export function hitAndRunBot(): Bot {
     if (!r) return { ...toward(w, center.x + Math.cos(w.tick / 40) * 120, center.y + Math.sin(w.tick / 40) * 90), rip: false, bolt: !!p.tow && w.tick % 20 === 0 };
     const dx = r.x - p.x, dy = r.y - p.y, d = Math.hypot(dx, dy);
     const los = lineOfSight(w.arena, p.x, p.y, r.x, r.y);
-    const bolt = !!p.tow && p.bolt === null && (d > 90 || r.state === 'skid') && w.tick % 10 === 0;
-    const committed = r.state === 'skid' || r.state === 'charge' || (r.state === 'windup' && r.locked);
+    const recovering = r.state === 'skid' || r.state === 'slide' || r.state === 'stunned';
+    const bolt = !!p.tow && p.bolt === null && (d > 90 || recovering) && w.tick % 10 === 0;
+    const committed = recovering || r.state === 'charge' || r.state === 'snap' || (r.state === 'windup' && r.locked);
     // under the wave 1 safety net only a tear helps, so only its back is worth a pass
-    const capped = r.booster && r.safety && r.hp <= 1;
-    const skidOpen = r.state === 'skid' && r.t < r.skidFor - 0.35 && d < 230;
+    const capped = hasAnyPart(r) && r.safety && r.hp <= 1;
+    const skidOpen = recovering && r.t < r.skidFor - 0.35 && d < 230;
     // its front is armored (DECISIONS #55): only cut in on a stalking one when its flank is turned
     const flank = Math.abs(wrapAngle(Math.atan2(p.y - r.y, p.x - r.x) - r.face)) > 1.2;
-    const headOn = r.state === 'stalk' && !capped && flank && d > 90 && d < 200;
+    const headOn = (r.state === 'stalk' || r.state === 'hunt') && !capped && flank && d > 90 && d < 200;
     // chase its tail: once a charge has gone past, follow it at full throttle, so you're at
     // Slipstream behind it when it skids
     const behind = Math.abs(wrapAngle(Math.atan2(p.y - r.y, p.x - r.x) - r.face)) > Math.PI - 1.1;
@@ -136,7 +137,7 @@ export function hitAndRunBot(): Bot {
         ty = r.y - Math.sin(r.face) * 20;
       }
       const off = Math.abs(wrapAngle(Math.atan2(ty - p.y, tx - p.x) - p.heading));
-      if (p.part && !w.flat) {
+      if (p.parts.rear?.id === 'booster' && !w.flat) {
         // with the Booster the button is the Burn: rev in a straight line at it, and let go just
         // before (or let the touch release it); never rev at a wall behind it
         if (p.rev !== null) {
@@ -155,7 +156,7 @@ export function hitAndRunBot(): Bot {
         striking = false;
         return { x: Math.cos(p.heading), y: Math.sin(p.heading), rip: true, bolt: false };
       }
-      const stale = capped && r.state !== 'skid' && r.state !== 'charge';
+      const stale = capped && !recovering && r.state !== 'charge';
       // too close and too slow to hurt it: peel off and come round again (unless it's still
       // charging away, when following keeps the run-up going)
       const tooSlow = d < 70 && p.speed < t.slipAt && r.state !== 'charge';
@@ -197,7 +198,7 @@ export function camperBot(pillar = 0, radius = 44): Bot {
     const cx = pr.x + pr.w / 2, cy = pr.y + pr.h / 2;
     const ahead = Math.atan2(p.y - cy, p.x - cx) + 0.55;
     let rip = false;
-    for (const r of w.rammers) {
+    for (const r of w.enemies) {
       const d = Math.hypot(r.x - p.x, r.y - p.y);
       const off = Math.abs(wrapAngle(Math.atan2(r.y - p.y, r.x - p.x) - p.heading));
       if (p.speed >= w.t.slipAt && d < 50 && off < 0.6 && p.ripCd <= 0) rip = true;
@@ -230,7 +231,7 @@ export function lanerBot(): Bot {
     if ((dir > 0 && p.x > end) || (dir < 0 && p.x < end)) dir = -dir;
     const s = { x: dir, y: (y - p.y) / 40 };
     const m = Math.hypot(s.x, s.y);
-    const burning = p.part === 'booster' && !w.flat;
+    const burning = p.parts.rear?.id === 'booster' && !w.flat;
     // rev while lined up and well short of the end; release ~90 px before it
     const toEnd = Math.abs((dir > 0 ? a.w - a.wall - 40 : a.wall + 40) - p.x);
     const aligned = Math.cos(p.heading) * dir > 0.97;

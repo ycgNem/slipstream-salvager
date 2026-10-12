@@ -6,3 +6,4 @@ e2e/out
 slipstream-salvager-web.zip
 .claude/settings.local.json
 .vite
+.claude/worktrees/

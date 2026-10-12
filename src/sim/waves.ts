@@ -1,20 +1,19 @@
-// The encounter script (PLAN.md 4.5): a banner, a warning at the gates, the Rammers walk in, the
-// fight, a breather, the next wave; clearing the last one ends the slice. No timer escalates
+// The encounter script (PLAN.md 4.5): a banner, a warning at the gates, the enemies come in, the
+// fight, a breather, the next wave; clearing the last one ends the yard. No timer escalates
 // anything (DECISIONS #22).
-import { WAVES } from '../data/waves';
-import { addRammer, DT, type World } from './world';
+import { addEnemy, DT, type World } from './world';
 
 export function updateWaves(w: World) {
   if (w.sandbox || w.result) return;
   const wv = w.wave, t = w.t, p = w.player;
   if (wv.t === 0 && wv.phase === 'banner') w.events.push({ k: 'wave', n: wv.index + 1 });
   wv.t += DT;
-  const def = WAVES[wv.index];
+  const def = w.waves[wv.index];
   switch (wv.phase) {
     case 'banner':
       if (wv.t >= t.bannerTime) {
         // the gates farthest from the player
-        const n = Math.min(def.rammers, w.arena.gates.length);
+        const n = Math.min(def.enemies.length, w.arena.gates.length);
         wv.gates = [...w.arena.gates]
           .sort((a, b) => Math.hypot(b.spawn.x - p.x, b.spawn.y - p.y) - Math.hypot(a.spawn.x - p.x, a.spawn.y - p.y))
           .slice(0, n);
@@ -25,18 +24,21 @@ export function updateWaves(w: World) {
       break;
     case 'warn':
       if (wv.t >= t.gateWarn) {
-        for (const g of wv.gates) {
-          const r = addRammer(w, g.spawn.x, g.spawn.y, Math.atan2(g.dir.y, g.dir.x), { safety: def.safety, state: 'enter' });
-          r.enter = { ...g.dir };
-          w.events.push({ k: 'enter', id: r.id, gate: g.id });
-        }
+        // more enemies than gates: the rest come in behind the first, a little further in
+        def.enemies.forEach((spec, i) => {
+          const g = wv.gates[i % wv.gates.length], row = Math.floor(i / wv.gates.length);
+          const x = g.spawn.x + g.dir.x * row * 26 + (row ? g.dir.y * 14 : 0), y = g.spawn.y + g.dir.y * row * 26 + (row ? g.dir.x * 14 : 0);
+          const e = addEnemy(w, spec.kind, x, y, Math.atan2(g.dir.y, g.dir.x), { parts: spec.parts, safety: def.safety, state: 'enter' });
+          e.enter = { ...g.dir };
+          w.events.push({ k: 'enter', id: e.id, gate: g.id });
+        });
         wv.phase = 'fight';
         wv.t = 0;
       }
       break;
     case 'fight':
-      if (w.rammers.length === 0) {
-        if (wv.index >= WAVES.length - 1) {
+      if (w.enemies.length === 0) {
+        if (wv.index >= w.waves.length - 1) {
           wv.phase = 'done';
           w.result = 'cleared';
           w.events.push({ k: 'cleared' });

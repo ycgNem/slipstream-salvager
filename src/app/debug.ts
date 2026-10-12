@@ -1,6 +1,6 @@
 // Scripted scenes for the screenshot sweep (e2e/screens.mjs): each puts the game into one state and
 // freezes the sim there, so every screen and every feedback state can be checked for overlaps.
-import { addRammer, type World } from '../sim/world';
+import { addRammer, giveBolted, type World } from '../sim/world';
 import { beginWindup } from '../sim/rammer';
 import { step } from '../sim/tick';
 import { NO_INPUT, type InputFrame } from '../sim/world';
@@ -99,13 +99,13 @@ export function scene(app: App, name: SceneName) {
     }
     case 'booster':
       quiet(play);
-      w.player.part = 'booster';
+      giveBolted(w, 'booster');
       place(w, 80, 300, 0, 0);
       run(play, 70, { x: 1, y: 0, rip: false, bolt: false });
       break;
     case 'burn':
       quiet(play);
-      w.player.part = 'booster';
+      giveBolted(w, 'booster');
       place(w, 60, 180, 0, 0);
       run(play, 30, { x: 1, y: 0, rip: true, bolt: false });
       break;

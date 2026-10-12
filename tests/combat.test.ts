@@ -78,7 +78,7 @@ describe('speed tiers', () => {
     w.hitstop = 0;
     const ev = [...rip(w), ...tick(w, IN(1, 0)), ...tick(w, IN(1, 0))];
     expect(ev.some((e) => e.k === 'wreck')).toBe(true);
-    expect(w.rammers.length).toBe(0);
+    expect(w.enemies.length).toBe(0);
   });
 });
 
@@ -162,7 +162,7 @@ describe('the Rammer', () => {
     let max = 0;
     for (let i = 0; i < 120; i++) {
       tick(w, IDLE);
-      max = Math.max(max, w.rammers.filter((r) => r.state === 'windup').length);
+      max = Math.max(max, w.enemies.filter((r) => r.state === 'windup').length);
     }
     expect(max).toBeLessThanOrEqual(2);
   });

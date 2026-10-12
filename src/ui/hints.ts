@@ -43,9 +43,9 @@ export class Hints {
     }
     const want: HintId | null =
       !this.seen.bolt && w.player.tow ? 'bolt'
-      : !this.seen.burn && w.player.part === 'booster' && !w.flat ? 'burn'
+      : !this.seen.burn && w.player.parts.rear?.id === 'booster' && !w.flat ? 'burn'
       : !this.seen.speed && w.wave.phase !== 'banner' ? 'speed'
-      : !this.seen.tear && this.seen.speed && w.rammers.length > 0 ? 'tear'
+      : !this.seen.tear && this.seen.speed && w.enemies.length > 0 ? 'tear'
       : null;
     if (want !== this.current) {
       this.current = want;

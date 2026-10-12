@@ -5,7 +5,7 @@ import { DEBUG_KEYS, keyLabel, type Input } from '../engine/input';
 import type { Audio } from '../engine/audio/audio';
 import { Fx } from '../render/fx';
 import { drawWorld, playerSprite } from '../render/renderer';
-import { createWorld, type InputFrame, type World } from '../sim/world';
+import { createWorld, giveBolted, hasBooster, type InputFrame, type World } from '../sim/world';
 import { step } from '../sim/tick';
 import { revving } from '../sim/rip';
 import type { SimEvent } from '../sim/events';
@@ -45,7 +45,7 @@ export class Play {
 
   constructor(private host: PlayHost, seed = (Math.random() * 1e9) | 0) {
     this.world = createWorld({ seed, tuning: LIVE.t, flat: LIVE.flat });
-    if (LIVE.booster) this.world.player.part = 'booster';
+    if (LIVE.booster) giveBolted(this.world, 'booster');
     this.hints = new Hints(loadSeenHints(), host.settings.hints);
     this.hints.onSeen = saveSeenHints;
   }
@@ -86,19 +86,24 @@ export class Play {
     if (p.tier === 'slip' && this.afterTick % 4 === 0) fx.after.push({ name: playerSprite(w, this.time), x: p.x, y: p.y, age: 0 });
     if (p.tier === 'slip' && this.afterTick % 2 === 0) fx.wind(p.x - Math.cos(ang) * 10, p.y - Math.sin(ang) * 10, ang);
     if (p.tier !== 'crawl' && this.afterTick % 3 === 0) fx.puff('dust', p.x - Math.cos(ang) * 8, p.y + 3 - Math.sin(ang) * 6, -Math.cos(ang) * 20, -Math.sin(ang) * 20, 0.35);
-    if (p.brake && p.speed > 30) {
+    if ((p.brake || p.slide) && p.speed > 30) {
       const nx = -Math.sin(ang) * 4, ny = Math.cos(ang) * 4;
       fx.mark(p.x + nx, p.y + ny + 3);
       fx.mark(p.x - nx, p.y - ny + 3);
     }
-    for (const r of w.rammers) {
+    for (const r of w.enemies) {
       if (r.state === 'skid' && Math.hypot(r.vx, r.vy) > 20) {
         fx.mark(r.x + Math.sin(r.face) * 6, r.y - Math.cos(r.face) * 6 + 4);
         fx.mark(r.x - Math.sin(r.face) * 6, r.y + Math.cos(r.face) * 6 + 4);
         if (this.afterTick % 3 === 0) fx.puff('steam', r.x, r.y - 8);
       }
       if (r.state === 'charge' && this.afterTick % 2 === 0) fx.puff('dust', r.x - Math.cos(r.face) * 10, r.y + 4, 0, 0, 0.3);
-      if (!r.booster && this.afterTick % 9 === 0) fx.puff('smoke', r.x, r.y - 10, 0, -10, 0.6);
+      if (r.kind === 'rammer' && !hasBooster(r) && this.afterTick % 9 === 0) fx.puff('smoke', r.x, r.y - 10, 0, -10, 0.6);
+      if (r.kind === 'snapper' && r.state === 'slide' && r.speed > 30) {
+        fx.mark(r.x + Math.sin(r.face) * 4, r.y - Math.cos(r.face) * 4 + 3);
+        fx.mark(r.x - Math.sin(r.face) * 4, r.y + Math.cos(r.face) * 4 + 3);
+      }
+      if (r.kind === 'snapper' && r.state === 'snap' && this.afterTick % 2 === 0) fx.puff('dust', r.x - Math.cos(r.face) * 6, r.y + 3, 0, 0, 0.25);
       // badly damaged: it crackles (faster at 1 HP), so "one more pass" reads without an HP bar
       if (r.hp <= 2 && this.afterTick % (r.hp <= 1 ? 10 : 20) === 0) fx.sparks(r.x + ((this.afterTick * 7) % 11) - 5, r.y - 8, 2, -Math.PI / 2, 1.2, 50);
     }
@@ -115,6 +120,15 @@ export class Play {
         break;
       case 'rev': a.sfx('rev'); break;
       case 'hit':
+        if (e.clang) {
+          // a plowed front: nothing gets through
+          fx.sparks(e.x, e.y, 8, p.heading + Math.PI, 2.4, 120);
+          fx.text(e.x, e.y - 18, 'CLANG! JOUST IT', C.mist);
+          fx.addShake(2);
+          a.sfx('clank');
+          a.sfx('slam', 0.5);
+          break;
+        }
         if (e.dmg === 0) {
           // the wave 1 safety net held: a dull clank, no flash, and where to hit instead
           fx.sparks(e.x, e.y, 4, p.heading, 1.6, 70);
@@ -144,6 +158,22 @@ export class Play {
         fx.text(e.x, e.y - 18, 'SLIPSTREAM!', C.speed4);
         a.sfx('slipstream');
         break;
+      case 'ram': a.sfx('shove', 0.8, 0.8); break;
+      case 'block':
+        fx.sparks(e.x, e.y, 14, p.heading + Math.PI, 2.6, 150);
+        fx.text(e.x, e.y - 20, 'BLOCKED!', C.white);
+        fx.addShake(3);
+        a.sfx('slam');
+        a.sfx('clank', 0.7);
+        break;
+      case 'latch': a.sfx('bolt_tick', 1, 0.7); a.sfx('hit', 0.6, 1.4); break;
+      case 'sling':
+        for (let i = 0; i < 5; i++) fx.wind(p.x, p.y, p.heading);
+        a.sfx('slipstream', 0.7, 1.2);
+        break;
+      case 'slide': a.sfx('skid', 0.8, 1.3); break;
+      case 'slide-e': a.sfx('skid', 0.5, 1.6); break;
+      case 'snap': a.sfx('charge', 0.5, 1.6); break;
       case 'joust':
         fx.sparks(e.x, e.y, 16, 0, Math.PI * 2, 170);
         fx.dots(e.x, e.y, 10, [C.white, C.frost, C.mist], 130);
@@ -175,7 +205,7 @@ export class Play {
         fx.dots(e.x, e.y, 24, [C.steel0, C.steel1, C.steel2, C.violet, C.mist], 160, 0.7);
         fx.sparks(e.x, e.y, 10);
         for (let i = 0; i < 5; i++) fx.puff('smoke', e.x, e.y - 4, 0, -14, 0.8);
-        if (e.lost) fx.text(e.x, e.y - 20, 'PART WRECKED', C.lilac);
+        if (e.lost.length) fx.text(e.x, e.y - 20, e.lost.length > 1 ? 'PARTS WRECKED' : 'PART WRECKED', C.lilac);
         fx.addShake(3);
         a.sfx('wreck');
         break;
@@ -276,7 +306,7 @@ export class Play {
     drawWorld(ui.ctx, w, this.fx, { time: this.time, shake: this.host.settings.shake });
     if (!w.result) this.hints.draw(ui, this.keys);
     drawHud(ui, w, this.keys);
-    if (DEBUG_KEYS) this.tuning.draw(ui, w.t, (on) => (w.flat = on), (on) => (w.player.part = on ? 'booster' : null), dt);
+    if (DEBUG_KEYS) this.tuning.draw(ui, w.t, (on) => (w.flat = on), (on) => (on ? giveBolted(w, 'booster') : delete w.player.parts.rear), dt);
     if (w.flat) ui.text('FLAT MODE', 8, 22, C.white, { shadow: C.ink });
     if (this.paused) this.drawPause(ui);
     else if (w.result && this.endT > 1.2) this.drawResults(ui);
