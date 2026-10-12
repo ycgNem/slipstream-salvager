@@ -242,8 +242,23 @@ lightest ramp color.
       Scrapper's treads, against the Bouncer's belt), ~14.6 px out on a Rammer.
     - The jets are two tall cans: on the Scrapper they show in every direction but straight
       south, where the cab hides all but their dome tips (the booster hides completely there).
+  - M8: The Compactor's body in every state, and its Springs and Plow (`pixel-art/compactor`).
+    Notes from drawing it:
+    - Same scale and poses as the placeholder (2 px per unit), so the mounts still fit. A plum
+      hull on dark-sage treads with steel road wheels, a ribbed steel-blue bin, and a dark plum cab
+      whose visor band wraps round it, set high on the cab so it shows over the plow facing south
+      (white-hot winding up and charging, dim stunned; the headlamps in the hull match it).
+    - The lid is a round core hatch in the bin's top plate: dark steel, a ring of bolts. When the
+      core opens it's thrown back over the rear on its hinge, and the core swells up out of the
+      hole as a white dome with a lavender halo on the plate. On top, so it reads from every
+      direction (a lid standing up anywhere hides the core from one side or another).
+    - Its parts are the imported small ones at 2x: the plow is `pixel-art/parts/model.py`'s; the
+      springs are the parts6 coil, its turns redrawn at 2x (4 px beads lit on the light side, a 2
+      px dark gap down the full height, the outline pinched at each gap, a slight helix lean), set
+      outside the treads, so no direction reads as a gold tread.
 - **Still code-drawn, because a redraw didn't clearly beat them at 1x:**
-  - The Scrapper, the Rammer, the booster and its pickup, the plume and the slash.
+  - The Scrapper, the Rammer, the booster and its pickup, the plume and the slash; so the
+    Compactor's booster and plume stay the code ones at 2x too (the same models as the small ones).
   - Stars, shadows and the hull pips.
 - The robots' build scripts share `pixel-art/_lib/sculpt.py`, a Python port of the code-art
   sculptor that matches it pixel for pixel. Hand-placed details (eyes, teeth, bands) go on top.
