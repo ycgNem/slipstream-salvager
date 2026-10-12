@@ -4,9 +4,10 @@ Read this first, every session.
 
 ## Where things stand (2026-10-12)
 
-- **0.2.0 is live** (M0-M5). After it the owner said "looks good get started on next milestones so
-  we can make this game more expansive", so **M6-M9 are planned** (PLAN.md section 9, ROADMAP
-  section 6, DECISIONS #82) and being built on `works`:
+- **0.3.0 is live** (2026-10-12, DECISIONS #100): https://ycgnem.github.io/slipstream-salvager/.
+  `main` and `works` are the same commit and both pushed. After 0.2.0 (M0-M5) the owner said
+  "looks good get started on next milestones so we can make this game more expansive", so M6-M9
+  were planned (PLAN.md section 9, ROADMAP section 6, DECISIONS #82) and built:
   - **M6, new salvage:** the Hopper and the Jump Jets, the Bouncer and the Springs, the Spring
     Rammer, The Hurdles and The Pinball (#83-#86, #89). Its pixel art is in (the Hopper, the
     Bouncer, the jets and springs).
@@ -18,11 +19,8 @@ Read this first, every session.
     unlocks and two run modifiers, the Log, the daily run (#93-#95).
   - **Verified:** the visual QA and the critic reviewed M7-M8 (#96-#97) and M9 (#98-#99), and
     everything they found is fixed. The art for the boss, its parts and the M7 terrain is imported.
-  - **Next:** the owner's playtest of M6-M9, then 0.3.0 when the owner says so (Releasing,
-    below). Watch items for the playtest are in DECISIONS #97 and #99: the Skiff's and the Hauler's
-    feel (the bots can't judge it), the boss fight's length, the new unlock gates' pace.
-- **`works` is ahead of `main` and not pushed.** `main` is still 0.2.0, and the site with it.
-  Nothing goes live until the owner says so (Releasing, below).
+- **Next:** the owner's playtest of 0.3.0 (questions in "How to play", item 8). Day-to-day work
+  goes on `works`; nothing more goes live until the owner says so (Releasing, below).
 - Repo: https://github.com/ycgNem/slipstream-salvager (public; DECISIONS #54). Day-to-day work is on
   `works`.
 
@@ -78,7 +76,11 @@ Read this first, every session.
    - `?yard=kennel` (or `lanes`, `pit`, `jaws`, `hurdles`, `pinball`, `slick`, `jumps`, `press`,
      `heap`, `compactor`) starts a run in that yard (from the Garage's START too).
    - `?unlock` opens every chassis and modifier in the Garage, to try the Skiff and the Hauler
-     without earning them; `?chassis=skiff` drives that body in the debug scenes.
+     without earning them; `?chassis=skiff` drives that body in the debug scenes. (On the live
+     site these need `?debug` too.)
+   - Unlocks for real: the Skiff by catching 15 slipstreams (a close dodge of a charge or a slam),
+     the Hauler by cancelling 15 windups (a Cruise hit), Bare Bones by clearing The Heap, No
+     Breather by winning a run.
    - The tuning panel has **START WITH** toggles for each part, flat mode, every number and **COPY**.
 7. **Defaults I chose for you, all reversible in the tuning panel** (DECISIONS #55-#75):
    - A Rammer's front is armored: a teal hit there does 1, a side does 2, the back tears or does 4.
@@ -89,12 +91,15 @@ Read this first, every session.
      first hit.
    - A tapped Rip stays a Rip even with the Booster; only holding revs a Burn (`burnTapTime`).
    - Rammers have 3 HP (M1 had 4); `rammerHp`.
-8. **Playtest questions for M3:**
-   - Does the exit choice feel like a choice?
-   - Does each part change how you play the next yard?
-   - Is a 10-15 minute run the right length? The critic's estimate for a decent player is
-     10-12 minutes.
-   - Is any yard a wall?
+8. **Playtest questions for 0.3.0:**
+   - Does the exit choice feel like a choice, and does each part change how you play the next yard?
+   - Is a six-yard run (about 15 minutes) the right length? Is any yard a wall? The longest for the
+     bot are The Hurdles and The Pinball.
+   - Do the Jump Jets earn their place in The Hurdles (the bots can't value a shortcut, #92)?
+   - Does tearing The Compactor's parts off feel like taking its moves away? Is its fight too long?
+   - **The chassis** (the bots can't judge feel, #99): does the Skiff's glide feel worth its 3 hull
+     and its slow start? Does the Hauler's bump feel useful without being safe to lean on?
+   - Are 15 slipstreams / 15 cancels the right pace for the unlocks?
    - Play one yard in **flat mode**. Ask "was it more fun?", not "was it harder?". Flat mode is
      *easier* for a skilled player, because there's no speed to keep up (DECISIONS #79).
 
@@ -103,19 +108,19 @@ The Windows app also builds: double-click `Build desktop app.bat`. The installer
 
 ## What's next
 
-- **The owner's playtest of the run.** Start the session with: *"Read ROADMAP.md and HANDOFF.md.
+- **The owner's playtest of 0.3.0.** Start the session with: *"Read ROADMAP.md and HANDOFF.md.
   Here are my playtest notes: …"*. Each note becomes one commit ending "DECISIONS #N".
 - **More art** (the list under open points). The art tool is the pixel-art-studio skill (the
   owner's call, DECISIONS #65). Each family is a `pixel-art/<family>/build.py` that draws the
   sprites; its `sprites.json` maps them to game names, and `node scripts/sprites-import.mjs` packs
   them into `src/art/`. Imported art replaces the code-drawn placeholder of the same name, so the
   game works with any subset.
-- **The expansion (M6-M9)** continues: ROADMAP section 6 has the phases. Start a session with
-  *"Read ROADMAP.md, HANDOFF.md and PLAN.md section 9. Build the next unfinished phase."*
-- **Playtest questions for M6-M8:** do the Jump Jets earn their place in The Hurdles (the bots
-  can't tell, #92)? Are The Hurdles and The Pinball (the longest middle yards for the bot) too
-  long? Does tearing the Compactor's parts off feel like taking its moves away? Is a six-yard run
-  too long?
+- **The expansion (M6-M9) is done and live.** There's no M10 planned yet: after the playtest,
+  plan it with the owner (PLAN.md section 9 is the model for how a milestone is written).
+- **Art still code-drawn** (`npm run coverage` lists it; the code sculptor's, on palette): the
+  bodies of the Scrapper, the Skiff, the Hauler and the Rammer; the Booster (overlay, pickup,
+  plume) and the boss's Booster and plume; the claw slashes, stun stars, shadows and hull pips.
+  Everything else (450 of 773 names) is imported pixel art.
 
 Open points for the owner (also in DECISIONS):
 - **Bot balance:** the rule bots in `src/sim/bots.ts` are weaker than a person. They rarely survive
@@ -148,9 +153,9 @@ Put the portable Node first in every shell:
 |---|---|---|
 | Play (dev) | `npm run dev` | port 5173; `.claude/launch.json` has a `game` entry on 5190 |
 | Typecheck | `npm run typecheck` | |
-| Unit tests | `npm test` | movement, combat, salvage, data, the M3 parts and Snapper (`m3.test.ts`), the run (`run.test.ts`) and the removal-test guards |
-| Strategy bots | `npx vite-node scripts/bots.ts` | prints what each bot achieved; use it when tuning |
-| Pacing (search bot) | `npx vite-node scripts/pacing/hrun.ts ring,kennel 1,2,3,4` | the critic's search bot, a skill ceiling: clear times, hits, tears per yard (header has the options) |
+| Unit tests | `npm test` | movement, combat, salvage, data, the removal-test guards (`guards.test.ts`), the run (`run.test.ts`), and each milestone's own (`m3`, `m6` salvage, `m7` terrain, `m8` the boss and the M6-M8 review guards, `m9` the chassis, unlocks, modifiers and the M9 review guards) |
+| Strategy bots | `npx vite-node scripts/bots.ts` | prints what each bot achieved; use it when tuning. Baselines: hit-and-run wave 1 8/8, full Ring slice 3 clears of 8; route base looper 98% / laner 68%, booster 69% / 74% (Scrapper tests) |
+| Pacing (search bot) | `npx vite-node scripts/pacing/hrun.ts ring,kennel 1,2,3,4` | the critic's search bot, a skill ceiling: clear times, hits, tears per yard (header has the options); `CHASSIS=skiff` or `hauler` in front for another body |
 | Layout probe | `npx vite-node scripts/pacing/layout.ts pinball ring 1,2,3,4 springs` | the same waves in another arena, the same bot: does a layout play differently? |
 | Leap probe | `npx vite-node scripts/pacing/hleap.ts hurdles 1,2,3,4 jets [noleap]` | the search bot with leap plans (it can't value a shortcut: DECISIONS #92) |
 | Smoke test | `npm run e2e` | starts its own server; real key presses; must end with zero console errors |
@@ -184,6 +189,8 @@ read-only).
   - `bots.ts`: strategy bots, including the drafter.
 - `src/data/`:
   - `tuning.ts`: every number.
+  - `chassis.ts`: the three bodies (tuning overrides and a bump behavior).
+  - `unlocks.ts`: run modifiers, unlock rules, the daily seed (pure).
   - `parts.ts`: parts as data (stats, behaviors, how they tear).
   - `mounts.ts`: rear, sides and front, where they sit on each body.
   - `arena.ts`: twelve layouts, with terrain on their floors.
@@ -202,9 +209,11 @@ read-only).
   `hints.ts` (one-time hints).
 - `src/app/`:
   - `app.ts`: scaler and screens.
-  - `play.ts`: a run on screen; yard banners, exit signs, the wipe between yards, run results.
+  - `play.ts`: a run on screen; yard banners, exit signs, the wipe between yards, run results,
+    banking lifetime counts and the Log.
+  - `garage.ts`: the Garage (chassis cards, modifiers); `log.ts`: the Log screen.
   - `tuning.ts`: the dev panel.
-  - `settings.ts`.
+  - `settings.ts`: settings and saves (bests and lifetime counts, the Log, the daily best).
   - `debug.ts`: scenes for the sweep.
 - `src/engine/`: loop, rng, input + gamepad, audio.
 - `pixel-art/<family>/`: art sources (build scripts) for the overhaul.
@@ -235,10 +244,11 @@ read-only).
   6. `git checkout works`
   7. `gh workflow run deploy.yml --ref main`, then watch it: `gh run list`, `gh run watch <id>`.
   8. Check the live bundle has the new version, for example by searching the site's `assets/index-*.js` for
-     `"0.2.0"`.
-- **0.2.0 was published this way on 2026-10-12** (DECISIONS #81).
+     `"0.3.0"`.
+- **0.2.0 and 0.3.0 were published this way on 2026-10-12** (DECISIONS #81, #100).
 - **The Windows builds aren't uploaded anywhere.** To attach them to a GitHub release, only with
   the owner's go-ahead:
-  `gh release create v0.2.0 release/Slipstream-Salvager-Setup-0.2.0.exe release/Slipstream-Salvager-Portable-0.2.0.exe --notes-file CHANGELOG.md`
+  `gh release create v0.3.0 release/Slipstream-Salvager-Setup-0.3.0.exe release/Slipstream-Salvager-Portable-0.3.0.exe --notes-file CHANGELOG.md`
+  (build them first with `npm run dist:win`).
 - The service worker caches the game (`public/sw.js`). Bump the cache name when a release must
   reach players who already have it open.

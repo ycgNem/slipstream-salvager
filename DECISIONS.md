@@ -729,3 +729,11 @@ a number in the tuning panel, and the M1 rule is one setting away (given with ea
       "BUMP ONE WINDING UP TO STOP IT - SLOW TO SPEED"). A first-run hint for each chassis's verb.
     - Not taken: nothing; the critic's other checks (Hauler with the Plow, the #97 fixes, the kept
       recoil) needed no action.
+100. **0.3.0 is published** (2026-10-12; the owner: "commit this project and push live").
+    - M6-M9: four enemies, six parts, terrain, twelve yards, The Compactor and a six-yard run, the
+      Garage with three chassis, unlocks, two modifiers, the Log and the daily run.
+    - `main` was fast-forwarded to `works` and both pushed; the Pages workflow was started by hand
+      (a push doesn't start it). The service worker cache is `salvager-v3`, so players who had
+      0.2.0 open get the new build after a reload.
+    - The Windows builds stay local; uploading them to a GitHub release is a separate call for the
+      owner.

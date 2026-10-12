@@ -9,8 +9,8 @@ the critic's open points as defaults, M3 (the short run, PLAN.md section 8) and 
 pixel-art-studio art) are built, and both reviews are fixed. M5: 0.2.0 is live on GitHub Pages
 (2026-10-12). After 0.2.0 the owner said "looks good get started on next milestones so we can make
 this game more expansive" (2026-10-12): **M6-M9 are planned in PLAN.md section 9 and section 6
-below**. M6-M9 are built and verified (DECISIONS #82-#99); 0.3.0 waits for the owner's playtest and
-go-ahead.
+below**. M6-M9 are built and verified (DECISIONS #82-#99), and **0.3.0 is live** (2026-10-12,
+DECISIONS #100). Next: the owner's playtest of 0.3.0.
 
 **How every session runs:** start with *"Read ROADMAP.md and HANDOFF.md"*, then paste the phase's
 prompt. Build the phase, deciding small things alone and logging them in `DECISIONS.md`. Run the
@@ -272,6 +272,6 @@ family by family when it beats the placeholder.
     Scrapper doesn't; the Hauler's bump cancels a windup), pacing with each chassis.
   - **9b — The Garage and unlocks. 9c — The Log. 9d — The daily run.** Built (DECISIONS #95).
   - **9e — Verify.** Done (DECISIONS #98-#99).
-- **0.3.0** is published only when the owner says so (HANDOFF "Releasing").
+- **0.3.0 is published** (2026-10-12; DECISIONS #100).
 
 Prompt: *"Read ROADMAP.md, HANDOFF.md and PLAN.md section 9. Build the next unfinished phase."*

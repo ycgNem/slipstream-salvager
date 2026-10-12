@@ -1,11 +1,12 @@
 # Patch notes
 
-## 0.3.0 — The expansion (draft, not released)
+## 0.3.0 — The expansion (2026-10-12)
 
-A bigger run, new salvage, terrain and a boss.
+A bigger run, new salvage, terrain, a boss, and two more bodies to drive.
 
 **The run**
 - Six yards now: The Ring, three of nine middle yards, The Heap, and The Compactor.
+- The Heap is two waves now, so the run stays about the same length.
 
 **Two new enemies, two new parts**
 - **The Hopper** crouches, paints a red ring where it will land, leaps over everything and slams
@@ -17,27 +18,30 @@ A bigger run, new salvage, terrain and a boss.
 
 **Terrain**
 - Boost strips (drive along the arrows), oil (no grip), jump ramps (jump the low walls at speed),
-  crusher plates (lure enemies onto them before they slam).
+  crusher plates (lure enemies onto them before they slam; at speed you're over before one lands).
 
 **Five new yards**
 - The Hurdles, The Pinball, The Slick, The Jumps, The Press.
 
 **The Compactor**
 - The last yard is a boss. It wears a Booster, Springs and a Plow, and each part is one of its
-  moves: tear one off and that move is gone, and the part is yours. Strip it bare and it leaps.
-  It calls Snappers in to help.
+  moves: tear one off and that move is gone, and the part is yours. Strip it bare and its core
+  opens: it can only leap, and every side of it is its back while it's stuck. It calls Snappers in
+  to help, and they go down with it.
 
 **The Garage**
 - PLAY now opens the Garage. Pick your chassis and any run modifiers you've unlocked.
 - Two new chassis, unlocked by playing (each by its own move). **The Skiff** never slows in a
   turn and glides, but it's slow to build speed, can hardly brake, has 3 hull, and every part costs
-  it some glide. **The Hauler** stops a windup just by bumping into it and has 7 hull, but it's
-  slow to get up to speed.
+  it some glide. Unlock it by catching 15 slipstreams. **The Hauler** stops a windup just by
+  bumping into it (once in a while: then that enemy is braced) and has 7 hull, but it's slow to
+  get up to speed. Unlock it by cancelling 15 windups.
 - Two run modifiers: **Bare Bones** (your parts don't carry between yards) and **No Breather** (the
   next wave comes in while the last enemy of this one is still up).
 - **The Log**: every enemy and part you've met, with what to do about it.
-- **The daily run**: one seed a day, the same for everyone. Your best for the day shows on the
-  title.
+- **The daily run**: one seed a day (UTC), the same for everyone. Your best for the day shows on
+  the title.
+- Menus: Up/Down and Left/Right move a visible focus ring; the first press only shows it.
 
 **Balance**
 - Holding Rip with the Booster now launches the Burn on its own after a second.

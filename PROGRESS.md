@@ -2,9 +2,13 @@
 
 What's built. Newest first.
 
+## 2026-10-12 — 0.3.0 published
+
+`main` fast-forwarded to `works` and pushed; the Pages workflow tested, built and deployed it
+(DECISIONS #100). The site is https://ycgnem.github.io/slipstream-salvager/.
+
 ## 2026-10-12 — M8c, M9: The Garage, and both milestones verified
 
-On `works`, not published:
 - **M9, The Garage** (#93-#95): two more chassis, the Skiff (glides, never slows in a turn, 3 hull)
   and the Hauler (bumps stop windups, 7 hull); the Garage screen with unlocks (each chassis by its
   own verb) and two run modifiers (Bare Bones, No Breather); the Log; the daily run.
@@ -14,12 +18,13 @@ On `works`, not published:
   crusher plates pass the removal test, a shorter run) and the M9 ones (#98-#99: the Hauler's bump
   no longer makes camping the best strategy, the Skiff's parts cost it glide, unlock gates, No
   Breather made real, four bugs, focus and the Log's scales).
-- **Checks:** 170 tests, typecheck, the smoke test, the screenshot sweep with 0 overlaps, coverage
-  773 names (0 missing), the strategy-bot guards at their baselines.
+- **Checks:** 171 tests, typecheck, the smoke test, the screenshot sweep with 0 overlaps, coverage
+  773 names (0 missing), the strategy-bot guards at their baselines. The search bot clears every
+  yard with every chassis (12 yards: Skiff 574 s, Scrapper 622 s, Hauler ~680 s).
 
 ## 2026-10-12 — M6-M8: the expansion (new salvage, terrain, The Compactor)
 
-The owner asked to "make this game more expansive" (DECISIONS #82). On `works`, not published:
+The owner asked to "make this game more expansive" (DECISIONS #82). Published in 0.3.0:
 - **M6, new salvage** (#83-#86, #89): the Hopper (leaps with a ring telegraph, slams, stuck) and
   the Jump Jets (hold to crouch, let go to leap; the landing is a hit); the Bouncer (rolls that
   bounce off walls) and the Springs (you bounce off walls instead of clanking); the Spring Rammer;
