@@ -241,7 +241,9 @@ export function resolveContacts(w: World) {
       }
       p.speed *= t.bumpKeep;
       w.events.push({ k: 'shove', id: r.id, x: r.x + nx * rr, y: r.y + ny * rr });
-      if (!cancel) bumpedOff(w, r);
+      // (not a Hopper: shoved off its feet it doesn't stomp. Hugging Hoppers costs the Hauler 16-20
+      // hits a minute without it, and with it The Hurdles took the Hauler 140 s, not 103)
+      if (!cancel && r.kind !== 'hopper') bumpedOff(w, r);
       continue;
     }
     if (vn < 0) {

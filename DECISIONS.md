@@ -691,8 +691,11 @@ a number in the tuning panel, and the M1 rule is one setting away (given with ea
       full Ring 16/16 on the Hauler, 5/16 on the Scrapper; it's the bump, not the hull). Body
       contact cost it nothing. Now a shove cancels an enemy's windup only once in 2.5 s (the enemy
       is `braced` after), every shove costs 60% of your speed like any bump, and a shove that
-      cancels nothing sets the enemy off like a Scrapper's bump. Measured: the camper 5/16 (like
-      the Scrapper), hugging an enemy 21-25 hits a minute, the brawler scrapped.
+      cancels nothing sets the enemy off like a Scrapper's bump (not a Hopper: with that, The
+      Hurdles took the search bot 140 s on the Hauler, and hugging Hoppers costs 16-20 hits a minute
+      without it). Measured: the camper 5/16 (like the Scrapper), hugging an enemy in The Ring 21-25
+      hits a minute (was 0.7), the brawler scrapped. The search bot is faster on the Hauler, since
+      bumps make charges, its openings: Ring 47 s (was 55), Pit 46 (54), Heap 46 (58).
     - **The unlock gates were backwards** (the forgiving Hauler behind jousts, the hardest skill;
       the glass-cannon Skiff behind tears, the commonest action). Each chassis is now unlocked by
       its own verb: the Hauler by 15 windups cancelled (a Cruise hit; it's the Hauler's shove at
@@ -704,7 +707,8 @@ a number in the tuning panel, and the M1 rule is one setting away (given with ea
       **Its part weight cost nothing** (6% top speed a part, never enough to scrub), and "wants few
       parts" worked against "you become what you rip". Now each part costs glide: 15% of its grip
       in a turn and 30% of its coast (`partGrip`, `partCoast`), so a loaded Skiff drives like a
-      Scrapper. Armour or glide is a choice, and parts change your lines.
+      Scrapper. Armour or glide is a choice, and parts change your lines. The search bot's 12
+      yards: Skiff 574 s (was 533), Scrapper 622, Hauler ~680 (was 733); every yard 4/4.
     - **The route flip (the Booster's guard) holds only on the Scrapper**, by design: on the Skiff
       the Booster's inherited cost isn't speed lost in a tight loop (it never scrubs) but its
       turning circle, ~160 px at top speed; on the Hauler it's both chassis numbers. The strategy
