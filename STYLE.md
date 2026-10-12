@@ -39,7 +39,7 @@ The game draws on a **640 × 360** logical canvas, scaled by whole numbers only.
 | Loose part (pickup) | 16 × 16 | (8, 12) | ≤ 14 × 12 | circle r = 7 |
 | Part icon (HUD) | 16 × 16 | (0, 0) | 14 × 14 | — |
 | Pillar | 32 × 40 | (0, 8) | footprint 32 × 32, top face 8 px tall | square 32 × 32 |
-| Gate (wall opening) | 32 × 16 | (0, 0) | — | open |
+| Gate (wall opening) | 32 × 16 in the top and bottom walls, 16 × 32 in the side walls | (0, 0) | — | open while a Rammer enters |
 | Spark, dust, steam, smoke | 8 × 8 | (4, 4) | — | — |
 | Claw slash | 32 × 32 | (16, 16) | — | — |
 | Booster plume | 16 × 16 | (8, 8) | — | — |
@@ -65,7 +65,7 @@ Grammar: `group:thing[:state][:dir][:frame]`.
 | `t:floor:<0-3>` | 1 | four floor variants, chosen by a hash of the tile position |
 | `t:wall:<mask>` | 1 | 4-bit neighbor mask (0–15) |
 | `ob:pillar` | 1 | |
-| `ob:gate:<closed\|open\|warn>` | 1 | `warn` blinks via the renderer, not frames |
+| `ob:gate:<h\|v>:<closed\|open\|warn>` | 1 | `h` in the top/bottom walls, `v` in the sides; `warn` blinks via the renderer, not frames |
 | `pl:scrapper:drive:<dir>:<0-1>` | 2 | treads roll; frame advances with distance travelled, not time |
 | `pl:scrapper:rip:<dir>:<0-1>` | 2 | claw thrust out |
 | `pl:scrapper:hurt:<dir>` | 1 | |

@@ -2,8 +2,8 @@
 
 Every design and technical decision, with its reason. Numbered; never renumbered. Claude makes
 default calls on small things while working alone and logs them here; the owner can overrule any of
-them. **"Pending Qn"** means it's a default waiting on the owner's answer to that question in
-`ROADMAP.md` section 1. Once answered, the entry is updated to say so.
+them. **"Pending Qn"** means a default waiting on the owner's answer to that question in
+`ROADMAP.md` section 1. On 2026-10-12 the owner approved every default (Q1–Q11).
 
 1. **Name and folder.** Working title *Slipstream Salvager*. The project lives at
    `C:\Users\jacks\Documents\slipstream-salvager`, a new git repo, next to Sprocket & Sprout (S&S).
@@ -23,12 +23,12 @@ them. **"Pending Qn"** means it's a default waiting on the owner's answer to tha
    letterbox. *Why:* "readable arena" in the brief; at this size a 20 px robot has room to loop, and
    nothing is ever off screen. S&S's camera was also built around a ~640 × 360 view.
 7. **3/4 top-down view, 8 facing directions, pixel art never rotated.** The exact heading shows
-   through the trail, afterimages and cable, drawn as pixel geometry. *Pending Q9.*
-8. **Absolute steering, keyboard + gamepad from M1, no mouse in play.** *Pending Q8.*
+   through the trail, afterimages and cable, drawn as pixel geometry. *Owner approved the default (Q9, 2026-10-12).*
+8. **Absolute steering, keyboard + gamepad from M1, no mouse in play.** *Owner approved the default (Q8, 2026-10-12).*
 9. **The attack is a button: the Rip.** A 0.16 s committed lunge; the damage tier is locked at the
-   moment of the press, with up to 12° of aim assist. *Pending Q1.*
+   moment of the press, with up to 12° of aim assist. *Owner approved the default (Q1, 2026-10-12).*
 10. **Three absolute speed tiers**: Crawl < 110 px/s (nothing), Cruise 110–190 (no damage; shoves
-    and cancels a windup), Slipstream ≥ 190 (2 damage, or tears a part off). *Pending Q2.*
+    and cancels a windup), Slipstream ≥ 190 (2 damage, or tears a part off). *Owner approved the default (Q2, 2026-10-12).*
 11. **The slice's enemy is the Rammer**: slow but fast-turning stalker, telegraphed lane charge
     (tracks with lead, then locks), a recovery skid, at most two winding up at once, weaker shove once
     stripped, HP 4. Details revised by #30. *Why:* its attack is itself a momentum move, so it teaches
@@ -36,18 +36,18 @@ them. **"Pending Qn"** means it's a default waiting on the owner's answer to tha
 12. **"You become what you rip."** Every part carries its owner's way of moving, weakness included.
     The Booster turns the Rip into the Burn (hold to rev in a locked line with your own lane painted,
     release to pierce; rev into a wall and you're stunned 0.6 s), with top speed 270 and turning at
-    speed 3 rad/s. *Pending Q3.*
+    speed 3 rad/s. *Owner approved the default (Q3, 2026-10-12).*
 13. **Tear-off rule.** Only a Slipstream-tier hit on the part's side tears it off, and that hit does
-    no damage; wrecking an enemy wrecks its parts. *Pending Q4.*
+    no damage; wrecking an enemy wrecks its parts. *Owner approved the default (Q4, 2026-10-12).*
 14. **Grab, tow, bolt.** Torn parts are grabbed and towed on a short cable (a trailing point on a
     spring); tapping *Bolt on* starts a 0.7 s bolt that works while moving, halves steering, and is
-    cancelled by a Rip or a hit. *Pending Q5.*
+    cancelled by a Rip or a hit. *Owner approved the default (Q5, 2026-10-12).*
 15. **Parts are armor; hull is 5 pips.** A hit shatters the bolted part instead of costing hull.
-    No healing in the slice. *Pending Q6.*
+    No healing in the slice. *Owner approved the default (Q6, 2026-10-12).*
 16. **One part in M1: the Booster.** Grip Treads is the first candidate after the playtest.
-    *Pending Q7.*
+    *Owner approved the default (Q7, 2026-10-12).*
 17. **The slice is three waves** (1, 2, 3 Rammers) in one arena, then results and an instant
-    restart. *Pending Q10.*
+    restart. *Owner approved the default (Q10, 2026-10-12).*
 18. **A live tuning panel** in dev and `?debug` builds: every movement and combat constant, editable
     while playing, with a button that copies the values to paste into `src/data/tuning.ts`.
     *Why:* the owner decides whether the movement feels good; this lets the playtest produce
@@ -66,7 +66,7 @@ them. **"Pending Qn"** means it's a default waiting on the owner's answer to tha
 23. **Saves.** The slice stores only settings and best results in localStorage. S&S's versioned save
     and migration code is copied but unused until runs exist.
 24. **No GitHub repo yet.** The Pages workflow is set up locally; the owner playtests with `Play.bat`.
-    Creating the repo and pushing wait for the owner. *Pending Q11.*
+    Creating the repo and pushing wait for the owner. *Owner approved the default (Q11, 2026-10-12).*
 25. **Docs are law once the build starts.** Changing PLAN, STYLE or ROADMAP mid-build happens on
     purpose, with an entry here. *Why:* S&S's drift lesson.
 26. **Reserved colors.** Teal means speed, red and magenta mean danger, gold means salvage, and none
