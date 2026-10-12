@@ -23,7 +23,7 @@ ROOT = HERE.parents[1]
 sys.path.insert(0, str(HERE.parent / '_lib'))
 sys.path.insert(0, str(HERE))
 from sculpt import (DIRS, sculpt, dir_angle, put, get, bbox, isolated, colors_used, to_image,  # noqa: E402
-                    grid_sheet, compose, blank)
+                    grid_sheet, compose, blank, add_outline)
 from PIL import Image  # noqa: E402
 import model as M  # noqa: E402
 
@@ -99,18 +99,74 @@ ICON_VIEW = (0.8, 0.6)
 
 
 def icon_treads():
-    # side on, from low down: the loop, its hubs and the gold rail read as a tread
-    return sculpt(16, 16, 8, 10, -0.3, pod_scene, M.treads_mats(), zmax=5, scale=1.2, view=(0.5, 0.866))[0]
+    """Hand-drawn: a track loop side on (dark belt with cleats, three steel road wheels) under a
+    gold fender with two bolts. Light from the upper left. Art 14x13 with its outline."""
+    img = blank(16, 16)
+    # belt: a stadium x 2..13, y 7..13, dark rubber, cleats on its top and bottom runs
+    inset = {7: 2, 8: 1, 12: 1, 13: 2}
+    for y in range(7, 14):
+        for x in range(2 + inset.get(y, 0), 14 - inset.get(y, 0)):
+            img[y][x] = 1
+    for x in range(4, 12):
+        img[7][x] = 6 if x % 2 == 0 else 2
+        img[13][x] = 2 if x % 2 == 0 else 1
+    img[8][3] = img[12][3] = 2
+    # road wheels: steel discs with a dark hub, lit upper left
+    for cx in (5, 8, 11):
+        for dx, dy, c in ((-1, -1, 8), (0, -1, 7), (1, -1, 7), (-1, 0, 7), (0, 0, 2), (1, 0, 6),
+                          (-1, 1, 6), (0, 1, 6), (1, 1, 2)):
+            img[10 + dy][cx + dx] = c
+    # fender: gold, rows 3..6, slanting down over the front (right)
+    rows = {3: (4, 10), 4: (3, 11), 5: (3, 12), 6: (3, 13)}
+    for y, (x0, x1) in rows.items():
+        for x in range(x0, x1 + 1):
+            img[y][x] = 28 if (y == 3 or x == x0) and y < 6 else 18 if y < 6 else 17
+    img[5][12] = 17
+    img[4][6] = 8
+    img[4][9] = 8
+    add_outline(img, 0)
+    return img
 
 
 def icon_plow():
-    sc = lambda h, x, y, z: M.plow_scene(h, x + 2.0, y, z - 1.0)  # noqa: E731
-    return sculpt(16, 16, 8, 8, math.pi * 0.75, sc, M.plow_mats(), zmax=5, zmin=-5, scale=1.0, view=ICON_VIEW)[0]
+    """Hand-drawn: a dozer blade face on, a little from above: the curved gold scoop with two ribs,
+    the steel cutting edge with its teeth, steel cheeks, and the two braces behind it. Art 14x13."""
+    img = blank(16, 16)
+    # braces behind the blade (steel), going up and back
+    for x in (5, 10):
+        img[2][x] = 7
+        img[3][x] = 6
+        img[4][x] = 6
+    # the blade face: x 3..12, its top edge sags in the middle (a concave scoop)
+    for x in range(3, 13):
+        t = 4 if x in (3, 4, 11, 12) else 5
+        for y in range(t, 11):
+            img[y][x] = 18
+        img[t][x] = 28                      # lit top lip
+    for x in range(4, 12):
+        img[7][x] = 17                      # ribs
+        img[9][x] = 17
+    for y in range(5, 9):
+        img[y][3] = 28                      # the left edge catches the light
+    # steel cheeks at the ends
+    for y in range(4, 11):
+        img[y][2] = 7 if y < 7 else 6
+        img[y][13] = 6 if y < 7 else 2
+    # cutting edge: pale steel, notched into teeth
+    for x in range(2, 14):
+        img[11][x] = 8 if x < 8 else 7
+        if x % 3 != 1:
+            img[12][x] = 7 if x < 8 else 6
+    # bolts on the face
+    img[6][5] = 8
+    img[6][10] = 8
+    add_outline(img, 0)
+    return img
 
 
 def icon_jaws():
     sc = lambda h, x, y, z: M.jaws_scene(h, x + 3.2, y, z, spread=0.6)  # noqa: E731
-    return sculpt(16, 16, 8, 8, -math.pi / 4, sc, M.jaws_mats(), zmax=3, zmin=-3, scale=1.15, view=ICON_VIEW)[0]
+    return sculpt(16, 16, 8, 8, -math.pi / 4, sc, M.jaws_mats(), zmax=3, zmin=-3, scale=1.3, view=ICON_VIEW)[0]
 
 
 # ---------------------------------------------------------------- build
