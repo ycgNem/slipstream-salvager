@@ -664,3 +664,25 @@ a number in the tuning panel, and the M1 rule is one setting away (given with ea
       facing snaps to its sprite's direction, like a skid; the rev guard test now tests at Cruise,
       where the bug was (it passed on the old code at a crawl).
     - Not taken: the critic's other boost-strip idea (move one into the Kennel).
+98. **Fixes from the M9 visual QA** (the qa-screens agent at ea7837f).
+    - **The Hauler wears the wide side parts.** Its own treads are wider and twice as tall as the
+      Scrapper's, so Grip Treads and Springs at the Scrapper's footprint vanished under them facing
+      north or south. It now wears `part:bigsprings` (the Rammer's) and a new `part:bigtreads`
+      (40 x 40, anchor (20, 26)): the same tread units set 3.4 px further out, past its own treads.
+      Imported art from `pixel-art/parts6` (the model is pixel-art/parts' treads, shifted), plus a
+      code-drawn fallback.
+    - **Nothing is shrunk, anywhere.** The Log drew The Compactor at 1/2 by dropping every other
+      row (hard rule 1). `drawFit` no longer shrinks (a sprite too big for its box draws at 1x and
+      the box is made to fit), and the Log draws each sprite cropped to its art (`artBounds`), at
+      one scale per row: the enemies at 1x, so the boss dwarfs the rest as it should, the parts at
+      2x, since a pickup is 12 px across.
+    - **The Skiff and the Hauler are in STYLE.md**, at their measured sizes: the Skiff is meant to
+      be low and long (16-23 wide, 14-18 tall, no treads), the Hauler big (21-27 wide, 16-24
+      tall). Both keep the player's r = 8 collision circle.
+    - **Keyboard and pad focus:** a run modifier's toggle gets the buttons' frost ring; while the
+      focus is hidden (the mouse was in use) the first Up/Down only shows it, and the first
+      Left/Right doesn't flip a toggle (a fresh title's first Down used to land on DAILY RUN);
+      disabled buttons (a LOCKED card) are skipped; Left/Right moves along the Garage's cards.
+    - The selected Garage card's line is white (it was ink on mauve, about 2:1).
+    - The `hauler` debug scene runs 10 ticks longer so it shows the shove; the Scrapper's antenna
+      tip no longer uses amber 23 (a salvage colour).

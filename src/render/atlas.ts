@@ -266,24 +266,38 @@ export function drawSprite(ctx: CanvasRenderingContext2D, s: Sprite, x: number, 
 }
 
 /**
- * Draw a sprite centered in a w×h box at the largest whole-number scale that fits. If it is
- * bigger than the box it shrinks by a whole factor instead (1/2, 1/3…), never a fractional
- * scale, so its pixels stay square and on the grid.
+ * Draw a sprite centered in a w×h box at the largest whole-number scale that fits. A sprite
+ * bigger than the box draws at 1x and overflows it: pixel art is never shrunk (STYLE.md hard rule
+ * 1), so make the box fit.
  */
 export function drawFit(ctx: CanvasRenderingContext2D, s: Sprite, x: number, y: number, w: number, h: number) {
-  const k = Math.floor(Math.min(w / s.w, h / s.h));
-  let dw: number, dh: number;
-  if (k >= 1) [dw, dh] = [s.w * k, s.h * k];
-  else {
-    const d = Math.ceil(Math.max(s.w / w, s.h / h));
-    [dw, dh] = [Math.floor(s.w / d), Math.floor(s.h / d)];
-  }
+  const k = Math.max(1, Math.floor(Math.min(w / s.w, h / s.h)));
+  const dw = s.w * k, dh = s.h * k;
   ctx.drawImage(s.img, s.x, s.y, s.w, s.h, Math.round(x + (w - dw) / 2), Math.round(y + (h - dh) / 2), dw, dh);
+}
+
+const bounds = new Map<string, { x: number; y: number; w: number; h: number }>();
+
+/** The box round a sprite's opaque pixels, in its frame (cached by name; whole frame if empty). */
+export function artBounds(s: Sprite, name: string): { x: number; y: number; w: number; h: number } {
+  let b = bounds.get(name);
+  if (b) return b;
+  const d = s.img.getContext('2d')!.getImageData(s.x, s.y, s.w, s.h).data;
+  let x0 = s.w, y0 = s.h, x1 = -1, y1 = -1;
+  for (let i = 0; i < s.w * s.h; i++) {
+    if (!d[i * 4 + 3]) continue;
+    const px = i % s.w, py = (i / s.w) | 0;
+    x0 = Math.min(x0, px); x1 = Math.max(x1, px); y0 = Math.min(y0, py); y1 = Math.max(y1, py);
+  }
+  b = x1 < 0 ? { x: 0, y: 0, w: s.w, h: s.h } : { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1 };
+  bounds.set(name, b);
+  return b;
 }
 
 /** Forget every cached sprite so all regenerate on next use. */
 export function resetSprites() {
   cache.clear();
+  bounds.clear();
   pages.length = 0;
 }
 

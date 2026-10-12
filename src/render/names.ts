@@ -36,7 +36,7 @@ export function allSpriteNames(): string[] {
     for (const part of ['booster', 'plow', 'springs']) out.push(`bo:part:${part}:${d}`);
     for (const f of R(2)) out.push(`bo:plume:${d}:${f}`);
     for (const part of PART_NAMES) out.push(`part:${part}:${d}`);
-    out.push(`part:bigsprings:${d}`);
+    out.push(`part:bigsprings:${d}`, `part:bigtreads:${d}`);
     for (const f of R(2)) out.push(`fx:plume:${d}:${f}`);
     for (const t of TIERS) for (const f of R(3)) out.push(`fx:slash:${t}:${d}:${f}`);
   }
@@ -68,7 +68,7 @@ export function spriteSpec(name: string): { w: number; h: number; ox: number; oy
     case 'bo:plume': return { w: 32, h: 32, ox: 16, oy: 16 };
     case 'part:booster': case 'part:plow': case 'part:jaws': case 'part:jets': return { w: 16, h: 16, ox: 8, oy: 8 };
     case 'part:treads': case 'part:springs': return { w: 32, h: 32, ox: 16, oy: 20 };
-    case 'part:bigsprings': return { w: 40, h: 40, ox: 20, oy: 26 };
+    case 'part:bigsprings': case 'part:bigtreads': return { w: 40, h: 40, ox: 20, oy: 26 };
     case 'pickup:booster': case 'pickup:treads': case 'pickup:plow': case 'pickup:jaws': case 'pickup:jets': case 'pickup:springs': return { w: 16, h: 16, ox: 8, oy: 12 };
     case 'icon:part': return { w: 16, h: 16, ox: 0, oy: 0 };
     case 'fx:plume': return { w: 16, h: 16, ox: 8, oy: 8 };

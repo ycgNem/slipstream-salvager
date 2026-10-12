@@ -34,6 +34,8 @@ The game draws on a **640 × 360** logical canvas, scaled by whole numbers only.
 |---|---|---|---|---|
 | Floor and wall tile | 16 × 16 | (0, 0) | full | walls are solid squares |
 | **Player body** ("Scrapper") | **32 × 32** | (16, 20) | 18–20 wide, 16–20 tall | circle r = 8 at the anchor |
+| **Skiff** (M9 chassis) | **32 × 32** | (16, 20) | 16–23 wide, 14–18 tall: low and long, on skids (no treads), a fin | circle r = 8 at the anchor |
+| **Hauler** (M9 chassis) | **32 × 32** | (16, 20) | 21–27 wide, 16–24 tall: a tall slab on wide treads, a push plate | circle r = 8 at the anchor |
 | **Rammer** | **40 × 40** | (20, 26) | 26–30 wide, 22–26 tall | circle r = 11 at the anchor |
 | **Snapper** (M3) | **32 × 32** | (16, 20) | 16–20 wide, 12–16 tall, low and wide | circle r = 8 at the anchor |
 | **Hopper** (M6) | **40 × 40** | (20, 26) | 22–26 wide, 16–20 tall: a squat frog, big haunches | circle r = 10 at the anchor |
@@ -43,6 +45,7 @@ The game draws on a **640 × 360** logical canvas, scaled by whole numbers only.
 | Mounted part overlay (rear and front mounts) | 16 × 16 | (8, 8) | ≤ 14 × 14 | none (part of the body) |
 | Treads overlay (sides mount, M3) | 32 × 32 | (16, 20) | the two tread guards either side of the body's footprint | none |
 | Springs overlay (sides mount, M6) | 32 × 32 | (16, 20) | a gold coil bumper either side of the body's footprint | none |
+| Wide sides overlays (`part:bigsprings`, `part:bigtreads`) | 40 × 40 | (20, 26) | the same parts set out past a wide body's hull and treads (a Rammer's springs; the Hauler's springs and treads) | none |
 | Terrain tile: boost strip, oil (M7) | 16 × 16 | (0, 0) | full | none: painted on the floor (`floor` on the arena) |
 | Terrain: jump ramp, crusher plate (M7) | 32 × 32 | (0, 0) | full | none |
 | Loose part (pickup) | 16 × 16 | (8, 12) | ≤ 14 × 12 | circle r = 7 |
@@ -81,6 +84,7 @@ Grammar: `group:thing[:state][:dir][:frame]`.
 | `pl:scrapper:drive:<dir>:<0-1>` | 2 | treads roll; frame advances with distance travelled, not time |
 | `pl:scrapper:rip:<dir>:<0-1>` | 2 | claw thrust out |
 | `pl:scrapper:hurt:<dir>` | 1 | |
+| `pl:<skiff\|hauler>:<drive\|rip>:<dir>:<0-1>`, `pl:<skiff\|hauler>:hurt:<dir>` | 2, 1 | M9. The other two chassis, same frames as the Scrapper. The Skiff: a low wedge on two skids, a bubble cab, a tail fin (it bobs; no treads). The Hauler: a tall slab on wide treads, a push plate across its nose, a cab with a stack. Same claw and mounts as the Scrapper (mount distances in `src/data/mounts.ts`) |
 | `en:rammer:stalk:<dir>:<0-1>` | 2 | |
 | `en:rammer:windup:<dir>:<0-1>` | 2 | crouched; the renderer adds a ±1 px shake |
 | `en:rammer:charge:<dir>:<0-1>` | 2 | |
@@ -103,7 +107,8 @@ Grammar: `group:thing[:state][:dir][:frame]`.
 | `part:treads:<dir>` | 1 | sides overlay (32 × 32, the body's anchor), drawn *under* the body so the guards stick out either side |
 | `part:jets:<dir>` | 1 | M6. Rear overlay (16 × 16, like the booster): two upright gold jet canisters on a strap; the plume fires under it on a leap |
 | `part:springs:<dir>` | 1 | M6. Sides overlay (32 × 32, like the treads): a gold coil bumper either side |
-| `part:bigsprings:<dir>` | 1 | M6. The Springs on a Rammer (40 × 40, anchor (20, 26)): the pair set wide enough to show past its hull |
+| `part:bigsprings:<dir>` | 1 | M6. The Springs on a Rammer and on the Hauler (40 × 40, anchor (20, 26)): the pair set wide enough to show past its hull |
+| `part:bigtreads:<dir>` | 1 | M9. Grip Treads on the Hauler (40 × 40, anchor (20, 26)): the tread units set out past its own treads |
 | `bo:compactor:<stalk\|windup\|charge\|stunned\|crouch>:<dir>:<0-1>` | 2 | M8. The Compactor, drawn *without* its parts: a plum hull on heavy treads, a ribbed steel bin on its back with a round core hatch in its lid, a dark cab with a lit visor (white-hot winding up and charging, dim stunned). `crouch` is its core-open leap: the hatch thrown back over its rear, the pale core swelling out of the hole |
 | `bo:compactor:<skid\|air\|land>:<dir>` | 1 | M8. Skidding nose up; in the air (core open); landed and stuck |
 | `bo:part:<booster\|plow>:<dir>` | 1 | M8. Its booster and plow, the small parts' models at 2x (32 × 32, anchor (16, 16)) at its rear and front mounts (20 and 22 px out, 7 px up) |

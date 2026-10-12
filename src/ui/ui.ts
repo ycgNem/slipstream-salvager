@@ -25,6 +25,9 @@ export class UI {
   kbFocus = false;
   private order: string[] = [];
   private prevOrder: string[] = [];
+  /** buttons side by side (`row`): Left/Right moves the focus along the row */
+  private rowOf = new Map<string, string>();
+  private rowMove: { row: string; dir: number } | null = null;
   private nav = 0;
   private confirm = false;
   private side = 0;
@@ -53,9 +56,12 @@ export class UI {
     this.clicked = input.mouse.pressed[0];
     this.prevOrder = this.order;
     this.order = [];
+    this.rowOf.clear();
+    this.rowMove = null;
     this.nav = 0;
     this.side = 0;
     this.confirm = false;
+    const shown = this.kbFocus;
     if (menus) {
       if (input.wasPressed('down')) this.nav++;
       if (input.wasPressed('up')) this.nav--;
@@ -68,9 +74,12 @@ export class UI {
     if (this.nav && this.prevOrder.length) {
       const i = this.focus ? this.prevOrder.indexOf(this.focus) : -1;
       const n = this.prevOrder.length;
-      this.focus = this.prevOrder[i < 0 ? 0 : (i + this.nav + n) % n];
+      // while the focus was hidden (the mouse was in use) the first press only shows where it is
+      this.focus = this.prevOrder[i < 0 ? 0 : shown ? (i + this.nav + n) % n : i];
       this.nav = 0;
     }
+    // ... and a first Left/Right doesn't change a toggle or a slider it couldn't see
+    if (!shown) this.side = 0;
     if (this.audit) {
       this.lastAudit = this.auditLog;
       this.auditLog = [];
@@ -79,6 +88,11 @@ export class UI {
 
   /** End a frame: keep the focus on something that exists. */
   end() {
+    if (this.rowMove) {
+      const row = this.order.filter((id) => this.rowOf.get(id) === this.rowMove!.row);
+      const i = row.indexOf(this.focus ?? '');
+      if (i >= 0) this.focus = row[Math.max(0, Math.min(row.length - 1, i + this.rowMove.dir))];
+    }
     if (this.order.length && (!this.focus || !this.order.includes(this.focus))) this.focus = this.order[0];
   }
 
@@ -161,8 +175,13 @@ export class UI {
     return lines.length * lineH;
   }
 
-  button(id: string, x: number, y: number, w: number, h: number, label: string, opts: { active?: boolean; disabled?: boolean } = {}): boolean {
-    const focused = this.focusable(id);
+  button(id: string, x: number, y: number, w: number, h: number, label: string, opts: { active?: boolean; disabled?: boolean; row?: string } = {}): boolean {
+    // a disabled button is skipped by the focus: the ring never sits on something that does nothing
+    const focused = !opts.disabled && this.focusable(id);
+    if (opts.row && !opts.disabled) {
+      this.rowOf.set(id, opts.row);
+      if (focused && this.side) this.rowMove = { row: opts.row, dir: this.side };
+    }
     const hov = (this.hover(x, y, w, h) || focused) && !opts.disabled;
     const down = this.hover(x, y, w, h) && this.input.mouse.down[0];
     this.rec('button', x, y, w, h);
@@ -219,6 +238,14 @@ export class UI {
     const focused = this.focusable(id);
     const hov = this.hover(x, y - 2, w, 11);
     this.text(label, x, y, focused || hov ? C.white : C.frost);
+    // the keyboard focus: the buttons' frost ring, round the whole row
+    if (focused) {
+      this.ctx.fillStyle = PALETTE[C.frost];
+      this.ctx.fillRect(x - 3, y - 3, w + 6, 1);
+      this.ctx.fillRect(x - 3, y + 9, w + 6, 1);
+      this.ctx.fillRect(x - 3, y - 3, 1, 13);
+      this.ctx.fillRect(x + w + 2, y - 3, 1, 13);
+    }
     const bx = x + w - 9;
     this.fill(bx, y - 1, 9, 9, C.ink);
     this.fill(bx + 1, y, 7, 7, v ? C.rust3 : C.floor0);

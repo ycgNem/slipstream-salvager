@@ -313,7 +313,7 @@ export function scene(app: App, name: SceneName) {
       beginWindup(w, r, false);
       r.cd = 99;
       place(w, 240, 180, 0, 90);
-      run(play, 14, { x: 1, y: 0, rip: false, bolt: false });
+      run(play, 24, { x: 1, y: 0, rip: false, bolt: false });
       break;
     }
     case 'exits':

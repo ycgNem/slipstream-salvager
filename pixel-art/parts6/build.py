@@ -8,8 +8,10 @@ pixel-art/parts/model.py, and every direction is rendered from the model, never 
   part:springs:<dir>  32x32, anchor (16,20) = the body's anchor, like the treads; drawn UNDER the body
                       (the renderer redraws the rows below the anchor over it): a gold coil bumper
                       either side between steel end plates
-  part:bigsprings:<dir> 40x40, anchor (20,26): the same pair on a Rammer, set wide enough to show past
-                      its hull and treads
+  part:bigsprings:<dir> 40x40, anchor (20,26): the same pair on a Rammer (and the Hauler), set wide
+                      enough to show past its hull and treads
+  part:bigtreads:<dir>  40x40, anchor (20,26): Grip Treads on the Hauler, set out past its own treads
+                      (the model is pixel-art/parts' treads, shifted out)
   pickup:<part>       16x16, anchor (8,12)  = lying loose on the floor, with the salvage glint
   icon:part:<part>    16x16, anchor (0,0)   = HUD slot, hand-drawn side on like the other four icons
 
@@ -36,6 +38,10 @@ PREV = ROOT / 'e2e/out/pixel-art'
 
 
 # ---------------------------------------------------------------- mounted overlays
+
+def bigtreads(d):
+    return sculpt(40, 40, 20, 26, dir_angle(d), M.bigtreads_scene, M.treads_mats(), zmax=6)[0]
+
 
 def jets(d):
     return sculpt(16, 16, 8, 8, dir_angle(d), M.jets_scene, M.jets_mats(), zmax=6, zmin=-4)[0]
@@ -179,6 +185,8 @@ def main():
     for d, dn in enumerate(DIRS):
         entries.append((f'part:bigsprings:{dn}', springs(d, True), (20, 26)))
     for d, dn in enumerate(DIRS):
+        entries.append((f'part:bigtreads:{dn}', bigtreads(d), (20, 26)))
+    for d, dn in enumerate(DIRS):
         entries.append((f'part:jets:{dn}', jets(d), (8, 8)))
     entries += [
         ('pickup:jets', pickup_jets(), (8, 12)),
@@ -186,19 +194,19 @@ def main():
         ('icon:part:jets', icon_jets(), (0, 0)),
         ('icon:part:springs', icon_springs(), (0, 0)),
     ]
-    # sheet: the 40x40 big springs on the first row, the 32x32 springs on the second, the 16x16
-    # sprites in rows of 8 under them
-    sheet = Image.new('RGBA', (40 * 8, 40 + 32 + 16 * 2), (0, 0, 0, 0))
+    # sheet: the 40x40 big springs on the first row, the big treads on the second, the 32x32
+    # springs on the third, the 16x16 sprites in rows of 8 under them
+    sheet = Image.new('RGBA', (40 * 8, 80 + 32 + 16 * 2), (0, 0, 0, 0))
     recipe = []
     small = 0
     for n, img, o in entries:
         w, h = len(img[0]), len(img)
         if w == 40:
-            x, y = DIRS.index(n.split(':')[2]) * 40, 0
+            x, y = DIRS.index(n.split(':')[2]) * 40, 40 if n.startswith('part:bigtreads') else 0
         elif w == 32:
-            x, y = DIRS.index(n.split(':')[2]) * 32, 40
+            x, y = DIRS.index(n.split(':')[2]) * 32, 80
         else:
-            x, y = (small % 8) * 16, 72 + (small // 8) * 16
+            x, y = (small % 8) * 16, 112 + (small // 8) * 16
             small += 1
         sheet.paste(to_image(img), (x, y))
         recipe.append({'match': n, 'file': 'parts6.png', 'rect': [x, y, w, h], 'frame': [w, h], 'origin': list(o)})
@@ -224,6 +232,7 @@ def main():
     by = {n: img for n, img, _ in entries}
     grid_sheet([(n[5:], by[n]) for n in by if n.startswith('part:springs')], 5, PREV / 'parts6-springs.png', cols=4)
     grid_sheet([(n[5:], by[n]) for n in by if n.startswith('part:bigsprings')], 4, PREV / 'parts6-bigsprings.png', cols=4)
+    grid_sheet([(n[5:], by[n]) for n in by if n.startswith('part:bigtreads')], 4, PREV / 'parts6-bigtreads.png', cols=4)
     grid_sheet([(n[5:], by[n]) for n in by if n.startswith('part:jets')], 8, PREV / 'parts6-jets.png', cols=8)
     old_pk = {e['match']: e for e in json.loads((HERE.parent / 'parts' / 'sprites.json').read_text())['sprites'] if e['match'].startswith('pickup:')}
     oldim = Image.open(HERE.parent / 'parts' / 'parts.png').convert('RGBA')

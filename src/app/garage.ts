@@ -35,12 +35,12 @@ export class Garage {
       if (open) drawFit(ui.ctx, s, x + cw / 2 - 32, y + 6, 64, 64);
       else ui.ctx.drawImage(silhouette(s, name, C.ink), 0, 0, s.w, s.h, x + cw / 2 - 32, y + 6, 64, 64);
       ui.text(def.name, x + cw / 2, y + 74, open ? C.white : C.mist, { align: 'center' });
-      if (open) ui.para(def.line, x + 10, y + 88, cw - 20, on ? C.ink : C.frost);
+      if (open) ui.para(def.line, x + 10, y + 88, cw - 20, on ? C.white : C.frost);
       else {
         ui.text('LOCKED', x + cw / 2, y + 88, C.lilac, { align: 'center' });
         ui.para(unlockText(id as Exclude<ChassisId, 'scrapper'>, c), x + 10, y + 100, cw - 20, C.mist);
       }
-      if (ui.button(`g-${id}`, x + 14, y + ch - 26, cw - 28, 18, !open ? 'LOCKED' : on ? 'TAKEN' : 'TAKE IT', { active: on, disabled: !open })) this.chassis = id;
+      if (ui.button(`g-${id}`, x + 14, y + ch - 26, cw - 28, 18, !open ? 'LOCKED' : on ? 'TAKEN' : 'TAKE IT', { active: on, disabled: !open, row: 'cards' })) this.chassis = id;
     });
 
     // the modifiers

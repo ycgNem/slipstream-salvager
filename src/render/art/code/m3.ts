@@ -72,6 +72,12 @@ const treadsScene: Scene = (h, x, y, z) => {
   h.add(sdBox(x, ay - 8.6, z - 4.6, 6.2, 2.3, 0.6, 0.5), GOLD, x, y, z);
 };
 
+/** Grip Treads on the Hauler (`part:bigtreads`): the same units, set out past its own wide treads. */
+const bigTreadsScene: Scene = (h, x, y, z) => {
+  const ay = Math.abs(y) - 3.4;
+  treadsScene(h, x, Math.abs(ay), z);
+};
+
 /** The Plow at the front mount (origin at the mount, +x forward): a curved scoop blade. */
 export const plowScene: Scene = (h, x, y, z) => {
   const ay = Math.abs(y);
@@ -105,11 +111,12 @@ function mountedFront(scene: Scene, d: number) {
   };
 }
 
-function mountedTreads(d: number) {
+function mountedTreads(d: number, big = false) {
+  const [w, h, ox, oy] = big ? [40, 40, 20, 26] : [32, 32, 16, 20];
   return {
-    w: 32, h: 32, ox: 16, oy: 20,
+    w, h, ox, oy,
     draw: (ctx: Ctx, c: HTMLCanvasElement) => {
-      sculpt(ctx, c, { w: 32, h: 32, ox: 16, oy: 20, angle: dirAngle(d), scene: treadsScene, mats: PART_MATS, zMax: 6 });
+      sculpt(ctx, c, { w, h, ox, oy, angle: dirAngle(d), scene: big ? bigTreadsScene : treadsScene, mats: PART_MATS, zMax: 6 });
     },
   };
 }
@@ -190,6 +197,7 @@ export function registerM3() {
     }
     defSprite(`en:snapper:slide:${dn}`, snapper(d, { ...S0, roll: 0.35, pitch: -0.1 }));
     defSprite(`part:treads:${dn}`, mountedTreads(d));
+    defSprite(`part:bigtreads:${dn}`, mountedTreads(d, true));
     for (const k of ['plow', 'jaws'] as const) defSprite(`part:${k}:${dn}`, mountedFront(PART_SCENES[k], d));
   });
   defSprite('pickup:treads', loose(oneTread, 0));

@@ -353,7 +353,7 @@ function drawEnemy(ctx: Ctx, r: Enemy, fx: Fx, time: number, lift = 0) {
   };
   // the treads go under the body, sticking out either side
   // a Rammer's hull is wider: its springs are the wide pair
-  const sideName = r.parts.sides === 'springs' && r.kind === 'rammer' ? `part:bigsprings:${dn}` : `${pre}:${r.parts.sides}:${dn}`;
+  const sideName = r.parts.sides && r.kind === 'rammer' ? sidePart(r.parts.sides, true, dn) : `${pre}:${r.parts.sides}:${dn}`;
   if (r.parts.sides) drawMounted(ctx, sideName, x, y, { dx: 0, dy: 0, behind: true }, tearable(r, r.parts.sides) && blink, false);
   if (rm.behind) rear();
   if (fm.behind) front();
@@ -363,6 +363,12 @@ function drawEnemy(ctx: Ctx, r: Enemy, fx: Fx, time: number, lift = 0) {
   if (!rm.behind) rear();
   if (!fm.behind) front();
   if (r.parts.sides) nearTrack(ctx, sideName, x, y, dn);
+}
+
+/** A side part's overlay: a wide body (a Rammer, the Hauler) wears the wide pair, set out past its
+ * hull and its own treads so it shows in every direction. */
+function sidePart(part: PartId, wide: boolean, dn: string) {
+  return wide && (part === 'springs' || part === 'treads') ? `part:big${part}:${dn}` : `part:${part}:${dn}`;
 }
 
 /** Side parts sit under the body, but except facing straight up or down the near track is in
@@ -403,7 +409,8 @@ function drawPlayer(ctx: Ctx, w: World, fx: Fx, time: number) {
   const front = () => {
     if (frontPart) drawMounted(ctx, `part:${frontPart.id}:${dn}`, x, y, fm, false, frontPart.cracked);
   };
-  if (sides) drawMounted(ctx, `part:${sides.id}:${dn}`, x, y, { dx: 0, dy: 0, behind: true }, false, false);
+  const sideName = sides && sidePart(sides.id, w.chassis === 'hauler', dn);
+  if (sideName) drawMounted(ctx, sideName, x, y, { dx: 0, dy: 0, behind: true }, false, false);
   if (m.behind) rear();
   if (fm.behind) front();
   const s = sprite(name);
@@ -411,10 +418,11 @@ function drawPlayer(ctx: Ctx, w: World, fx: Fx, time: number) {
   else drawSprite(ctx, s, x, y);
   if (!m.behind) rear();
   if (!fm.behind) front();
-  if (sides) nearTrack(ctx, `part:${sides.id}:${dn}`, x, y, dn);
+  if (sideName) nearTrack(ctx, sideName, x, y, dn);
   if (sides?.cracked) {
-    const [cx, cy] = NEAR_TRACK[dn];
-    crack(ctx, x + cx, y + cy);
+    // the wide pair's near unit is further out
+    const [cx, cy] = NEAR_TRACK[dn], k = sideName?.startsWith('part:big') ? 1.35 : 1;
+    crack(ctx, x + Math.round(cx * k), y + Math.round(cy * k));
   }
   // bolting: wrench sparks at the mount the part is going on
   if (p.bolt !== null && Math.floor(time * 20) % 3 === 0) dot(ctx, x + m.dx + Math.round(Math.random() * 4 - 2), y + m.dy - 2, C.gold3);

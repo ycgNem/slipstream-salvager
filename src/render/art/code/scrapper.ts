@@ -81,7 +81,7 @@ function mats(p: Pose): Mat[] {
   m[EYE] = { ramp: [8, 8, 9, 9], ink: 0, group: 5 };
   m[HEAD] = { ramp: [20, 21, 22, 63], ink: 19 };
   m[ANT] = { ramp: [2, 6, 7, 7], noInk: true };
-  m[TIP] = { ramp: [16, 16, 23, 63], noInk: true };
+  m[TIP] = { ramp: [16, 16, 63, 63], noInk: true };
   m[VENT] = { ramp: [19, 19, 20, 20], group: HEAD };
   return m;
 }

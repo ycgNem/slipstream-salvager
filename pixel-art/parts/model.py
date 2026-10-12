@@ -41,6 +41,16 @@ def treads_scene(h, x, y, z):
     h.add(sd_cyl(ay - (POD_Y + POD_HY), tx - (POD_HX - 1.0), z - 1.6, 1.0, 0.3, 0.1), T_HUB, tx, y, z)
 
 
+# (part:bigtreads) the same pods set further out, past the Hauler's own wide treads (their outer edge
+# is ~10.5 px out), so a bolted pair shows in every direction
+BIG_TREAD_SHIFT = 3.4
+
+
+def bigtreads_scene(h, x, y, z):
+    ay = abs(y) - BIG_TREAD_SHIFT
+    treads_scene(h, x, math.copysign(abs(ay), y), z)
+
+
 def treads_mats():
     def track(q):
         # cleats across the track: light/dark stripes along its length
