@@ -8,6 +8,7 @@ import { drawFit, sprite } from '../render/atlas';
 import { allSpriteNames } from '../render/names';
 import { makeCanvas, ctx2d } from '../render/art/pixel';
 import { registerCodeArt } from '../render/art/code/index';
+import { registerImportedArt } from '../render/art/imported';
 import { UI } from '../ui/ui';
 import { Play } from './play';
 import { loadBest, loadSettings, saveSettings, type Settings } from './settings';
@@ -42,6 +43,7 @@ export class App {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d')!;
     registerCodeArt();
+    registerImportedArt();
     this.input.attach(canvas);
     this.input.onGesture = () => this.audio.unlock();
     this.ui.sfx = (id) => this.audio.sfx(id);

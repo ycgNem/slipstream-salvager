@@ -3,7 +3,9 @@
 Written 2026-10-12. `PLAN.md` is what the game is, `STYLE.md` the art rules, `DECISIONS.md` every
 call and why, `PROGRESS.md` what's built, `HANDOFF.md` where the last session stopped.
 
-**Status:** the owner approved every default in section 1 (2026-10-12). M0 and M1 are built; stopped for the owner's playtest (HANDOFF.md has how to play).
+**Status:** the owner approved every default in section 1 (2026-10-12). M0 and M1 are built. The
+owner said M1 "looks good, continue as planned" (2026-10-12), which lifted the scope fence: M2 took
+the critic's open points as defaults, and M3 is planned in PLAN.md section 8 and being built.
 
 **How every session runs:** start with *"Read ROADMAP.md and HANDOFF.md"*, then paste the phase's
 prompt. Build the phase, deciding small things alone and logging them in `DECISIONS.md`. Run the
@@ -200,7 +202,19 @@ stop for the owner's playtest.
   the second part (Grip Treads) as a contrast. Repeat playtests until the owner says the loop is
   serviceable.
 - **M3 — A short run.** A sequence of arenas in a 10–15-minute run, a handful of parts across body
-  slots, a second enemy type, no escalating timer. Planned only once M2 is signed off.
+  slots, a second enemy type, no escalating timer. **Planned in PLAN.md section 8** (2026-10-12).
+  Phases, each a commit or a few:
+  - **3a — Mounts and enemies as data.** Three player mounts, enemies with parts on mounts, the
+    generic hit-zone tear rule, `w.enemies` replacing `w.rammers`. Checks: every M1/M2 test still
+    passes; data tests for mounts and loadouts.
+  - **3b — The Snapper and the Grip Treads.** AI, snap, power-slide, the treads' power-slide brake,
+    code art, sounds, hints. Checks: Snapper unit tests, a route test (treads hairpin vs base brake),
+    guards with Snappers.
+  - **3c — The run.** Yards and layouts, the exit-gate choice, the patch-up, run results and best run,
+    the HUD's three slots. Checks: a bot plays whole runs on many seeds without errors or softlocks.
+  - **3d — Plow and Jaws.** Both parts, the Plow Rammer and the Jaw Snapper, code art.
+  - **3e — Verify.** Every check, the qa-screens and indie-critic agents, fixes; stop for the owner.
+  Prompt: *"Read ROADMAP.md, HANDOFF.md and PLAN.md section 8. Build the next unfinished M3 phase."*
 - **M4 — Art overhaul.** SpriteCook generation to STYLE.md's names and sizes, the import pipeline,
   coverage at 100%.
 - **M5 — First public build.** GitHub repo, Pages, Windows installers, player-facing patch notes.

@@ -253,3 +253,20 @@ a number in the tuning panel, and the M1 rule is one setting away (given with ea
     is weaker than a person at getting behind a Rammer; the guards compare strategies, they don't
     measure difficulty.
 
+*Milestone 3, a short run (2026-10-12; PLAN.md section 8).*
+
+64. **The M3 plan.** Five yards (The Ring first, The Heap last, three of four middle yards chosen on
+    the way), three mounts each tied to one verb (rear: acceleration, sides: turning, front: contact),
+    one new enemy (the Snapper, with a Jaw variant) and three new parts (Grip Treads, Plow, Jaws),
+    plus the Plow Rammer. **The next yard is chosen by driving out through one of two exit gates**,
+    each signed with the yard's name and the part it carries. *Why:* "a run of arenas" with build
+    variety (the RoR2 reference) needs a choice of salvage, and making the choice a drive-through
+    keeps the robot moving (pillar 1) instead of stopping at a menu. Each new part changes a verb and
+    comes off an enemy that visibly moves that way (pillar 3). Escalation is the number of enemies by
+    depth, never a clock (#22). Not in M3: a boss, currency, shops, meta-progression.
+65. **The art tool is the pixel-art-studio skill**, not SpriteCook (#20). Every sprite is drawn by a
+    deterministic build script (`pixel-art/<family>/build.py`, Resurrect 64, Pillow), exported and
+    packed through the existing import script into `src/art/`, and registered by name by the new
+    `src/render/art/imported.ts`. *Why:* the owner asked for it (2026-10-12). A build script can be
+    rerun and edited, so the art stays exact and on the palette, and nothing costs credits.
+

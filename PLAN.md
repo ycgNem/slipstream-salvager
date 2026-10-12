@@ -333,3 +333,109 @@ UI kit and its overlap audit, the e2e harness, the art scripts, the Electron wra
 service worker, the `.bat` files, and the vite / vitest / tsconfig files. **Not copied:** anything in
 S&S's `src/sim`, `src/data`, `src/ui/windows`, `src/app`, the renderer, the save system, the songs,
 the art, the docs' content.
+
+---
+
+## 8. The short run (Milestone 3)
+
+Written 2026-10-12 after M2. The owner said the slice "looks good" and to continue as planned, so
+this is ROADMAP's M3 outline made concrete: a sequence of arenas in a 10-15 minute run, a handful of
+parts across body slots, a second enemy type, no escalating timer. Every addition is held to the
+removal test: each part changes a verb (how you turn, what your hit does, what your body does on
+contact), and each comes off an enemy that visibly moves that way.
+
+### 8.1 The run
+
+- **Five yards**, each one screen (640 × 360) with its own layout and 2-3 waves, about 2 minutes
+  each. Yard 1 is always **The Ring** (the slice's three Rammer waves, the tutorial). Yards 2-4 are
+  chosen by you from the middle pool. Yard 5 is always **The Heap**, the mixed finale.
+- **Choosing the next yard is driving.** When a yard is cleared, two exit gates open in its walls,
+  each with a sign: the next yard's name and the icon of the part its enemies carry. Drive out
+  through the one you want. No menu, no stopping (DECISIONS #64).
+- **Between yards:** your hull is patched by 1 pip (max 5), and your bolted parts and the part on
+  your cable come with you. Loose parts on the floor stay behind.
+- **Escalation is composition, never a clock** (#22): the later you visit a middle yard, the more
+  enemies its last wave sends (one more per depth past 2).
+- **The end:** clearing The Heap, or being scrapped, shows the run's results: yards cleared, time,
+  parts torn off, your final build, and the best run so far. *Again* starts a new run at once.
+
+### 8.2 Three mounts
+
+The Scrapper has three mounts, each tied to one verb, so parts compose instead of stacking numbers:
+
+| Mount | Verb it changes | Parts |
+|---|---|---|
+| **Rear** | how you accelerate (and what holding Rip does) | Booster |
+| **Sides** | how you turn and brake | Grip Treads |
+| **Front** | what your hits and your body do on contact | Plow, Jaws |
+
+Bolting a part puts it on its mount; a part already there drops to the floor (a swap). The HUD shows
+the three slots. **A hit knocks off the part on the side it came from** (a hit from behind takes the
+rear part, from a side the treads, from the front the front part); if that mount is empty, the next
+part in the order sides, rear, front; only with nothing bolted on does the hull take it. A part
+knocked loose is cracked, and a cracked part that takes another hit shatters (#58).
+
+**Enemies wear their parts on the same mounts**, and a Slipstream hit on the zone where a part sits
+tears it off: the back tears a rear part, a side the treads, the front a front part, except the
+Plow, which only comes off in a joust (8.4).
+
+### 8.3 The second enemy: the Snapper
+
+A small, fast tread-bot that hunts in packs. The Rammer punishes straight lines and rewards a juke;
+the Snapper punishes loops and parking, and you beat it in a straight line.
+
+- Small (the Scrapper's size, radius 8), **HP 2**, top speed **175** (just under Slipstream: at
+  Slipstream you outrun it; at Cruise it catches you), turns fast and faces where it's going.
+- **Hunts** you on an intercept line. A camper looping a pillar gets cut off.
+- **Snap:** within 70 px and roughly facing you, it stops and winds up for 0.35 s (a short red lane,
+  its own width, tracking for 0.2 s then locked), then lunges 80 px at 330 px/s. A bite is a hit.
+- **Power-slide:** after a snap, or when you get behind it, it slides round on its treads to face
+  you again (about 0.6 s), **broadside**. That's the opening: a Slipstream hit on its side tears its
+  **Grip Treads** off. Its front glances (1), its back wrecks it (2).
+- At most two Snappers wind up at once. A stripped Snapper limps (110 px/s), turns slowly and can't
+  slide, but still snaps.
+- **Jaw Snapper:** the same bot with **Jaws** on its front. Its bite latches on and flings you (a hit
+  and a long throw). A Slipstream hit on its front tears the Jaws off.
+
+### 8.4 The new parts
+
+- **Grip Treads** (sides; from the Snapper). Turning ×1.35 at every speed, and you grip harder (turn
+  scrub starts at ×1.4 the sideways pull); top speed ×0.92 (221). **The brake becomes a
+  power-slide:** pushing hard against your motion at speed no longer stops you; you slide round to
+  the new direction (about 0.35 s for a full reversal) and keep most of your speed (a 180° slide
+  from top speed exits at Slipstream). The base body brakes, stops and pivots. So the treads' line is
+  the **hairpin**: strike, slide round, strike again. Weakness, inherited: the low top speed leaves
+  little margin above Slipstream.
+- **Plow** (front; from the Plow Rammer, which wears it on its front with a booster on its back).
+  **Contact becomes a hit:** at Slipstream, driving your front into an enemy (within 50° of your
+  heading) is a hit as if you'd Ripped, and you plough on through; at Cruise it shoves and cancels a
+  windup without bouncing you. **A charge that hits your front is blocked:** the charger is stopped
+  and stunned, and you're knocked back with nothing lost. Weakness, inherited: heavy, so the run-up
+  is slower (acceleration above 60 px/s ×0.8). On a Plow Rammer the plow makes its front take no
+  damage at all ("CLANG"), and it only comes off in a joust.
+- **Jaws** (front; from the Jaw Snapper). **A hit latches and slings:** a Slipstream hit (Rip or
+  Burn) bites on and swings you 180° round the enemy in 0.2 s, then flings you out the way you came,
+  40 px/s faster. The damage lands as normal. Every hit reverses you at speed: pinball between
+  enemies. Weakness, inherited: the swing is locked; you can't steer out of it.
+- **Booster** (rear): as in 4.4.
+- Flat mode: every bolted part adds +1 damage and changes nothing about how you move (#50).
+
+### 8.5 The yards
+
+| Yard | Layout | Salvage | Waves (at depth 2) |
+|---|---|---|---|
+| **The Ring** (always 1st) | 4 pillars | Booster | 1 Rammer (safety net); 2 Rammers; 3 Rammers |
+| **The Kennel** | a forest of small pillars | Grip Treads | 2 Snappers; 3 Snappers; 1 Rammer + 3 Snappers |
+| **Long Lanes** | two long low walls: three straight lanes | Booster | 2 Rammers; 2 Rammers + 1 Snapper; 3 Rammers + 1 Snapper |
+| **The Plow Pit** | open bowl round one big pillar | Plow | 1 Plow Rammer; 1 Plow Rammer + 1 Rammer; 2 Plow Rammers + 1 Snapper |
+| **Jaw Yard** | four corner blocks round an open cross | Jaws | 2 Jaw Snappers; 2 Jaw Snappers + 1 Rammer; 3 Jaw Snappers + 1 Snapper |
+| **The Heap** (always 5th) | broken ring of scrap piles | everything | Rammer + 2 Snappers + Jaw Snapper; Plow Rammer + 2 Jaw Snappers + Rammer; 2 Rammers + Plow Rammer + 2 Snappers + Jaw Snapper |
+
+Each yard's first visit shows one hint about its enemy ("HIT ITS SIDE WHILE IT SLIDES", "JOUST ITS
+CHARGE TO TEAR THE PLOW OFF", ...), and each new part shows one hint about its verb when first
+bolted on.
+
+### 8.6 Not in M3 (on purpose)
+
+A boss, more than two enemy types, currency, shops, meta-progression between runs, healing beyond
+the yard patch, story, a map screen, key rebinding in the UI and the art overhaul (M4).

@@ -35,10 +35,14 @@ The game draws on a **640 × 360** logical canvas, scaled by whole numbers only.
 | Floor and wall tile | 16 × 16 | (0, 0) | full | walls are solid squares |
 | **Player body** ("Scrapper") | **32 × 32** | (16, 20) | 18–20 wide, 16–20 tall | circle r = 8 at the anchor |
 | **Rammer** | **40 × 40** | (20, 26) | 26–30 wide, 22–26 tall | circle r = 11 at the anchor |
-| Mounted part overlay | 16 × 16 | (8, 8) | ≤ 14 × 14 | none (part of the body) |
+| **Snapper** (M3) | **32 × 32** | (16, 20) | 16–20 wide, 12–16 tall, low and wide | circle r = 8 at the anchor |
+| Mounted part overlay (rear and front mounts) | 16 × 16 | (8, 8) | ≤ 14 × 14 | none (part of the body) |
+| Treads overlay (sides mount, M3) | 32 × 32 | (16, 20) | the two tread guards either side of the body's footprint | none |
 | Loose part (pickup) | 16 × 16 | (8, 12) | ≤ 14 × 12 | circle r = 7 |
 | Part icon (HUD) | 16 × 16 | (0, 0) | 14 × 14 | — |
 | Pillar | 32 × 40 | (0, 8) | footprint 32 × 32, top face 8 px tall | square 32 × 32 |
+| Post (M3) | 16 × 24 | (0, 8) | footprint 16 × 16, top face 8 px tall | square 16 × 16 |
+| Tower (M3) | 48 × 56 | (0, 8) | footprint 48 × 48, top face 8 px tall | square 48 × 48 |
 | Gate (wall opening) | 32 × 16 in the top and bottom walls, 16 × 32 in the side walls | (0, 0) | — | open while a Rammer enters |
 | Spark, dust, steam, smoke | 8 × 8 | (4, 4) | — | — |
 | Claw slash | 32 × 32 | (16, 16) | — | — |
@@ -65,6 +69,7 @@ Grammar: `group:thing[:state][:dir][:frame]`.
 | `t:floor:<0-3>` | 1 | four floor variants, chosen by a hash of the tile position |
 | `t:wall:<mask>` | 1 | 4-bit neighbor mask (0–15) |
 | `ob:pillar` | 1 | |
+| `ob:post`, `ob:tower` | 1 | M3 yards: a small and a big pillar, same look as `ob:pillar` |
 | `ob:gate:<h\|v>:<closed\|open\|warn>` | 1 | `h` in the top/bottom walls, `v` in the sides; `warn` blinks via the renderer, not frames |
 | `pl:scrapper:drive:<dir>:<0-1>` | 2 | treads roll; frame advances with distance travelled, not time |
 | `pl:scrapper:rip:<dir>:<0-1>` | 2 | claw thrust out |
@@ -74,9 +79,15 @@ Grammar: `group:thing[:state][:dir][:frame]`.
 | `en:rammer:charge:<dir>:<0-1>` | 2 | |
 | `en:rammer:skid:<dir>` | 1 | |
 | `en:rammer:stunned:<dir>:<0-1>` | 2 | |
-| `part:booster:<dir>` | 1 | mounted overlay, used on both bodies |
-| `pickup:booster` | 1 | the loose part (towed or on the floor); the renderer bobs it |
-| `icon:part:booster` | 1 | HUD |
+| `en:snapper:hunt:<dir>:<0-1>` | 2 | M3. A small, low tread-bot with a snout; drawn *without* its treads (they're the `part:treads` overlay, so a stripped Snapper limps on bare axles) |
+| `en:snapper:windup:<dir>:<0-1>` | 2 | crouched, snout down; the renderer adds a ±1 px shake |
+| `en:snapper:snap:<dir>:<0-1>` | 2 | stretched forward, lunging |
+| `en:snapper:slide:<dir>` | 1 | sliding sideways, leaning |
+| `en:snapper:stunned:<dir>:<0-1>` | 2 | |
+| `part:<booster\|plow\|jaws>:<dir>` | 1 | mounted overlay (16 × 16), used on every body that carries it: the booster on the rear mount, the plow and the jaws on the front mount |
+| `part:treads:<dir>` | 1 | sides overlay (32 × 32, the body's anchor), drawn *under* the body so the guards stick out either side |
+| `pickup:<booster\|treads\|plow\|jaws>` | 1 | the loose part (towed or on the floor); the renderer bobs it |
+| `icon:part:<booster\|treads\|plow\|jaws>` | 1 | HUD slots |
 | `fx:plume:<dir>:<0-1>` | 2 | booster flame |
 | `fx:slash:<tier>:<dir>:<0-2>` | 3 | tier = `crawl`, `cruise`, `slip` |
 | `fx:spark:<0-2>`, `fx:dust:<0-3>`, `fx:steam:<0-3>`, `fx:smoke:<0-3>` | — | |
@@ -161,13 +172,25 @@ lightest ramp color.
   thing that matters for play made obvious (the Rammer's booster, the claw).
 - Sizes and anchors exactly as in the table above.
 
-## The art overhaul (later, only after the owner approves the loop)
+## The art overhaul (M4; the owner approved the loop on 2026-10-12)
 
-- **Generator:** the SpriteCook plugin (the pixel-art plugin enabled on the owner's account), with
+- **Tool (DECISIONS #65):** the **pixel-art-studio** skill (`~/.claude/skills/pixel-art-studio`),
+  the owner's choice: every sprite is drawn pixel by pixel by a deterministic Python build script,
+  `pixel-art/<family>/build.py`, palette Resurrect 64 only, light from the upper left, the plum
+  outline. The script is the source of truth; never hand-edit an exported PNG. Its exports go
+  through the import pipeline below, unchanged.
+- *Superseded:* the SpriteCook plugin (the pixel-art plugin enabled on the owner's account), with
   PixelLab's free `pixelart_workbench` for exact pixel fixes. PixelLab generation, which S&S used,
   stays available as a fallback (DECISIONS #20).
-- **Pipeline:** the same as S&S: generate, snap to Resurrect 64, pack into PNG sheets plus JSON
-  (name, rectangle, anchor) under `src/art/`, with raw generations and recipes in `art/<group>/` so
-  every import can be rerun. Fix what the generator can't draw by script, not by hand.
-- **Checks:** contact sheet of each batch, the screenshot sweep, the coverage script.
-- Settings per asset kind (model, size, view, outline) get written here when the overhaul starts.
+- **Pipeline:** `pixel-art/<family>/build.py` exports 1x PNG strips; a recipe
+  `pixel-art/<family>/sprites.json` names every frame; `node scripts/sprites-import.mjs
+  pixel-art/<family>/sprites.json` snaps to Resurrect 64 and packs `src/art/<family>.png` + `.json`;
+  `src/render/art/imported.ts` registers every sheet in `src/art/` by name, and an imported frame
+  wins over the code-drawn placeholder. Fix anything the import flags in the build script.
+- **Checks:** the import's preview sheet (`e2e/out/art/<family>.preview.png`), the code-art sheet
+  (`node e2e/artsheet.mjs`) for side-by-side comparison, the screenshot sweep, the coverage script.
+- **The bar:** an imported family replaces the code-drawn one only if it reads better at 1x in play
+  (silhouette, facing, the thing that matters for play: the claw, the booster, the Snapper's side).
+  If it doesn't, it isn't imported and the placeholder stays.
+- West-side facings may be stored as mirrors (`flipX` in the recipe) where the light flip isn't
+  noticeable at 1x; the build script decides per family.
