@@ -191,7 +191,11 @@ function drawEnemy(ctx: Ctx, r: Enemy, fx: Fx, time: number) {
   const name = enemySprite(r, time);
   const blink = Math.floor(time * 10) % 2 === 0;
   const rm = rearMount(d, r.kind === 'rammer' ? MOUNT_DIST.rammer : MOUNT_DIST.snapper);
-  const fm = frontMount(d, r.kind === 'rammer' ? FRONT_DIST.rammer : FRONT_DIST.snapper);
+  // the Snapper's head lunges 3 px out on a snap and dips 1 px in its windup and when stunned,
+  // and the jaws stay on it
+  const fm = r.kind === 'rammer'
+    ? frontMount(d, FRONT_DIST.rammer)
+    : frontMount(d, FRONT_DIST.snapper + (r.state === 'snap' ? 3 : 0), r.state === 'windup' || r.state === 'stunned' ? 2 : 3);
   const rear = () => {
     const part = r.parts.rear;
     if (!part) return;

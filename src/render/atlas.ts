@@ -200,12 +200,17 @@ export function sprite(name: string): Sprite {
   if (s) return s;
   const base = name;
   let g: Gen | undefined;
+  /** its sheet is still loading: draw the fallback (or nothing) until it lands */
+  let pending = false;
   {
     const f = imageFrame(base);
     if (f) {
       const sh = loadSheet(f.url);
       if (sh.canvas) g = frameGen(f, sh.canvas);
-      else if (!sh.failed) sh.waiting.add(name);
+      else if (!sh.failed) {
+        sh.waiting.add(name);
+        pending = true;
+      }
     }
   }
   if (!g) {
@@ -220,6 +225,12 @@ export function sprite(name: string): Sprite {
     }
     // names drawn by code rather than an imported sheet (e2e/coverage.mjs --drawn lists them)
     if (g) codeDrawn.add(base);
+  }
+  if (!g && pending) {
+    // imported-only art whose sheet hasn't loaded yet: blank for a frame or two, not missing
+    s = { img: makeCanvas(1, 1), x: 0, y: 0, w: 1, h: 1, ox: 0, oy: 0 };
+    cache.set(name, s);
+    return s;
   }
   if (!g) {
     if (import.meta.env?.DEV) console.warn('missing sprite', name);

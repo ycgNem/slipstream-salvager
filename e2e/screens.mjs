@@ -2,11 +2,11 @@
 // scripted, frozen state, one PNG each at 2x. For each shot the UI's overlap audit (src/ui/audit.ts)
 // lists texts that clash, overflow their panel or button, or get covered; issues are boxed in the
 // PNG and listed in e2e/out/screens/report.json. Exits non-zero if any shot has issues or the page
-// logged errors. Usage: node e2e/screens.mjs [scene ...]
+// logged errors. Usage: node e2e/screens.mjs [scene ...] (SHOTS=dir writes elsewhere)
 import fs from 'node:fs';
 import { serve, launch, OUT } from './serve.mjs';
 
-const dir = `${OUT}/screens`;
+const dir = process.env.SHOTS ?? `${OUT}/screens`;
 fs.mkdirSync(dir, { recursive: true });
 const only = process.argv.slice(2);
 const srv = await serve();

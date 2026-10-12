@@ -48,7 +48,7 @@ try {
       const fam = n.split(':').slice(0, 2).join(':');
       famMs[fam] = (famMs[fam] ?? 0) + performance.now() - t1;
       const spec = namesMod.spriteSpec(n);
-      if (s === missing || s.img === missing.img || !codeDrawn.has(n)) bad.push(`${n}: missing (placeholder)`);
+      if (s === missing || s.img === missing.img || (!imported && !codeDrawn.has(n))) bad.push(`${n}: missing (placeholder)`);
       else if (s.w !== spec.w || s.h !== spec.h || s.ox !== spec.ox || s.oy !== spec.oy)
         bad.push(`${n}: got ${s.w}x${s.h} @(${s.ox},${s.oy}), spec ${spec.w}x${spec.h} @(${spec.ox},${spec.oy})`);
     }

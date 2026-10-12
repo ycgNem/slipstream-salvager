@@ -5,7 +5,7 @@ import { GameLoop } from '../engine/loop';
 import { ACTION_LABELS, DEBUG_KEYS, Input, keyLabel, type Action } from '../engine/input';
 import { version } from '../../package.json';
 import { Audio } from '../engine/audio/audio';
-import { drawFit, sprite } from '../render/atlas';
+import { artReady, drawFit, sprite } from '../render/atlas';
 import { allSpriteNames } from '../render/names';
 import { makeCanvas, ctx2d } from '../render/art/pixel';
 import { registerCodeArt } from '../render/art/code/index';
@@ -46,6 +46,7 @@ export class App {
     this.ctx = canvas.getContext('2d')!;
     registerCodeArt();
     registerImportedArt();
+    artReady().then(() => (this.warm = allSpriteNames()));
     this.input.attach(canvas);
     this.input.onGesture = () => this.audio.unlock();
     this.ui.sfx = (id) => this.audio.sfx(id);
@@ -67,8 +68,9 @@ export class App {
     this.oy = Math.floor((ch - VIEW_H * this.zoom) / 2);
   }
 
-  /** Sprites not yet generated; a few are made each frame so play never hitches on a first use. */
-  private warm = allSpriteNames();
+  /** Sprites not yet generated; a few are made each frame so play never hitches on a first use
+   * (once the imported sheets are in, so they're cut from the sheets, not the fallbacks). */
+  private warm: string[] = [];
 
   private tick() {
     if (this.screen === 'play' && this.play) this.play.tick();
