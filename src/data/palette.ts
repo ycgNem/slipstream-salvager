@@ -43,7 +43,7 @@ export const C = {
   ink: 0, plum: 1, slate: 2, dusk: 3, taupe: 4, mauve: 5, lilac: 6, mist: 7, frost: 8, white: 9,
   // speed (teal) and the tiers
   speed0: 39, speed1: 40, speed2: 41, speed3: 42, speed4: 43, speedSky: 48,
-  cruise: 22, cruiseHi: 23, crawl: 6, crawlHi: 7,
+  cruise: 32, cruiseHi: 33, crawl: 6, crawlHi: 7,
   // danger (red, magenta)
   danger0: 10, danger1: 11, danger2: 12, danger3: 15, dangerMag: 59, dangerPink: 60,
   // salvage (gold)

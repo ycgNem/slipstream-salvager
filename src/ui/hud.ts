@@ -1,12 +1,13 @@
-// The in-play HUD: hull pips, wave, the part slot and towed part with bolt progress, and the speed
-// gauge with its two marks. Speed must read without it (STYLE.md), so it stays small and at the
-// edges.
+// The in-play HUD, kept on the wall band so it never covers the floor or a gate: hull and wave top
+// left, the part slot top right (with towing and bolt progress), the speed gauge bottom left. Speed
+// must read without it (STYLE.md), so it stays small.
 import { C } from '../data/palette';
 import { WAVES } from '../data/waves';
 import { PARTS } from '../data/parts';
-import { drawFit, drawSprite, sprite } from '../render/atlas';
+import { drawSprite, sprite } from '../render/atlas';
 import { playerStats } from '../sim/body';
 import type { World } from '../sim/world';
+import { textWidth } from './font';
 import type { UI } from './ui';
 
 const GAUGE_MAX = 330;
@@ -14,32 +15,34 @@ const GAUGE_MAX = 330;
 export function drawHud(ui: UI, w: World, keys: { bolt: string }) {
   const p = w.player, t = w.t;
 
-  // hull pips, top left
-  ui.fill(4, 4, 6 + t.hull * 10, 14, C.ink);
-  for (let i = 0; i < t.hull; i++) drawSprite(ui.ctx, sprite(i < p.hull ? 'ui:hull:full' : 'ui:hull:empty'), 8 + i * 10, 7);
+  // hull pips and wave, top left (the top center is a gate)
+  const wave = `WAVE ${Math.min(WAVES.length, w.wave.index + 1)}/${WAVES.length}`;
+  const wx = 8 + t.hull * 10 + 4;
+  ui.fill(2, 1, wx + textWidth(wave) + 4 - 2, 14, C.ink);
+  for (let i = 0; i < t.hull; i++) drawSprite(ui.ctx, sprite(i < p.hull ? 'ui:hull:full' : 'ui:hull:empty'), 6 + i * 10, 4);
+  ui.text(wave, wx, 4, C.frost);
 
-  // wave, top left beside the hull (the top center is a gate)
-  const wn = Math.min(WAVES.length, w.wave.index + 1);
-  ui.text(`WAVE ${wn}/${WAVES.length}`, 14 + t.hull * 10, 7, C.mist, { shadow: C.ink });
-
-  // part slot, top right
-  const sx = 640 - 24, sy = 4;
-  ui.panel(sx, sy, 20, 20, 'inset');
-  if (p.part) drawFit(ui.ctx, sprite(`icon:part:${p.part}`), sx + 2, sy + 2, 16, 16);
-  ui.text(p.part ? PARTS[p.part].name.toUpperCase() : 'NO PART', sx - 4, sy + 2, p.part ? C.gold2 : C.lilac, { align: 'right', shadow: C.ink });
-  if (p.tow) {
-    const bolting = p.bolt !== null;
-    ui.text(bolting ? 'BOLTING...' : `TOWING  ${keys.bolt}: BOLT ON`, sx - 4, sy + 12, C.gold3, { align: 'right', shadow: C.ink });
-    if (bolting) {
-      ui.fill(sx, sy + 22, 20, 3, C.ink);
-      ui.fill(sx + 1, sy + 23, Math.round(18 * Math.min(1, p.bolt! / t.boltTime)), 1, C.gold);
-    }
+  // the part slot, top right, with the part's name and what you're towing to its left
+  const sx = 622;
+  const name = p.part ? PARTS[p.part].name.toUpperCase() : 'NO PART';
+  const bolting = p.bolt !== null;
+  const tow = p.tow ? (bolting ? 'BOLTING...' : `TOWING  ${keys.bolt}: BOLT ON`) : '';
+  const nameW = textWidth(name);
+  const left = sx - 6 - nameW - (tow ? textWidth(tow) + 10 : 0);
+  ui.fill(left - 4, 1, 640 - left + 4, 14, C.ink);
+  ui.fill(sx - 1, 0, 18, 16, C.floor0);
+  if (p.part) drawSprite(ui.ctx, sprite(`icon:part:${p.part}`), sx, 0);
+  ui.text(name, sx - 6, 4, p.part ? C.gold2 : C.lilac, { align: 'right' });
+  if (tow) {
+    ui.text(tow, sx - 6 - nameW - 10, 4, C.gold3, { align: 'right' });
+    if (bolting) ui.fill(sx - 6 - nameW, 13, Math.max(1, Math.round(nameW * Math.min(1, p.bolt! / t.boltTime))), 1, C.gold);
   }
 
   // speed gauge, bottom left on the wall (the bottom center is a gate)
   const gw = 168, gx = 58, gy = 349;
   const at = (v: number) => gx + 1 + Math.round(((gw - 2) * Math.min(v, GAUGE_MAX)) / GAUGE_MAX);
-  ui.fill(gx, gy, gw, 6, C.ink);
+  ui.fill(2, gy - 4, gx + gw + 28, 14, C.ink);
+  ui.fill(gx, gy, gw, 6, C.plum);
   const sp = p.speed;
   const seg = (a: number, b: number, c: number) => {
     const x0 = at(a), x1 = at(Math.min(b, sp));
@@ -53,6 +56,6 @@ export function drawHud(ui: UI, w: World, keys: { bolt: string }) {
   ui.fill(at(playerStats(w).topSpeed), gy - 1, 1, 8, C.lilac);
   const tier = p.tier === 'slip' ? 'SLIPSTREAM' : p.tier === 'cruise' ? 'CRUISE' : 'CRAWL';
   const col = p.tier === 'slip' ? C.speed4 : p.tier === 'cruise' ? C.cruiseHi : C.crawlHi;
-  ui.text(tier, gx - 4, gy - 2, col, { align: 'right', shadow: C.ink });
-  ui.text(`${Math.round(sp)}`, gx + gw + 4, gy - 2, C.mist, { shadow: C.ink });
+  ui.text(tier, gx - 4, gy - 1, col, { align: 'right' });
+  ui.text(`${Math.round(sp)}`, gx + gw + 4, gy - 1, C.mist);
 }

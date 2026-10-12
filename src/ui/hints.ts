@@ -1,5 +1,6 @@
-// The three first-time hints (PLAN.md 4.5): shown once each, in the world above the robot rather
-// than as a checklist, and dropped as soon as you've done the thing.
+// The three first-time hints (PLAN.md 4.5): shown once each, one at a time, when they're relevant
+// (not as a checklist), and dropped as soon as you've done the thing. They sit on the bottom wall
+// band so they never cover a lane (DECISIONS #44).
 import { C } from '../data/palette';
 import type { World } from '../sim/world';
 import type { SimEvent } from '../sim/events';
@@ -51,16 +52,15 @@ export class Hints {
     this.shownFor += dt;
   }
 
-  draw(ui: UI, w: World, keys: { rip: string; bolt: string }) {
+  /** On the bottom wall band, right of the gate: a fixed spot, so a hint never covers a lane. */
+  draw(ui: UI, keys: { rip: string; bolt: string }) {
     if (!this.current) return;
     const text = this.current === 'speed' ? 'BUILD SPEED - THE CLAW TURNS TEAL'
       : this.current === 'tear' ? `HIT ITS BACK AT TEAL (${keys.rip}) TO TEAR OFF ITS BOOSTER`
       : `TAP ${keys.bolt} TO BOLT IT ON`;
-    const p = w.player;
-    const y = p.y < 60 ? Math.round(p.y) + 18 : Math.round(p.y) - 34;
-    const half = Math.ceil(textWidth(text) / 2) + 4;
-    const x = Math.max(half, Math.min(640 - half, Math.round(p.x)));
+    const tw = textWidth(text);
+    ui.fill(632 - tw - 4, 345, tw + 8, 14, C.ink);
     const blink = this.shownFor < 0.6 && Math.floor(this.shownFor * 10) % 2 === 1;
-    ui.text(text, x, y, blink ? C.white : this.current === 'speed' ? C.speed4 : C.gold3, { align: 'center', shadow: C.ink });
+    ui.text(text, 632, 348, blink ? C.white : this.current === 'speed' ? C.speed4 : C.gold3, { align: 'right' });
   }
 }

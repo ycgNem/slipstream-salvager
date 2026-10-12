@@ -68,7 +68,6 @@ export class Play {
     if (advanced) {
       this.ripLatch = false;
       this.boltLatch = false;
-      this.afterTick++;
       this.ticked();
     }
     for (const e of this.world.events) this.handle(e);
@@ -79,11 +78,12 @@ export class Play {
 
   /** Per-tick presentation that follows the sim: trails, dust, skid marks. */
   ticked() {
+    this.afterTick++;
     const w = this.world, p = w.player, fx = this.fx;
     const ang = p.heading;
     if (p.tier === 'slip' && this.afterTick % 4 === 0) fx.after.push({ name: playerSprite(w, this.time), x: p.x, y: p.y, age: 0 });
     if (p.tier === 'slip' && this.afterTick % 2 === 0) fx.wind(p.x - Math.cos(ang) * 10, p.y - Math.sin(ang) * 10, ang);
-    if (p.tier !== 'crawl' && this.afterTick % 4 === 0) fx.puff('dust', p.x - Math.cos(ang) * 8, p.y + 3 - Math.sin(ang) * 6, -Math.cos(ang) * 20, -Math.sin(ang) * 20, 0.35);
+    if (p.tier !== 'crawl' && this.afterTick % 3 === 0) fx.puff('dust', p.x - Math.cos(ang) * 8, p.y + 3 - Math.sin(ang) * 6, -Math.cos(ang) * 20, -Math.sin(ang) * 20, 0.35);
     if (p.brake && p.speed > 30) {
       const nx = -Math.sin(ang) * 4, ny = Math.cos(ang) * 4;
       fx.mark(p.x + nx, p.y + ny + 3);
@@ -140,7 +140,7 @@ export class Play {
         fx.dots(e.x, e.y, 24, [C.steel0, C.steel1, C.steel2, C.violet, C.mist], 160, 0.7);
         fx.sparks(e.x, e.y, 10);
         for (let i = 0; i < 5; i++) fx.puff('smoke', e.x, e.y - 4, 0, -14, 0.8);
-        if (e.lost) fx.text(e.x, e.y - 20, 'BOOSTER WRECKED', C.lilac);
+        if (e.lost) fx.text(e.x, e.y - 20, 'PART WRECKED', C.lilac);
         fx.addShake(3);
         a.sfx('wreck');
         break;
@@ -163,7 +163,7 @@ export class Play {
         break;
       case 'shatter':
         fx.dots(e.x, e.y, 16, [C.gold0, C.gold, C.mist, C.lilac], 140, 0.6);
-        fx.text(e.x, e.y - 18, 'BOOSTER SHATTERED', C.gold2);
+        fx.text(e.x, e.y - 18, 'SHATTERED', C.gold2);
         fx.playerFlash = 0.08;
         fx.addShake(3);
         a.sfx('shatter');
@@ -178,7 +178,7 @@ export class Play {
       case 'bolt-tick': a.sfx('bolt_tick', 1, 1 + e.n * 0.15); break;
       case 'bolted':
         fx.dots(p.x, p.y, 10, [C.gold2, C.gold3, C.white], 80, 0.4);
-        fx.text(p.x, p.y - 24, 'BOOSTER BOLTED ON', C.gold3);
+        fx.text(p.x, p.y - 24, 'BOLTED ON!', C.gold3);
         a.sfx('bolted');
         break;
       case 'bolt-cancel': a.sfx('bolt_cancel'); break;
@@ -214,7 +214,7 @@ export class Play {
     }
     this.host.audio.setDuck(this.paused);
     this.time += dt;
-    if (!this.paused) {
+    if (!this.paused && !this.frozen) {
       this.fx.update(dt);
       this.hints.update(this.world, dt);
     }
@@ -226,10 +226,10 @@ export class Play {
   draw(ui: UI, dt: number) {
     const w = this.world;
     drawWorld(ui.ctx, w, this.fx, { time: this.time, shake: this.host.settings.shake });
-    if (!w.result) this.hints.draw(ui, w, this.keys);
+    if (!w.result) this.hints.draw(ui, this.keys);
     drawHud(ui, w, this.keys);
     if (DEBUG_KEYS) this.tuning.draw(ui, w.t, (on) => (w.flat = on), dt);
-    if (w.flat) ui.text('FLAT MODE', 8, 22, C.danger2, { shadow: C.ink });
+    if (w.flat) ui.text('FLAT MODE', 8, 22, C.white, { shadow: C.ink });
     if (this.paused) this.drawPause(ui);
     else if (w.result && this.endT > 1.2) this.drawResults(ui);
   }
@@ -240,7 +240,7 @@ export class Play {
   }
 
   private drawPause(ui: UI) {
-    ui.fill(0, 0, 640, 360, C.ink, 0.6);
+    ui.dim();
     const x = 250, y = 110, w = 140, h = 136;
     ui.panel(x, y, w, h, 'dark');
     ui.text('PAUSED', x + w / 2, y + 10, C.white, { align: 'center', scale: 2 });
@@ -252,10 +252,10 @@ export class Play {
 
   private drawResults(ui: UI) {
     const w = this.world, s = w.stats, cleared = w.result === 'cleared';
-    ui.fill(0, 0, 640, 360, C.ink, 0.55);
+    ui.dim();
     const x = 220, y = 80, pw = 200, ph = 196;
     ui.panel(x, y, pw, ph, 'dark');
-    ui.text(cleared ? 'YARD CLEARED' : 'SCRAPPED', x + pw / 2, y + 10, cleared ? C.speed4 : C.danger2, { align: 'center', scale: 2 });
+    ui.text(cleared ? 'YARD CLEARED' : 'SCRAPPED', x + pw / 2, y + 10, cleared ? C.white : C.danger2, { align: 'center', scale: 2 });
     const secs = s.ticks / 60;
     const rows: [string, string][] = [
       ['TIME', `${Math.floor(secs / 60)}:${String(Math.floor(secs % 60)).padStart(2, '0')}`],

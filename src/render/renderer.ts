@@ -180,7 +180,9 @@ function drawPlayer(ctx: Ctx, w: World, fx: Fx, time: number) {
   const tip = clawTip(p.heading);
   const [g0, g1] = TIER_GLOW[p.rip ? p.rip.tier : p.tier];
   const tx = x + tip.dx, ty = y + tip.dy;
-  if (p.tier === 'slip' || p.rip?.tier === 'slip') ring(ctx, tx, ty, 2, g0);
+  const tierNow = p.rip ? p.rip.tier : p.tier;
+  if (tierNow === 'slip') ring(ctx, tx, ty, 2, g0);
+  else if (tierNow === 'cruise') ring(ctx, tx, ty, 1, g0);
   dot(ctx, tx, ty, g1);
   pline(ctx, tx + Math.cos(p.heading) * 2, ty + Math.sin(p.heading) * 2 * 0.6, tx + Math.cos(p.heading) * 4, ty + Math.sin(p.heading) * 4 * 0.6, g1);
   // the slash

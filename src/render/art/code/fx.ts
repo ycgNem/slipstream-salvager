@@ -26,7 +26,7 @@ interface SlashTier {
 
 const SLASH: Record<(typeof TIERS)[number], SlashTier> = {
   crawl: { r: 12.5, thick: 2.6, span: 0.9, cols: [6, 6, 7], hot: 7, sharp: 1 },
-  cruise: { r: 13.5, thick: 3.2, span: 1.05, cols: [22, 22, 23], hot: 23, sharp: 1.2 },
+  cruise: { r: 13.5, thick: 3.2, span: 1.05, cols: [32, 32, 33], hot: 33, sharp: 1.2 },
   slip: { r: 15.4, thick: 4.4, span: 1.3, cols: [41, 42, 43], hot: 9, sharp: 1.8 },
 };
 
@@ -84,19 +84,19 @@ function spark(f: number) {
     w: 8, h: 8, ox: 4, oy: 4,
     draw: (ctx: Ctx) => {
       if (f === 0) {
-        // a 5 px cross: white core, pale yellow, orange tips, plus two stray flecks
+        // a 5 px cross: white core, frost, orange tips, plus two stray flecks (no gold: gold is salvage)
         px(ctx, 4, 4, 9);
-        for (const [x, y] of [[3, 4], [5, 4], [4, 3], [4, 5]]) px(ctx, x, y, 28);
-        for (const [x, y] of [[2, 4], [6, 4], [4, 2], [4, 6]]) px(ctx, x, y, 17);
-        px(ctx, 1, 1, 28);
+        for (const [x, y] of [[3, 4], [5, 4], [4, 3], [4, 5]]) px(ctx, x, y, 8);
+        for (const [x, y] of [[2, 4], [6, 4], [4, 2], [4, 6]]) px(ctx, x, y, 16);
+        px(ctx, 1, 1, 8);
         px(ctx, 6, 7, 16);
       } else if (f === 1) {
-        px(ctx, 4, 4, 28);
-        for (const [x, y] of [[3, 4], [5, 4], [4, 3], [4, 5]]) px(ctx, x, y, 17);
-        px(ctx, 6, 2, 16);
+        px(ctx, 4, 4, 8);
+        for (const [x, y] of [[3, 4], [5, 4], [4, 3], [4, 5]]) px(ctx, x, y, 16);
+        px(ctx, 6, 2, 13);
       } else {
-        px(ctx, 4, 4, 17);
-        px(ctx, 2, 6, 16);
+        px(ctx, 4, 4, 16);
+        px(ctx, 2, 6, 13);
       }
     },
   };
@@ -124,7 +124,7 @@ function puff(f: number, cols: readonly [number, number, number]) {
   };
 }
 
-/** Stun stars: three little gold stars circling on a flat ellipse; 4 frames loop (120° apart). */
+/** Stun stars: three little white stars circling on a flat ellipse (not gold: gold is salvage); 4 frames loop. */
 function stars(f: number) {
   return {
     w: 16, h: 8, ox: 8, oy: 8,
@@ -137,11 +137,11 @@ function stars(f: number) {
       pts.sort((p, q) => (p.front ? 1 : 0) - (q.front ? 1 : 0));
       for (const p of pts) {
         if (p.front) {
-          px(ctx, p.x, p.y, 28);
-          for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) px(ctx, p.x + dx, p.y + dy, 18);
+          px(ctx, p.x, p.y, 9);
+          for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) px(ctx, p.x + dx, p.y + dy, 8);
         } else {
-          px(ctx, p.x, p.y, 18);
-          px(ctx, p.x + 1, p.y, 17);
+          px(ctx, p.x, p.y, 8);
+          px(ctx, p.x + 1, p.y, 7);
         }
       }
     },
@@ -169,7 +169,7 @@ export function registerFx() {
   });
   for (const f of [0, 1, 2]) defSprite(`fx:spark:${f}`, spark(f));
   for (const f of [0, 1, 2, 3]) {
-    defSprite(`fx:dust:${f}`, puff(f, [2, 3, 4]));
+    defSprite(`fx:dust:${f}`, puff(f, [4, 7, 8]));
     defSprite(`fx:steam:${f}`, puff(f, [7, 8, 9]));
     defSprite(`fx:smoke:${f}`, puff(f, [1, 2, 5]));
     defSprite(`fx:stars:${f}`, stars(f));

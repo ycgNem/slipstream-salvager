@@ -62,7 +62,7 @@ export class TuningPanel {
     ctx.clip();
     let cy = ly - this.scroll;
     for (const g of TUNING_GROUPS) {
-      if (cy > ly - 12 && cy < ly + lh) ui.text(g.title.toUpperCase(), lx + 2, cy + 2, C.gold3);
+      if (cy > ly - 12 && cy < ly + lh) ui.text(g.title.toUpperCase(), lx + 2, cy + 2, C.white);
       cy += 12;
       for (const [k, step] of g.keys) {
         const visible = cy > ly - 2 && cy < ly + lh - 10;

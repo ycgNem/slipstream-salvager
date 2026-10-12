@@ -92,6 +92,23 @@ export class UI {
     this.ctx.fillRect(x, y, w, h);
   }
 
+  private dimPattern: CanvasPattern | null = null;
+
+  /** Dim everything drawn so far with a checker of ink pixels (palette-true; no alpha). */
+  dim() {
+    if (!this.dimPattern) {
+      const c = document.createElement('canvas');
+      c.width = c.height = 2;
+      const x = c.getContext('2d')!;
+      x.fillStyle = PALETTE[C.ink];
+      x.fillRect(0, 0, 1, 1);
+      x.fillRect(1, 1, 1, 1);
+      this.dimPattern = this.ctx.createPattern(c, 'repeat');
+    }
+    this.ctx.fillStyle = this.dimPattern!;
+    this.ctx.fillRect(0, 0, this.w, this.h);
+  }
+
   panel(x: number, y: number, w: number, h: number, style: PanelStyle = 'dark') {
     x = Math.round(x);
     y = Math.round(y);

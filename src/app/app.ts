@@ -99,7 +99,7 @@ export class App {
     // blit, whole-number scale, letterboxed
     const c = this.ctx;
     c.imageSmoothingEnabled = false;
-    c.fillStyle = '#1d1620';
+    c.fillStyle = PALETTE[C.ink];
     c.fillRect(0, 0, this.canvas.width, this.canvas.height);
     c.drawImage(this.buf, 0, 0, VIEW_W, VIEW_H, this.ox, this.oy, VIEW_W * this.zoom, VIEW_H * this.zoom);
     this.input.endFrame();
@@ -173,7 +173,7 @@ export class App {
     const ui = this.ui, s = this.settings;
     if (this.settingsFrom === 'play' && this.play) {
       this.play.draw(ui, 0);
-      ui.fill(0, 0, 640, 360, C.ink, 0.7);
+      ui.dim();
     }
     const x = 200, y = 70, w = 240, h = 220;
     ui.panel(x, y, w, h, 'dark');

@@ -60,7 +60,7 @@ export function scene(app: App, name: SceneName) {
     case 'cruise':
       quiet(play);
       place(w, 120, 300, 0, 0);
-      run(play, 18, { x: 1, y: 0, rip: false, bolt: false });
+      run(play, 26, { x: 1, y: 0, rip: false, bolt: false });
       break;
     case 'slip':
       quiet(play);
@@ -124,6 +124,7 @@ export function scene(app: App, name: SceneName) {
     case 'cleared':
     case 'scrapped':
       run(play, 30);
+      play.fx.banner = null;
       w.result = name;
       play.endT = 2;
       w.stats.ticks = 6123;
