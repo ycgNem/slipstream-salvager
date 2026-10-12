@@ -131,4 +131,15 @@ them. **"Pending Qn"** means a default waiting on the owner's answer to that que
     hold everywhere for free, UI included.
 43. **The autopilot hook.** `Play.autopilot` lets a bot from `src/sim/bots.ts` drive the real game, so
     e2e scripts and the critic can watch the loop with all its feedback, not only the sim.
+44. **Hints sit on the bottom wall band**, right of the gate, one at a time, shown when relevant. *Why:*
+    the visual QA pass found the in-world hint text lying across locked lanes; in a fast action game a
+    hint must never cover a threat. Floating text was shortened ("TORN OFF!", "BOLTED ON!") for the
+    same reason.
+45. **Cruise is lime** (32/33): the claw ring, the slash and the gauge band. *Why:* amber was the
+    player's own body color and 23 is a salvage color, so Cruise didn't read from the robot alone.
+    Grey, lime, teal reads as a clean warm-up.
+46. **Color-rule fixes from the QA pass:** sparks and stun stars are white/frost/orange (they were
+    gold, which means salvage), "YARD CLEARED" is white (it was speed teal), menus dim with an ink
+    checker instead of alpha, the letterbox is palette ink, and the HUD's labels sit in the wall bands
+    on ink strips so nothing covers the floor's edge.
 

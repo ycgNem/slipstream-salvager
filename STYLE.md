@@ -114,7 +114,7 @@ reason.
 | Meaning | Colors (indices) | Used for | Never used for |
 |---|---|---|---|
 | **Speed** | teals 40–43, blue 48 | Slipstream glow, afterimages, wind lines, the gauge's top band, the player's Burn lane | enemies, danger |
-| Cruise | amber 22–23 | claw glow and gauge band at Cruise | |
+| Cruise | lime 32–33 | claw ring and gauge band at Cruise | (not amber: that's the player's body, and 23 is salvage; DECISIONS #45) |
 | Crawl | cool neutrals 6–7 | claw and gauge at Crawl | |
 | **Danger** | reds 11, 12, 15 and magenta 59–60 | telegraph lanes, charge flash, hurt flash, gate warning | anything friendly or decorative |
 | **Salvage** | gold 18, amber 23, pale yellow 28 | parts, the tow cable glint, the "torn off" burst | enemy bodies |
@@ -129,8 +129,11 @@ lightest ramp color.
 ## Motion and feedback rules
 
 - Every player input answers within **one tick** visibly (sprite, dust, sound), the Dead Cells rule.
-- Speed must be readable **without the HUD**: claw glow color by tier, dust at Cruise, afterimages
-  (3, every 3 ticks, fading) and wind lines at Slipstream, engine hum pitch.
+- Speed must be readable **without the HUD**: a claw ring by tier (lime at Cruise, teal at
+  Slipstream), dust at Cruise, dithered afterimages (every 4 ticks) and wind lines at Slipstream,
+  engine hum pitch.
+- Sparks and stun stars are white, frost and orange, never gold (gold means salvage).
+- Dimming behind menus is a checker of ink pixels, not alpha.
 - Hit-stop freezes the sim, not the renderer: particles keep moving through a freeze.
 - Screen shake is in whole pixels, at most 3 px, and can be turned off in Settings.
 - Telegraphs are drawn **under** bodies and **over** the floor, as pixel lines and dither, never as
