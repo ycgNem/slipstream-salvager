@@ -334,4 +334,21 @@ a number in the tuning panel, and the M1 rule is one setting away (given with ea
     - Sprites pre-warm after the sheets load. An imported-only name draws blank while its sheet
       loads, instead of as missing.
     - The Snapper's jaws follow its head on the snap, windup and stun.
+78. **Fixes from the M3 visual QA:**
+    - **The exit signs are painted on the floor**, under bodies, parts and texts. Before, they hid
+      the player and loose parts.
+    - **Floating texts stack:** a second text at the same spot goes above or below the first.
+      They stay clear of the wall bands, the HUD and the screen edges, and the overlap audit now
+      sees them and the banner.
+    - **Damaged enemies crackle relative to their own max HP:** slowly once hurt, fast at 1 HP. A
+      full-health Snapper crackled before, because its max is 2.
+    - **The wipe:** it holds still while the screen is frozen. The HUD, hints and signs hide while
+      the cover is full, and the yard name is white (gold is for salvage).
+    - **A crack is a white zigzag with an ink edge,** so it shows on gold and dark steel. The
+      results' build icons show it too.
+    - **The tear glint is a white outline;** gold on gold didn't show.
+    - **Side parts:** facing east or west, the near track is drawn over the body.
+    - **The claw's tier ring** moves to the front edge of a Plow or Jaws and gets an ink edge.
+    - **The screenshot scenes don't write to the best record,** and a run counts on its first tick.
+    - "SCRAPPED" is lilac, not danger red.
 

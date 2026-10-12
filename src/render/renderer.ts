@@ -16,7 +16,7 @@ import { laneOf } from '../sim/enemies';
 import { revving } from '../sim/rip';
 import { laneLength } from '../sim/arena';
 import type { Enemy, World } from '../sim/world';
-import { drawText, textWidth } from '../ui/font';
+import { drawText, FONT_H, textWidth } from '../ui/font';
 
 type Ctx = CanvasRenderingContext2D;
 
@@ -112,6 +112,8 @@ function tearable(r: Enemy, part: PartId): boolean {
 export interface DrawOpts {
   time: number;
   shake: boolean;
+  /** drawn on the floor, under every body, pickup and text (the exit signs) */
+  floor?: () => void;
 }
 
 export function drawWorld(ctx: Ctx, w: World, fx: Fx, o: DrawOpts) {
@@ -122,6 +124,7 @@ export function drawWorld(ctx: Ctx, w: World, fx: Fx, o: DrawOpts) {
 
   for (const g of w.arena.gates) drawSprite(ctx, sprite(`ob:gate:${g.orient}:${gateState(w, g, o.time)}`), g.rect.x, g.rect.y);
   fx.drawMarks(ctx);
+  o.floor?.();
 
   // telegraphs: under bodies, over the floor
   for (const r of w.enemies) {
@@ -180,10 +183,11 @@ export function drawWorld(ctx: Ctx, w: World, fx: Fx, o: DrawOpts) {
   drawBanner(ctx, fx);
 }
 
-/** Draw a mounted part (with an optional gold glint and crack) at a mount position. */
+/** Draw a mounted part (with an optional glint and crack) at a mount position. The glint is white:
+ * gold on gold (a Snapper's treads and jaws) didn't show at 1x. */
 function drawMounted(ctx: Ctx, name: string, x: number, y: number, m: MountPos, glint: boolean, cracked: boolean) {
   const s = sprite(name);
-  if (glint) outline(ctx, s, name, x + m.dx, y + m.dy, C.gold3);
+  if (glint) outline(ctx, s, name, x + m.dx, y + m.dy, C.white);
   drawSprite(ctx, s, x + m.dx, y + m.dy);
   if (cracked) crack(ctx, x + m.dx, y + m.dy);
 }
@@ -220,6 +224,17 @@ function drawEnemy(ctx: Ctx, r: Enemy, fx: Fx, time: number) {
   else drawSprite(ctx, s, x, y);
   if (!rm.behind) rear();
   if (!fm.behind) front();
+  if (r.parts.sides) nearTrack(ctx, `part:${r.parts.sides}:${dn}`, x, y, dn);
+}
+
+/** Side parts sit under the body, but facing east or west the near track is in front of it: draw
+ * the rows below the anchor again, over the body. */
+function nearTrack(ctx: Ctx, name: string, x: number, y: number, dn: string) {
+  if (dn !== 'e' && dn !== 'w') return;
+  const s = sprite(name);
+  const top = s.oy + 1;
+  if (top >= s.h) return;
+  ctx.drawImage(s.img, s.x, s.y + top, s.w, s.h - top, x - s.ox, y + 1, s.w, s.h - top);
 }
 
 function drawPlayer(ctx: Ctx, w: World, fx: Fx, time: number) {
@@ -258,16 +273,19 @@ function drawPlayer(ctx: Ctx, w: World, fx: Fx, time: number) {
   else drawSprite(ctx, s, x, y);
   if (!m.behind) rear();
   if (!fm.behind) front();
+  if (sides) nearTrack(ctx, `part:${sides.id}:${dn}`, x, y, dn);
   if (sides?.cracked) crack(ctx, x + 7, y - 2);
   // bolting: wrench sparks at the mount the part is going on
   if (p.bolt !== null && Math.floor(time * 20) % 3 === 0) dot(ctx, x + m.dx + Math.round(Math.random() * 4 - 2), y + m.dy - 2, C.gold3);
   // the claw's tier glow and the heading tick (the exact angle the 8-way sprite can't show)
-  const tip = clawTip(p.heading);
+  // with a Plow or Jaws on, the glow sits at the part's front edge, ink-edged so it reads on gold
+  const tip = clawTip(p.heading, frontPart ? 15 : 11);
   const [g0, g1] = TIER_GLOW[p.rip ? p.rip.tier : p.tier];
   const tx = x + tip.dx, ty = y + tip.dy;
   const tierNow = p.rip ? p.rip.tier : p.tier;
-  if (tierNow === 'slip') ring(ctx, tx, ty, 2, g0);
-  else if (tierNow === 'cruise') ring(ctx, tx, ty, 1, g0);
+  const ringR = tierNow === 'slip' ? 2 : tierNow === 'cruise' ? 1 : 0;
+  if (frontPart && ringR) ring(ctx, tx, ty, ringR + 1, C.ink);
+  if (ringR) ring(ctx, tx, ty, ringR, g0);
   dot(ctx, tx, ty, g1);
   pline(ctx, tx + Math.cos(p.heading) * 2, ty + Math.sin(p.heading) * 2 * 0.6, tx + Math.cos(p.heading) * 4, ty + Math.sin(p.heading) * 4 * 0.6, g1);
   // the slash
@@ -295,5 +313,10 @@ function drawBanner(ctx: Ctx, fx: Fx) {
   ctx.fillStyle = PALETTE[C.ink];
   ctx.fillRect(0, y - 8, 640, 9 * sc + 22);
   drawText(ctx, b.text, x, y, PALETTE[C.white], sc, PALETTE[C.rust0]);
-  if (b.sub) drawText(ctx, b.sub, 320 - Math.floor(textWidth(b.sub) / 2) + slide, y + 9 * sc + 2, PALETTE[C.mist], 1);
+  fx.audit?.(b.text, x, y, tw, FONT_H * sc);
+  if (b.sub) {
+    const sx = 320 - Math.floor(textWidth(b.sub) / 2) + slide;
+    drawText(ctx, b.sub, sx, y + 9 * sc + 2, PALETTE[C.mist], 1);
+    fx.audit?.(b.sub, sx, y + 9 * sc + 2, textWidth(b.sub), FONT_H);
+  }
 }

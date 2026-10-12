@@ -110,7 +110,10 @@ export function outline(ctx: Ctx, s: Sprite, key: string, x: number, y: number, 
   for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) ctx.drawImage(sil, x - s.ox + dx, y - s.oy + dy);
 }
 
-/** A cracked part: a short zigzag of ink pixels across it (anchor-relative). */
+/** A cracked part: a white zigzag with an ink edge on its right, so it reads on gold and on
+ * dark steel alike (anchor-relative). */
 export function crack(ctx: Ctx, x: number, y: number) {
-  for (const [dx, dy] of [[-2, -2], [-1, -1], [-1, 0], [0, 1], [1, 1], [1, 2]]) dot(ctx, x + dx, y + dy, 0);
+  const zig = [[-2, -2], [-1, -1], [-1, 0], [0, 1], [1, 1], [1, 2]];
+  for (const [dx, dy] of zig) dot(ctx, x + dx + 1, y + dy, 0);
+  for (const [dx, dy] of zig) dot(ctx, x + dx, y + dy, 9);
 }

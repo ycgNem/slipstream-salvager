@@ -37,6 +37,11 @@ export class UI {
     if (this.audit) this.auditLog.push({ kind, x, y, w, h, s, layer: 'ui', seq: this.auditLog.length });
   }
 
+  /** Record something drawn outside the kit (floating and banner texts) for the overlap audit. */
+  record(kind: AuditKind, x: number, y: number, w: number, h: number, s?: string) {
+    this.rec(kind, x, y, w, h, s);
+  }
+
   /** Start a frame. mx/my: the mouse in logical pixels. */
   begin(ctx: CanvasRenderingContext2D, input: Input, mx: number, my: number, dt: number, menus = true) {
     this.ctx = ctx;

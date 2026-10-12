@@ -6,11 +6,12 @@ import { DEBUG_KEYS, keyLabel, type Input } from '../engine/input';
 import type { Audio } from '../engine/audio/audio';
 import { Fx } from '../render/fx';
 import { drawWorld, playerSprite } from '../render/renderer';
-import { giveBolted, hasBooster, type InputFrame, type World } from '../sim/world';
+import { giveBolted, hasBooster, type Bolted, type InputFrame, type World } from '../sim/world';
 import { finishYard, newRun, yardWorld, type Run } from '../sim/run';
 import { RUN_LENGTH, YARDS, type YardId } from '../data/yards';
 import { PARTS, PART_IDS, type PartId } from '../data/parts';
 import { drawSprite, sprite } from '../render/atlas';
+import { crack } from '../render/pixgeom';
 import { textWidth } from '../ui/font';
 import { step } from '../sim/tick';
 import { revving } from '../sim/rip';
@@ -23,6 +24,8 @@ import { loadBest, loadSeenHints, saveBest, saveSeenHints, type Settings } from 
 
 /** seconds the wipe between yards takes */
 const WIPE = 0.8;
+/** how much of the screen the wipe covers, 0..1, t seconds in */
+const wipeCover = (t: number) => (t / WIPE < 0.5 ? (t / WIPE) * 2 : (1 - t / WIPE) * 2);
 
 export interface PlayHost {
   input: Input;
@@ -59,6 +62,10 @@ export class Play {
   time = 0;
   /** freeze the sim (screenshots) */
   frozen = false;
+  /** this run counts toward the best record (the screenshot scenes turn it off) */
+  record = true;
+  /** the run has been counted (on its first tick) */
+  private counted = false;
   /** events from the last ticks (e2e inspection) */
   recent: SimEvent[] = [];
   /** a scripted player (src/sim/bots.ts) drives instead of the input, for e2e and the critic */
@@ -70,9 +77,6 @@ export class Play {
     for (const id of LIVE.parts) giveBolted(this.world, id);
     this.hints = new Hints(loadSeenHints(), host.settings.hints);
     this.hints.onSeen = saveSeenHints;
-    const b = loadBest();
-    b.runs++;
-    saveBest(b);
   }
 
   /** The next yard: fold this one into the run and build the next world (mid-wipe). */
@@ -91,6 +95,7 @@ export class Play {
     if (this.runDone) return;
     this.runDone = true;
     finishYard(this.run, this.world);
+    if (!this.record) return;
     const b = loadBest(), r = this.run;
     const yards = r.over === 'won' ? RUN_LENGTH : r.depth - 1;
     b.bestYards = Math.max(b.bestYards, yards);
@@ -109,6 +114,15 @@ export class Play {
   /** One fixed tick (called by the loop). */
   tick() {
     if (this.paused || this.frozen || this.wipe) return;
+    if (!this.counted) {
+      // a run counts once it's actually played
+      this.counted = true;
+      if (this.record) {
+        const b = loadBest();
+        b.runs++;
+        saveBest(b);
+      }
+    }
     const input = this.host.input;
     const s = input.steer();
     const frame: InputFrame = this.autopilot ? this.autopilot(this.world) : {
@@ -156,7 +170,8 @@ export class Play {
       }
       if (r.kind === 'snapper' && r.state === 'snap' && this.afterTick % 2 === 0) fx.puff('dust', r.x - Math.cos(r.face) * 6, r.y + 3, 0, 0, 0.25);
       // badly damaged: it crackles (faster at 1 HP), so "one more pass" reads without an HP bar
-      if (r.hp <= 2 && this.afterTick % (r.hp <= 1 ? 10 : 20) === 0) fx.sparks(r.x + ((this.afterTick * 7) % 11) - 5, r.y - 8, 2, -Math.PI / 2, 1.2, 50);
+      const maxHp = r.kind === 'rammer' ? this.world.t.rammerHp : this.world.t.snapperHp;
+      if (r.hp < maxHp && this.afterTick % (r.hp <= 1 ? 10 : 20) === 0) fx.sparks(r.x + ((this.afterTick * 7) % 11) - 5, r.y - 8, 2, -Math.PI / 2, 1.2, 50);
     }
   }
 
@@ -331,6 +346,7 @@ export class Play {
   }
 
   private recordClear() {
+    if (!this.record) return;
     const b = loadBest(), w = this.world;
     b.clears++;
     if (!b.bestTicks || w.stats.ticks < b.bestTicks) b.bestTicks = w.stats.ticks;
@@ -353,7 +369,7 @@ export class Play {
     this.time += dt;
     // drove out through an exit: wipe to the next yard
     if (this.world.result === 'exit' && !this.wipe && !this.frozen) this.wipe = { t: 0, swapped: false };
-    if (this.wipe) {
+    if (this.wipe && !this.frozen) {
       this.wipe.t += dt;
       if (!this.wipe.swapped && this.wipe.t >= WIPE / 2) {
         this.nextYard();
@@ -373,10 +389,14 @@ export class Play {
 
   draw(ui: UI, dt: number) {
     const w = this.world;
-    drawWorld(ui.ctx, w, this.fx, { time: this.time, shake: this.host.settings.shake });
-    this.drawExitSigns(ui);
-    if (!w.result) this.hints.draw(ui, this.keys);
-    drawHud(ui, w, this.keys, `YARD ${this.run.depth}/${RUN_LENGTH}  WAVE ${Math.min(w.waves.length, w.wave.index + 1)}/${w.waves.length}`);
+    // while the wipe covers the screen, only the yard's name shows
+    const covered = !!this.wipe && wipeCover(this.wipe.t) >= 0.83;
+    this.fx.audit = ui.audit ? (s, x, y, tw, h) => ui.record('text', x, y, tw, h, s) : null;
+    drawWorld(ui.ctx, w, this.fx, { time: this.time, shake: this.host.settings.shake, floor: () => !covered && this.drawExitSigns(ui) });
+    if (!covered) {
+      if (!w.result) this.hints.draw(ui, this.keys);
+      drawHud(ui, w, this.keys, `YARD ${this.run.depth}/${RUN_LENGTH}  WAVE ${Math.min(w.waves.length, w.wave.index + 1)}/${w.waves.length}`);
+    }
     if (DEBUG_KEYS) this.tuning.draw(ui, w.t, (on) => (w.flat = on), (id, on) => (on ? giveBolted(w, id) : delete w.player.parts[PARTS[id].mount]), dt);
     if (w.flat) ui.text('FLAT MODE', 8, 22, C.white, { shadow: C.ink });
     if (this.wipe) this.drawWipe(ui);
@@ -384,7 +404,8 @@ export class Play {
     else if (w.result && w.result !== 'exit' && this.endT > 1.2) this.drawResults(ui);
   }
 
-  /** The signs over the open exits: where each leads and what its enemies carry. */
+  /** The signs by the open exits, painted on the floor (bodies, parts and texts go over them):
+   * where each leads and what its enemies carry. */
   private drawExitSigns(ui: UI) {
     const w = this.world;
     for (const e of w.exits) {
@@ -409,18 +430,18 @@ export class Play {
   /** Ink bars sweep across and back while the next yard is built. */
   private drawWipe(ui: UI) {
     const f = this.wipe!.t / WIPE;
-    const cover = f < 0.5 ? f * 2 : (1 - f) * 2;
+    const cover = wipeCover(this.wipe!.t);
     const rows = 12;
     for (let i = 0; i < rows; i++) {
       const wdt = Math.round(Math.min(1, cover * 1.4 - (i % 3) * 0.08) * 640);
       if (wdt > 0) ui.fill(f < 0.5 ? 0 : 640 - wdt, i * 30, wdt, 30, C.ink);
     }
-    if (cover > 0.8) ui.text(YARDS[this.run.yard].name, 320, 172, C.gold3, { align: 'center', scale: 2 });
+    if (cover > 0.8) ui.text(YARDS[this.run.yard].name, 320, 172, C.white, { align: 'center', scale: 2 });
   }
 
   restart() {
     const fresh = new Play(this.host);
-    Object.assign(this, { run: fresh.run, world: fresh.world, fx: fresh.fx, hints: fresh.hints, paused: false, endT: 0, time: 0, recent: [], wipe: null, runDone: false });
+    Object.assign(this, { run: fresh.run, world: fresh.world, fx: fresh.fx, hints: fresh.hints, paused: false, endT: 0, time: 0, recent: [], wipe: null, runDone: false, counted: false });
   }
 
   private drawPause(ui: UI) {
@@ -439,7 +460,7 @@ export class Play {
     ui.dim();
     const x = 200, y = 60, pw = 240, ph = 236;
     ui.panel(x, y, pw, ph, 'dark');
-    ui.text(won ? 'RUN CLEARED' : 'SCRAPPED', x + pw / 2, y + 10, won ? C.white : C.danger2, { align: 'center', scale: 2 });
+    ui.text(won ? 'RUN CLEARED' : 'SCRAPPED', x + pw / 2, y + 10, won ? C.white : C.lilac, { align: 'center', scale: 2 });
     ui.text(won ? 'ALL FIVE YARDS' : `IN ${YARDS[r.yard].name}, YARD ${r.depth} OF ${RUN_LENGTH}`, x + pw / 2, y + 30, C.mist, { align: 'center' });
     const secs = T.ticks / 60;
     const rows: [string, string][] = [
@@ -456,9 +477,13 @@ export class Play {
     });
     // the build you finished with
     ui.text('BUILD', x + 16, y + 122, C.mist);
-    const parts = (['rear', 'sides', 'front'] as const).map((m) => r.loadout?.parts[m]?.id).filter((id): id is PartId => !!id);
+    const parts = (['rear', 'sides', 'front'] as const).map((m) => r.loadout?.parts[m]).filter((b): b is Bolted => !!b);
     if (!parts.length) ui.text('BARE CHASSIS', x + pw - 16, y + 122, C.lilac, { align: 'right' });
-    parts.forEach((id, i) => drawSprite(ui.ctx, sprite(`icon:part:${id}`), x + pw - 16 - (parts.length - i) * 18 + 2, y + 118));
+    parts.forEach((b, i) => {
+      const ix = x + pw - 16 - (parts.length - i) * 18 + 2;
+      drawSprite(ui.ctx, sprite(`icon:part:${b.id}`), ix, y + 118);
+      if (b.cracked) crack(ui.ctx, ix + 8, y + 126);
+    });
     const b = loadBest();
     const best = b.wins ? `BEST WIN ${Math.floor(b.bestWinTicks / 3600)}:${String(Math.floor((b.bestWinTicks / 60) % 60)).padStart(2, '0')}   WINS ${b.wins}` : `BEST: ${b.bestYards} YARD${b.bestYards === 1 ? '' : 'S'} CLEARED`;
     ui.text(best, x + pw / 2, y + 146, C.lilac, { align: 'center' });

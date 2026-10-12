@@ -4,7 +4,7 @@
 import { C } from '../data/palette';
 import { drawSprite, sprite } from './atlas';
 import { dot, pline } from './pixgeom';
-import { drawText, textWidth } from '../ui/font';
+import { drawText, FONT_H, textWidth } from '../ui/font';
 import { PALETTE } from '../data/palette';
 import type { Tier } from '../sim/world';
 
@@ -45,6 +45,8 @@ export class Fx {
   playerFlash = 0;
   shake = 0;
   banner: { text: string; sub: string; t: number; dur: number } | null = null;
+  /** debug: floating and banner texts report here for the overlap audit (npm run screens) */
+  audit: ((s: string, x: number, y: number, w: number, h: number) => void) | null = null;
   /** the current claw slash, drawn at the player */
   slash: { tier: Tier; dir: number; t: number } | null = null;
   time = 0;
@@ -121,7 +123,22 @@ export class Fx {
     this.add({ k: 'line', x: x + rnd(-6, 6), y: y + rnd(-5, 5), vx: -Math.cos(angle) * s, vy: -Math.sin(angle) * s, life: 0.18, c: Math.random() < 0.5 ? C.speed3 : C.speed4, size: 4, drag: 0.95 });
   }
 
+  /**
+   * Floating text. It stays clear of the wall bands and the HUD (it drifts up about 8 px), and a
+   * second text at the same spot stacks above (or below) the first instead of printing over it.
+   */
   text(x: number, y: number, s: string, c: number) {
+    const tw = textWidth(s);
+    x = Math.max(18 + Math.ceil(tw / 2), Math.min(622 - Math.ceil(tw / 2), x));
+    y = Math.max(30, Math.min(328, y));
+    const clash = (yy: number) =>
+      this.parts.some((p) => p.k === 'text' && p.life > 0 && Math.abs(p.y - yy) < 9 && Math.abs(p.x - x) < (tw + textWidth(p.text!)) / 2 + 3);
+    for (const dy of [0, -9, -18, 9, 18, -27, 27]) {
+      if (y + dy >= 26 && y + dy <= 334 && !clash(y + dy)) {
+        y += dy;
+        break;
+      }
+    }
     this.add({ k: 'text', x, y, vx: 0, vy: -24, life: 0.9, c, text: s, drag: 0.95 });
   }
 
@@ -162,9 +179,12 @@ export class Fx {
           pline(ctx, x, y, x - (p.vx / l) * p.size, y - (p.vy / l) * p.size, p.c);
           break;
         }
-        case 'text':
-          drawText(ctx, p.text!, x - Math.floor(textWidth(p.text!) / 2), y, PALETTE[p.c], 1, PALETTE[C.ink]);
+        case 'text': {
+          const tw = textWidth(p.text!);
+          drawText(ctx, p.text!, x - Math.floor(tw / 2), y, PALETTE[p.c], 1, PALETTE[C.ink]);
+          this.audit?.(p.text!, x - Math.floor(tw / 2), y, tw, FONT_H);
           break;
+        }
       }
     }
   }

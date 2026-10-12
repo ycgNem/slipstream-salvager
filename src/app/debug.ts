@@ -49,6 +49,8 @@ export function scene(app: App, name: SceneName) {
   }
   app.startPlay(3, name.startsWith('yard-') ? (name.slice(5) as YardId) : name === 'snapper' ? 'kennel' : 'ring');
   const play = app.play!;
+  // scripted scenes never touch the player's best record
+  play.record = false;
   const w = play.world;
   play.hints.seen = { speed: true, tear: true, bolt: true };
   switch (name) {
