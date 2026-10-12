@@ -394,4 +394,26 @@ a number in the tuning panel, and the M1 rule is one setting away (given with ea
       critic got the side showing 52-82% of the time with a 2.5 rad/s slide turn and a 0.9 s
       slide, but no chase reached it. Flat mode is *easier* for a skilled player, so the A/B
       question is "which was more fun", not "which was harder".
+80. **The final visual QA pass** (on the 0.2.0 build).
+    - **Exit signs:**
+      - Their layout is a pure function (`src/ui/signs.ts`), at most 96 px wide. The Heap's says
+        "ALL FOUR PARTS".
+      - A sign sits 4 px below its gate.
+      - A test checks that no sign, in any yard, at any depth, to any destination, covers a wall,
+        block or post. Before, the Heap's sign hid part of a Long Lanes wall, and Jaw Yard's signs
+        covered its blocks.
+    - **Floating texts:** they keep off the signs, and when every slot is taken, the older texts
+      at that spot make way.
+    - **The side gates:** they sit on the 16 px wall grid (160-192), so no sliver of wall shows.
+      Their spawns stay at y 180. *Why:* with spawns at 176, the pillar camper cleared 68 of 160
+      seeds against 35; hit-and-run was unchanged at 97.
+    - **The tier on entry:** you enter a yard with the tier set for your speed, so the gauge
+      doesn't say CRAWL at 150.
+    - **The treads:** the near tread guard is drawn over the body on the diagonals too (it nearly
+      vanished under the Scrapper), and a cracked one shows its crack on that guard.
+    - **SCRAPPED is mist,** brighter than lilac on the panel.
+    - **Left for the art's next pass:**
+      - A Plow Rammer facing east or west shows two small gold blocks, one at each end. A broader
+        blade would separate front from back.
+      - A Jaw Snapper on a diagonal is four similar gold pieces.
 

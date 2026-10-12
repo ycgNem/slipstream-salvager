@@ -94,6 +94,10 @@ Open points for the owner (also in DECISIONS):
   - The critic's search bot (`scripts/pacing/`) is the pacing tool. It clears every yard in
     30-60 s with almost no hits; a decent player takes about 3-4x its fighting time.
   - The critic's call: the numbers are fine and the rule bots are just weak (#79).
+- **Art for the next pass** (#80):
+  - A broader Plow blade, so a Plow Rammer's front and back differ when it faces east or west.
+  - Bigger jaws on the Jaw Snapper's diagonal frames.
+  - Optionally redraw the Scrapper and the Rammer (still from the code sculptor).
 - **The Snapper's slide** (#79): should the broadside slide after a snap be a real opening? Now the
   opening is to loop behind it and rip its treads from the back or side.
 - **The pillar rail** (#39): grazing a pillar turns you without losing speed. It might be a

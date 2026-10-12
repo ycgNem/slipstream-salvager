@@ -8,7 +8,8 @@ import { Fx } from '../render/fx';
 import { drawWorld, playerSprite } from '../render/renderer';
 import { giveBolted, hasBooster, type Bolted, type InputFrame, type World } from '../sim/world';
 import { finishYard, newRun, yardWorld, type Run } from '../sim/run';
-import { RUN_LENGTH, YARDS, wavesAt, type YardId } from '../data/yards';
+import { RUN_LENGTH, YARDS, type YardId } from '../data/yards';
+import { signLayout } from '../ui/signs';
 import { PARTS, PART_IDS, type PartId } from '../data/parts';
 import { drawSprite, sprite } from '../render/atlas';
 import { crack } from '../render/pixgeom';
@@ -392,6 +393,8 @@ export class Play {
     // while the wipe covers the screen, only the yard's name shows
     const covered = !!this.wipe && wipeCover(this.wipe.t) >= 0.83;
     this.fx.audit = ui.audit ? (s, x, y, tw, h) => ui.record('text', x, y, tw, h, s) : null;
+    // floating texts keep off the exit signs
+    this.fx.avoid = covered ? [] : this.signs().map(({ s }) => s);
     drawWorld(ui.ctx, w, this.fx, { time: this.time, shake: this.host.settings.shake, floor: () => !covered && this.drawExitSigns(ui) });
     if (!covered) {
       if (!w.result) this.hints.draw(ui, this.keys);
@@ -408,30 +411,26 @@ export class Play {
    * where each leads and what its enemies carry. */
   private drawExitSigns(ui: UI) {
     const w = this.world;
-    for (const e of w.exits) {
-      const g = w.arena.gates.find((q) => q.id === e.gate)!;
-      const y = YARDS[this.run.options[e.option]];
-      const left = g.id === 'w', right = g.id === 'e';
-      const name = y.name, icons = y.salvage;
-      // the salvage by name (a part you haven't met yet is just an icon), and how big its last
-      // wave is at this depth (DECISIONS #79)
-      const parts = icons.map((id) => PARTS[id].name.toUpperCase()).join(' + ');
-      const last = wavesAt(y, this.run.depth + 1).at(-1)!.enemies.length;
-      const wave = `LAST WAVE: ${last}`;
-      const tw = Math.max(textWidth(name), icons.length * 18 - 2, textWidth(parts), textWidth(wave));
-      const bx = left ? 22 : right ? 618 - tw - 8 : g.rect.x + 16 - Math.floor(tw / 2) - 4;
-      // below the side gates, clear of the yard banner
-      const by = left || right ? g.rect.y + g.rect.h + 10 : g.id === 'n' ? 22 : 360 - 16 - 60;
-      const blink = Math.floor(this.time * 3) % 2 === 0;
-      ui.fill(bx, by, tw + 8, 54, C.ink);
-      ui.fill(bx, by, tw + 8, 1, blink ? C.gold3 : C.gold);
-      ui.text(name, bx + 4, by + 4, C.white);
-      icons.forEach((id, i) => drawSprite(ui.ctx, sprite(`icon:part:${id}`), bx + 4 + i * 18, by + 14));
-      ui.text(parts, bx + 4, by + 33, C.gold2);
-      ui.text(wave, bx + 4, by + 43, C.mist);
+    const blink = Math.floor(this.time * 3) % 2 === 0;
+    for (const { g, s } of this.signs()) {
+      ui.fill(s.x, s.y, s.w, s.h, C.ink);
+      ui.fill(s.x, s.y, s.w, 1, blink ? C.gold3 : C.gold);
+      ui.text(s.name, s.x + 4, s.y + 4, C.white);
+      s.icons.forEach((id, i) => drawSprite(ui.ctx, sprite(`icon:part:${id}`), s.x + 4 + i * 18, s.y + 14));
+      ui.text(s.parts, s.x + 4, s.y + 33, C.gold2);
+      ui.text(s.wave, s.x + 4, s.y + 43, C.mist);
       // an arrow toward the gate
-      if (left || right) ui.text(left ? '<' : '>', left ? 8 : 626, g.rect.y + 12, blink ? C.gold3 : C.gold);
+      if (g.id === 'w' || g.id === 'e') ui.text(g.id === 'w' ? '<' : '>', g.id === 'w' ? 8 : 626, g.rect.y + 12, blink ? C.gold3 : C.gold);
     }
+  }
+
+  /** The open exits' signs (src/ui/signs.ts). */
+  private signs() {
+    const w = this.world;
+    return w.exits.map((e) => {
+      const g = w.arena.gates.find((q) => q.id === e.gate)!;
+      return { g, s: signLayout(g, this.run.options[e.option], this.run.depth + 1) };
+    });
   }
 
   /** Ink bars sweep across and back while the next yard is built. */
@@ -467,7 +466,7 @@ export class Play {
     ui.dim();
     const x = 200, y = 60, pw = 240, ph = 236;
     ui.panel(x, y, pw, ph, 'dark');
-    ui.text(won ? 'RUN CLEARED' : 'SCRAPPED', x + pw / 2, y + 10, won ? C.white : C.lilac, { align: 'center', scale: 2 });
+    ui.text(won ? 'RUN CLEARED' : 'SCRAPPED', x + pw / 2, y + 10, won ? C.white : C.mist, { align: 'center', scale: 2 });
     ui.text(won ? 'ALL FIVE YARDS' : `IN ${YARDS[r.yard].name}, YARD ${r.depth} OF ${RUN_LENGTH}`, x + pw / 2, y + 30, C.mist, { align: 'center' });
     const secs = T.ticks / 60;
     const rows: [string, string][] = [

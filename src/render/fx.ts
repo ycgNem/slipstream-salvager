@@ -47,6 +47,8 @@ export class Fx {
   banner: { text: string; sub: string; t: number; dur: number } | null = null;
   /** debug: floating and banner texts report here for the overlap audit (npm run screens) */
   audit: ((s: string, x: number, y: number, w: number, h: number) => void) | null = null;
+  /** rectangles floating texts keep off (the exit signs) */
+  avoid: { x: number; y: number; w: number; h: number }[] = [];
   /** the current claw slash, drawn at the player */
   slash: { tier: Tier; dir: number; t: number } | null = null;
   time = 0;
@@ -131,14 +133,13 @@ export class Fx {
     const tw = textWidth(s);
     x = Math.max(18 + Math.ceil(tw / 2), Math.min(622 - Math.ceil(tw / 2), x));
     y = Math.max(30, Math.min(328, y));
-    const clash = (yy: number) =>
-      this.parts.some((p) => p.k === 'text' && p.life > 0 && Math.abs(p.y - yy) < 9 && Math.abs(p.x - x) < (tw + textWidth(p.text!)) / 2 + 3);
-    for (const dy of [0, -9, -18, 9, 18, -27, 27]) {
-      if (y + dy >= 26 && y + dy <= 334 && !clash(y + dy)) {
-        y += dy;
-        break;
-      }
-    }
+    const near = (p: Particle, yy: number) => p.k === 'text' && p.life > 0 && Math.abs(p.y - yy) < 9 && Math.abs(p.x - x) < (tw + textWidth(p.text!)) / 2 + 3;
+    const onSign = (yy: number) => this.avoid.some((r) => x + tw / 2 + 1 > r.x && x - tw / 2 - 1 < r.x + r.w && yy + FONT_H + 1 > r.y && yy - 9 < r.y + r.h);
+    const clash = (yy: number) => onSign(yy) || this.parts.some((p) => near(p, yy));
+    const slot = [0, -9, -18, 9, 18, -27, 27, -36, 36].find((dy) => y + dy >= 26 && y + dy <= 334 && !clash(y + dy));
+    if (slot !== undefined) y += slot;
+    // nowhere free: the older texts at the spot make way
+    else for (const p of this.parts) if (near(p, y)) p.life = 0;
     this.add({ k: 'text', x, y, vx: 0, vy: -24, life: 0.9, c, text: s, drag: 0.95 });
   }
 

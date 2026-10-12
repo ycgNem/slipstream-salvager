@@ -227,10 +227,10 @@ function drawEnemy(ctx: Ctx, r: Enemy, fx: Fx, time: number) {
   if (r.parts.sides) nearTrack(ctx, `part:${r.parts.sides}:${dn}`, x, y, dn);
 }
 
-/** Side parts sit under the body, but facing east or west the near track is in front of it: draw
- * the rows below the anchor again, over the body. */
+/** Side parts sit under the body, but except facing straight up or down the near track is in
+ * front of it: draw the rows below the anchor again, over the body. */
 function nearTrack(ctx: Ctx, name: string, x: number, y: number, dn: string) {
-  if (dn !== 'e' && dn !== 'w') return;
+  if (dn === 'n' || dn === 's') return;
   const s = sprite(name);
   const top = s.oy + 1;
   if (top >= s.h) return;
@@ -274,7 +274,10 @@ function drawPlayer(ctx: Ctx, w: World, fx: Fx, time: number) {
   if (!m.behind) rear();
   if (!fm.behind) front();
   if (sides) nearTrack(ctx, `part:${sides.id}:${dn}`, x, y, dn);
-  if (sides?.cracked) crack(ctx, x + 7, y - 2);
+  if (sides?.cracked) {
+    const [cx, cy] = NEAR_TRACK[dn];
+    crack(ctx, x + cx, y + cy);
+  }
   // bolting: wrench sparks at the mount the part is going on
   if (p.bolt !== null && Math.floor(time * 20) % 3 === 0) dot(ctx, x + m.dx + Math.round(Math.random() * 4 - 2), y + m.dy - 2, C.gold3);
   // the claw's tier glow and the heading tick (the exact angle the 8-way sprite can't show)
@@ -291,6 +294,9 @@ function drawPlayer(ctx: Ctx, w: World, fx: Fx, time: number) {
   // the slash
   if (fx.slash) drawSprite(ctx, sprite(`fx:slash:${fx.slash.tier}:${DIRS[fx.slash.dir]}:${Math.min(2, Math.floor(fx.slash.t / 0.05))}`), x, y - 3);
 }
+
+/** Where the near tread guard sits, by facing (anchor-relative), for its crack. */
+const NEAR_TRACK: Record<string, [number, number]> = { e: [0, 4], w: [0, 4], se: [-8, 2], sw: [8, 2], ne: [6, 2], nw: [-6, 2], s: [-10, -2], n: [-10, -2] };
 
 /** The Scrapper's sprite name this frame. */
 export function playerSprite(w: World, time: number): string {

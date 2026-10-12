@@ -1,10 +1,11 @@
 // The run (PLAN.md 8.1): five yards, exits you drive out through, the loadout carried between yards.
+import { signLayout } from '../src/ui/signs';
 import { describe, expect, it } from 'vitest';
 import { finishYard, newRun, yardWorld } from '../src/sim/run';
 import { step } from '../src/sim/tick';
 import { drafterBot, exitInput, hitAndRunBot } from '../src/sim/bots';
 import { giveBolted } from '../src/sim/world';
-import { MIDDLE, RUN_LENGTH, YARDS, wavesAt } from '../src/data/yards';
+import { MIDDLE, RUN_LENGTH, YARDS, wavesAt, type YardId } from '../src/data/yards';
 import { PARTS } from '../src/data/parts';
 
 describe('the run', () => {
@@ -99,5 +100,22 @@ describe('the run', () => {
       expect(r.over).not.toBeNull();
     }
     expect(dealt).toBeGreaterThan(0);
+  });
+});
+
+describe('exit signs (DECISIONS #80)', () => {
+  it('never cover a wall, a block or a post, in any yard, for any destination and depth', () => {
+    const hits: string[] = [];
+    for (const here of Object.values(YARDS))
+      for (const g of here.arena.gates.filter((q) => q.id === 'w' || q.id === 'e'))
+        for (const dest of Object.keys(YARDS) as YardId[])
+          for (let depth = 2; depth <= RUN_LENGTH; depth++) {
+            const s = signLayout(g, dest, depth);
+            if (s.w > 104) hits.push(`${dest} sign is ${s.w} px wide`);
+            if (s.x < here.arena.wall || s.x + s.w > here.arena.w - here.arena.wall) hits.push(`${here.id} ${g.id}: off the floor`);
+            for (const r of here.arena.pillars)
+              if (s.x < r.x + r.w + 2 && s.x + s.w > r.x - 2 && s.y < r.y + r.h + 2 && s.y + s.h > r.y - 2) hits.push(`${here.id} ${g.id} -> ${dest} @${depth}: covers ${JSON.stringify(r)}`);
+          }
+    expect([...new Set(hits)]).toEqual([]);
   });
 });

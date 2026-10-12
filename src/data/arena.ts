@@ -37,8 +37,10 @@ const post = (cx: number, cy: number) => box(cx, cy, 16);
 const GATES: Gate[] = [
   { id: 'n', rect: { x: 304, y: 0, w: 32, h: 16 }, orient: 'h', spawn: { x: 320, y: 30 }, dir: { x: 0, y: 1 } },
   { id: 's', rect: { x: 304, y: H - T, w: 32, h: 16 }, orient: 'h', spawn: { x: 320, y: H - 30 }, dir: { x: 0, y: -1 } },
-  { id: 'w', rect: { x: 0, y: 164, w: 16, h: 32 }, orient: 'v', spawn: { x: 30, y: 180 }, dir: { x: 1, y: 0 } },
-  { id: 'e', rect: { x: W - T, y: 164, w: 16, h: 32 }, orient: 'v', spawn: { x: W - 30, y: 180 }, dir: { x: -1, y: 0 } },
+  // the side gates sit on the 16 px wall grid (160-192), so no sliver of wall shows above or below;
+  // their spawns stay on the centre line (y 180): at 176 the pillar camper cleared twice as often
+  { id: 'w', rect: { x: 0, y: 160, w: 16, h: 32 }, orient: 'v', spawn: { x: 30, y: 180 }, dir: { x: 1, y: 0 } },
+  { id: 'e', rect: { x: W - T, y: 160, w: 16, h: 32 }, orient: 'v', spawn: { x: W - 30, y: 180 }, dir: { x: -1, y: 0 } },
 ];
 
 function arena(id: string, obstacles: Rect[], start = { x: 320, y: 180, heading: 0 }): ArenaDef {

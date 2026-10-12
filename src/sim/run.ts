@@ -8,7 +8,7 @@ import type { MountSlot } from '../data/mounts';
 import type { PartId } from '../data/parts';
 import type { Tuning } from '../data/tuning';
 import { MIDDLE, RUN_LENGTH, YARDS, wavesAt, type YardId } from '../data/yards';
-import { createWorld, type Bolted, type World } from './world';
+import { createWorld, tierOf, type Bolted, type World } from './world';
 
 export interface Loadout {
   hull: number;
@@ -88,6 +88,8 @@ export function yardWorld(run: Run, opts: { tuning?: Partial<Tuning>; flat?: boo
     const g = y.arena.gates.find((q) => q.id === run.entry)!;
     Object.assign(p, { x: g.spawn.x + g.dir.x * 6, y: g.spawn.y + g.dir.y * 6, heading: Math.atan2(g.dir.y, g.dir.x), speed: 150 });
     p.lastHeading = p.heading;
+    // the gauge and the claw show the tier you come in at, not Crawl for the first frames
+    p.tier = tierOf(w.t, p.speed);
     if (p.tow) Object.assign(p.tow, { x: p.x - g.dir.x * 14, y: p.y - g.dir.y * 14 });
   }
   return w;
