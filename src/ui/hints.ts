@@ -5,11 +5,12 @@ import { C } from '../data/palette';
 import { MOUNTS } from '../data/mounts';
 import type { PartId } from '../data/parts';
 import type { World } from '../sim/world';
+import { onOil } from '../sim/arena';
 import type { SimEvent } from '../sim/events';
 import type { UI } from './ui';
 import { textWidth } from './font';
 
-export type HintId = 'speed' | 'tear' | 'bolt' | 'burn' | 'exit' | 'treads' | 'plow' | 'jaws' | 'snapper' | 'plowfoe' | 'jawfoe' | 'jets' | 'springs' | 'hopper' | 'bouncer';
+export type HintId = 'speed' | 'tear' | 'bolt' | 'burn' | 'exit' | 'treads' | 'plow' | 'jaws' | 'snapper' | 'plowfoe' | 'jawfoe' | 'jets' | 'springs' | 'hopper' | 'bouncer' | 'boost' | 'oil' | 'ramp' | 'crusher';
 
 /** a hint about a part you've bolted on, by part */
 const PART_HINT: Record<PartId, HintId> = { booster: 'burn', treads: 'treads', plow: 'plow', jaws: 'jaws', jets: 'jets', springs: 'springs' };
@@ -44,7 +45,10 @@ export class Hints {
       if (e.part === 'jets') this.done('hopper');
       if (e.part === 'springs') this.done('bouncer');
     }
-    if (e.k === 'leap') this.done('jets');
+    if (e.k === 'leap' && !e.ramp) this.done('jets');
+    if (e.k === 'leap' && e.ramp) this.done('ramp');
+    if (e.k === 'boost') this.done('boost');
+    if (e.k === 'pressed') this.done('crusher');
     // your own bounce (an enemy's has an id)
     if (e.k === 'boing' && e.id === undefined) this.done('springs');
     if (e.k === 'joust') this.done('plowfoe');
@@ -62,6 +66,9 @@ export class Hints {
       return;
     }
     const p = w.player, s = this.seen;
+    const floor = (k: string) => (w.arena.floor ?? []).some((f) => f.kind === k);
+    // you've felt the oil once you've been on it
+    if (!s.oil && onOil(w.arena, p.x, p.y) && p.speed > 60) this.done('oil');
     const bolted = w.flat ? [] : MOUNTS.map((m) => p.parts[m]?.id).filter((id): id is PartId => !!id);
     const partHint = bolted.map((id) => PART_HINT[id]).find((h) => !s[h]);
     const foes = (part: PartId) => w.enemies.some((e) => Object.values(e.parts).includes(part));
@@ -70,6 +77,10 @@ export class Hints {
       : !s.exit && w.exits.length ? 'exit'
       : partHint ? partHint
       : !s.speed && w.wave.phase !== 'banner' ? 'speed'
+      : !s.boost && floor('boost') ? 'boost'
+      : !s.oil && floor('oil') ? 'oil'
+      : !s.ramp && floor('ramp') ? 'ramp'
+      : !s.crusher && floor('crusher') && w.enemies.length ? 'crusher'
       : !s.plowfoe && foes('plow') ? 'plowfoe'
       : !s.jawfoe && foes('jaws') ? 'jawfoe'
       : !s.snapper && s.speed && w.enemies.some((e) => e.kind === 'snapper' && e.parts.sides) ? 'snapper'
@@ -103,9 +114,13 @@ export class Hints {
       springs: 'DRIVE INTO WALLS HEAD-ON - YOU BOUNCE OFF FAST',
       hopper: "LEAVE ITS RING, HIT ITS BACK WHILE IT'S STUCK",
       bouncer: 'CUT ACROSS A BOUNCER AT TEAL TO RIP ITS SPRINGS',
+      boost: 'DRIVE ALONG THE ARROWS FOR A BURST OF SPEED',
+      oil: 'NO GRIP ON OIL - LINE UP BEFORE YOU HIT IT',
+      ramp: 'HIT A RAMP AT SPEED TO JUMP THE WALL',
+      crusher: 'LURE THEM ONTO THE PLATES BEFORE THEY SLAM',
     };
     const text = TEXT[this.current];
-    const speedy = ['speed', 'burn', 'treads', 'plow', 'jaws', 'jets', 'springs'].includes(this.current);
+    const speedy = ['speed', 'burn', 'treads', 'plow', 'jaws', 'jets', 'springs', 'boost', 'ramp'].includes(this.current);
     const tw = textWidth(text);
     ui.fill(632 - tw - 4, 345, tw + 8, 14, C.ink);
     const blink = this.shownFor < 0.6 && Math.floor(this.shownFor * 10) % 2 === 1;

@@ -20,7 +20,10 @@ export type SimEvent =
   | { k: 'slide-e'; id: number }
   | { k: 'hop'; id: number }
   | { k: 'land'; id: number; x: number; y: number; r: number }
-  | { k: 'leap'; tier: Tier }
+  | { k: 'leap'; tier: Tier; ramp?: boolean }
+  | { k: 'boost'; x: number; y: number }
+  | { k: 'press'; x: number; y: number }
+  | { k: 'pressed'; id: number }
   | { k: 'touchdown'; x: number; y: number; tier: Tier }
   | { k: 'roll'; id: number }
   | { k: 'boing'; x: number; y: number; id?: number }

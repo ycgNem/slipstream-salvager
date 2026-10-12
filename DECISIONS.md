@@ -483,3 +483,24 @@ a number in the tuning panel, and the M1 rule is one setting away (given with ea
     - The tuning panel's START WITH row has six 3-letter buttons.
     - The search bot (`scripts/pacing/mpc.ts`) now clones the leap and counts a landed Hopper as
       open.
+87. **M7, terrain, as built** (PLAN.md 9.4).
+    - Terrain is data: `floor` on an arena, patches on the 16 px grid (`boost` and `ramp` point one
+      of four ways; a `crusher` has a phase). `src/sim/terrain.ts` runs it; oil lives in steering
+      (`body.ts`) and in the enemies' movement (`enemies.ts`).
+    - **Boost strips:** within 60° of the arrow you're held at 250 px/s or more while on it (a
+      hunting Snapper 220, a rolling Bouncer 300). One whoosh as you hit it.
+    - **Oil:** no steering, thrust or brake, coasting with a 3 s half-life. The Booster's rev
+      pushes, a Rip lunges and the Jump Jets leap. On oil a stalking or hunting enemy can't turn,
+      and a skid or shove slides twice as far.
+    - **Ramps:** at Cruise or faster within 45° of the arrow: 0.35 s in the air (the leap's rules:
+      over everything, untouchable), a clean landing. With the Jump Jets on, the landing is theirs.
+    - **Crusher plates:** a 3 s beat from the tick count: 0.8 s warning (flashing red), the slam,
+      0.3 s down. You on it: a hit. An enemy on it: 2 damage (it goes through the wave 1 safety
+      net like any damage). Airborne bodies are safe; loose parts on it are crushed.
+    - *Why these four:* each one is a line (a fast lane, a commitment, a jump, a beat to lure into),
+      so the removal test holds: without momentum none of them would matter.
+88. **M7's yards.** The Slick (an oil lake, a clockwise racetrack of boost strips, Snappers), The
+    Jumps (two low walls with a ramp each side, Rammers and Hoppers) and The Press (six plates on
+    staggered beats, Plow Rammers). The middle pool is nine. The search bot clears each on every
+    seed (the Slick ~35 s at 60% Slipstream, the Press ~47 s, the Jumps ~71 s). A two-part exit
+    sign uses short names ("TREADS + BOOSTER"), so it stays within 104 px.

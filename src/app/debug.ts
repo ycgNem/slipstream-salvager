@@ -17,10 +17,15 @@ export const SCENES = [
   'snapper', 'parts', 'exits', 'wipe', 'yard-kennel', 'yard-lanes', 'yard-pit', 'yard-jaws', 'yard-heap',
   // M6: the Hopper and the Bouncer, the Jump Jets and the Springs, their yards
   'hopper', 'bouncer', 'jets', 'leap', 'springs', 'yard-hurdles', 'yard-pinball',
+  // M7: terrain and its yards
+  'boost', 'oil', 'ramp', 'crusher', 'yard-slick', 'yard-jumps', 'yard-press',
 ] as const;
 
 /** The yard a scene that isn't `yard-*` is set in (default: The Ring). */
-const SCENE_YARD: Partial<Record<string, YardId>> = { snapper: 'kennel', hopper: 'hurdles', jets: 'hurdles', leap: 'hurdles', bouncer: 'pinball', springs: 'pinball' };
+const SCENE_YARD: Partial<Record<string, YardId>> = {
+  snapper: 'kennel', hopper: 'hurdles', jets: 'hurdles', leap: 'hurdles', bouncer: 'pinball', springs: 'pinball',
+  boost: 'slick', oil: 'slick', ramp: 'jumps', crusher: 'press',
+};
 export type SceneName = (typeof SCENES)[number];
 
 /** Run the sim n ticks with an input, feeding its events to the effects like play does. */
@@ -205,6 +210,43 @@ export function scene(app: App, name: SceneName) {
       place(w, 300, 40, -Math.PI / 2, 230);
       run(play, 6, { x: 0, y: -1, rip: false, bolt: false });
       break;
+    case 'boost':
+      quiet(play);
+      play.hints.seen = { ...play.hints.seen, boost: false };
+      place(w, 190, 88, 0, 150);
+      run(play, 20, { x: 1, y: 0, rip: false, bolt: false });
+      break;
+    case 'oil': {
+      quiet(play);
+      play.hints.seen = { ...play.hints.seen, boost: true, oil: false };
+      place(w, 230, 150, 0.3, 200);
+      const s = addEnemy(w, 'snapper', 380, 210, Math.PI);
+      Object.assign(s, { speed: 150, cd: 99 });
+      run(play, 10, { x: 0, y: -1, rip: false, bolt: false });
+      break;
+    }
+    case 'ramp': {
+      quiet(play);
+      play.hints.seen = { ...play.hints.seen, ramp: false };
+      const r = addRammer(w, 300, 120, Math.PI);
+      r.cd = 99;
+      place(w, 170, 184, 0, 220);
+      run(play, 14, { x: 1, y: 0, rip: false, bolt: false });
+      break;
+    }
+    case 'crusher': {
+      quiet(play);
+      play.hints.seen = { ...play.hints.seen, crusher: false };
+      place(w, 320, 184, 0, 120);
+      const a = addRammer(w, 192, 128, 0);
+      a.cd = 99;
+      const b = addEnemy(w, 'snapper', 448, 240, Math.PI);
+      b.cd = 99;
+      // the left top plate (phase 0) mid-warning, the middle bottom one (0.5) just slammed
+      w.tick = 150;
+      run(play, 12, { x: 1, y: 0, rip: false, bolt: false });
+      break;
+    }
     case 'exits':
       w.wave.index = w.waves.length - 1;
       w.wave.phase = 'fight';
@@ -228,6 +270,9 @@ export function scene(app: App, name: SceneName) {
     case 'yard-jaws':
     case 'yard-hurdles':
     case 'yard-pinball':
+    case 'yard-slick':
+    case 'yard-jumps':
+    case 'yard-press':
     case 'yard-heap':
       run(play, 240);
       break;

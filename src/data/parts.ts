@@ -16,6 +16,8 @@ export type StatKey = 'topSpeed' | 'turnLow' | 'turnHigh' | 'scrubLat' | 'accHig
 export interface PartDef {
   id: PartId;
   name: string;
+  /** a short name, for a sign naming two parts */
+  short: string;
   mount: MountSlot;
   /** the enemy that carries it */
   from: EnemyKind;
@@ -43,6 +45,7 @@ export const PARTS: Record<PartId, PartDef> = {
   booster: {
     id: 'booster',
     name: 'Booster',
+    short: 'BOOSTER',
     mount: 'rear',
     from: 'rammer',
     stats: { topSpeed: 'boosterTopMul', turnLow: 'boosterTurnLowMul', turnHigh: 'boosterTurnHighMul' },
@@ -53,6 +56,7 @@ export const PARTS: Record<PartId, PartDef> = {
   treads: {
     id: 'treads',
     name: 'Grip Treads',
+    short: 'TREADS',
     mount: 'sides',
     from: 'snapper',
     stats: { topSpeed: 'treadsTopMul', turnLow: 'treadsTurnMul', turnHigh: 'treadsTurnMul', scrubLat: 'treadsGripMul' },
@@ -63,6 +67,7 @@ export const PARTS: Record<PartId, PartDef> = {
   plow: {
     id: 'plow',
     name: 'Plow',
+    short: 'PLOW',
     mount: 'front',
     from: 'rammer',
     stats: { accHigh: 'plowAccMul' },
@@ -73,6 +78,7 @@ export const PARTS: Record<PartId, PartDef> = {
   jaws: {
     id: 'jaws',
     name: 'Jaws',
+    short: 'JAWS',
     mount: 'front',
     from: 'snapper',
     stats: {},
@@ -83,6 +89,7 @@ export const PARTS: Record<PartId, PartDef> = {
   jets: {
     id: 'jets',
     name: 'Jump Jets',
+    short: 'JETS',
     mount: 'rear',
     from: 'hopper',
     stats: {},
@@ -93,6 +100,7 @@ export const PARTS: Record<PartId, PartDef> = {
   springs: {
     id: 'springs',
     name: 'Springs',
+    short: 'SPRINGS',
     mount: 'sides',
     from: 'bouncer',
     stats: { turnHigh: 'springsTurnMul', scrubLat: 'springsGripMul' },

@@ -8,6 +8,7 @@ import { registerFx } from './fx';
 import { registerUi } from './ui';
 import { registerM3 } from './m3';
 import { registerM6 } from './m6';
+import { registerM7 } from './m7';
 
 export function registerCodeArt() {
   registerTiles();
@@ -18,4 +19,5 @@ export function registerCodeArt() {
   registerUi();
   registerM3();
   registerM6();
+  registerM7();
 }

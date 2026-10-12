@@ -12,6 +12,12 @@ export function allSpriteNames(): string[] {
   for (const i of R(4)) out.push(`t:floor:${i}`);
   for (const m of R(16)) out.push(`t:wall:${m}`);
   out.push('ob:pillar', 'ob:post', 'ob:tower');
+  for (const d of ['e', 's', 'w', 'n']) {
+    for (const f of R(3)) out.push(`fl:boost:${d}:${f}`);
+    out.push(`fl:ramp:${d}`);
+  }
+  for (const m of R(16)) out.push(`fl:oil:${m}`);
+  for (const s of ['idle', 'warn', 'down']) out.push(`fl:crusher:${s}`);
   for (const o of ['h', 'v']) for (const s of ['closed', 'open', 'warn']) out.push(`ob:gate:${o}:${s}`);
   for (const d of DIRS) {
     for (const f of R(2)) out.push(`pl:scrapper:drive:${d}:${f}`, `pl:scrapper:rip:${d}:${f}`);
@@ -40,7 +46,8 @@ export function spriteSpec(name: string): { w: number; h: number; ox: number; oy
   const p = name.split(':');
   const key = p[0] + ':' + p[1];
   switch (key) {
-    case 't:floor': case 't:wall': return { w: 16, h: 16, ox: 0, oy: 0 };
+    case 't:floor': case 't:wall': case 'fl:boost': case 'fl:oil': return { w: 16, h: 16, ox: 0, oy: 0 };
+    case 'fl:ramp': case 'fl:crusher': return { w: 32, h: 32, ox: 0, oy: 0 };
     case 'ob:pillar': return { w: 32, h: 40, ox: 0, oy: 8 };
     case 'ob:post': return { w: 16, h: 24, ox: 0, oy: 8 };
     case 'ob:tower': return { w: 48, h: 56, ox: 0, oy: 8 };

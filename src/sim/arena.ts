@@ -1,5 +1,5 @@
 // Geometry for The Ring: circle-vs-rectangle contacts, line of sight and how far a lane runs.
-import type { ArenaDef, Gate, Rect } from '../data/arena';
+import type { ArenaDef, FloorKind, FloorPatch, Gate, Rect } from '../data/arena';
 
 export interface Contact {
   /** push-out normal (unit) and depth */
@@ -101,6 +101,26 @@ export function reflectAt(a: ArenaDef, x: number, y: number, angle: number, r: n
   ny /= n;
   const d = cx * nx + cy * ny;
   return Math.atan2(cy - 2 * d * ny, cx - 2 * d * nx);
+}
+
+/** The terrain patch of a kind under a point, if any (PLAN.md 9.4). */
+export function floorAt(a: ArenaDef, x: number, y: number, kind: FloorKind): FloorPatch | null {
+  for (const f of a.floor ?? []) if (f.kind === kind && x >= f.rect.x && x < f.rect.x + f.rect.w && y >= f.rect.y && y < f.rect.y + f.rect.h) return f;
+  return null;
+}
+
+export function onOil(a: ArenaDef, x: number, y: number): boolean {
+  return !!a.floor?.length && !!floorAt(a, x, y, 'oil');
+}
+
+/** A boost strip's or ramp's arrow (0 east, 1 south, 2 west, 3 north), as an angle. */
+export const FLOOR_ANGLE = [0, Math.PI / 2, Math.PI, -Math.PI / 2];
+
+/** Moving along a patch's arrow, within coneDeg of it? */
+export function along(f: FloorPatch, heading: number, coneDeg: number): boolean {
+  let d = heading - FLOOR_ANGLE[f.dir ?? 0];
+  d = Math.atan2(Math.sin(d), Math.cos(d));
+  return Math.abs(d) <= (coneDeg * Math.PI) / 180;
 }
 
 /** How far a body of radius r can travel from (x, y) along an angle before touching a solid. */

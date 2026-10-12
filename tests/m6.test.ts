@@ -156,7 +156,7 @@ describe('the Jump Jets', () => {
     Object.assign(w.player, { x: 1000, y: 2000, heading: -Math.PI / 2, speed: 150 });
     const r = addRammer(w, 1080, 2000, Math.PI);
     Object.assign(r, { state: 'charge', t: 0, travelled: 0, chargeLen: 300, cd: 99 });
-    w.player.air = { t: 0, dur: w.t.leapAir, tier: 'cruise' };
+    w.player.air = { t: 0, dur: w.t.leapAir, tier: 'cruise', slam: true };
     evs(w, 20);
     expect(w.stats.hitsTaken).toBe(0);
   });

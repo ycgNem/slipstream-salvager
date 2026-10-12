@@ -6,6 +6,7 @@ import { autoRelease, releaseBurn, resolveRipHits, tryAttack, updateAir, updateL
 import { checkDrafts, resolveContacts, updateEnemies } from './enemies';
 import { startBolt, updateBolt, updatePickups, updateTow } from './salvage';
 import { updateWaves } from './waves';
+import { playerTerrain, updateCrushers } from './terrain';
 import { DT, type InputFrame, type World } from './world';
 
 /** How long a Rip pressed too early is remembered (s). */
@@ -63,9 +64,11 @@ export function step(w: World, input: InputFrame): boolean {
   updateLatch(w, DT);
   updateAir(w, DT);
   movePlayer(w);
+  playerTerrain(w);
   settleFacing(w, input);
 
   updateEnemies(w);
+  updateCrushers(w);
   autoRelease(w);
   resolveRipHits(w);
   resolveContacts(w);

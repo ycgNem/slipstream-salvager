@@ -41,6 +41,8 @@ The game draws on a **640 × 360** logical canvas, scaled by whole numbers only.
 | Mounted part overlay (rear and front mounts) | 16 × 16 | (8, 8) | ≤ 14 × 14 | none (part of the body) |
 | Treads overlay (sides mount, M3) | 32 × 32 | (16, 20) | the two tread guards either side of the body's footprint | none |
 | Springs overlay (sides mount, M6) | 32 × 32 | (16, 20) | a gold coil bumper either side of the body's footprint | none |
+| Terrain tile: boost strip, oil (M7) | 16 × 16 | (0, 0) | full | none: painted on the floor (`floor` on the arena) |
+| Terrain: jump ramp, crusher plate (M7) | 32 × 32 | (0, 0) | full | none |
 | Loose part (pickup) | 16 × 16 | (8, 12) | ≤ 14 × 12 | circle r = 7 |
 | Part icon (HUD) | 16 × 16 | (0, 0) | 14 × 14 | — |
 | Pillar | 32 × 40 | (0, 8) | footprint 32 × 32; rises 8 px above it (top face ~ the footprint, 12 px front face narrowing to the foot) | square 32 × 32 |
@@ -99,6 +101,10 @@ Grammar: `group:thing[:state][:dir][:frame]`.
 | `part:treads:<dir>` | 1 | sides overlay (32 × 32, the body's anchor), drawn *under* the body so the guards stick out either side |
 | `part:jets:<dir>` | 1 | M6. Rear overlay (16 × 16, like the booster): two upright gold jet canisters on a strap; the plume fires under it on a leap |
 | `part:springs:<dir>` | 1 | M6. Sides overlay (32 × 32, like the treads): a gold coil bumper either side |
+| `fl:boost:<e\|s\|w\|n>:<0-2>` | 3 | M7. A boost strip tile: a dark teal deck, bright teal chevrons pointing its way; the frames scroll them forward (teal: it's speed) |
+| `fl:oil:<mask>` | 1 | M7. Oil, a 4-bit neighbor mask like the walls: near-black with a blue-violet sheen, its open edges rounded off |
+| `fl:ramp:<e\|s\|w\|n>` | 1 | M7. A jump ramp: a steel wedge, darker at its foot, lighter up the slope to its lip, a teal arrow |
+| `fl:crusher:<idle\|warn\|down>` | 1 | M7. A crusher plate: a dark grate with danger-red corner marks; `warn` adds a red border and X (the renderer flashes it); `down` is the crusher's steel head on the plate |
 | `pickup:<booster\|treads\|plow\|jaws\|jets\|springs>` | 1 | the loose part (towed or on the floor); the renderer bobs it |
 | `icon:part:<booster\|treads\|plow\|jaws\|jets\|springs>` | 1 | HUD slots |
 | `fx:plume:<dir>:<0-1>` | 2 | booster flame |

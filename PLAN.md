@@ -557,19 +557,36 @@ The middle pool is now six yards; a run still visits three of them, two choices 
 Heap gains a Hopper in its first wave and a Bouncer and a Spring Rammer in its last, and its sign
 says "ALL SIX PARTS". Each new enemy and part gets one hint.
 
-### 9.4 M7: terrain (outline; detailed when M7 starts)
+### 9.4 M7: terrain
 
-Floor features that change how **every** body moves, drawn on the floor under everything:
-- **Boost strips** (teal chevrons): driving over one roughly along its arrow lifts you to Slipstream
-  (and a Snapper or Bouncer too). Yards get fast lines you can plan round.
-- **Oil slicks:** no grip. On oil you can't steer, thrust or brake; you keep your line. A charging
-  Rammer that hits oil slides further; a Snapper on oil can't turn.
-- **Jump ramps:** drive over one at Cruise or faster and you're airborne for a moment (the Jump
-  Jets' air, without the slam).
-- **Crusher plates** (danger red): every few seconds a plate flashes, then slams. Whatever is on it
-  takes a hit, enemies included: bait a charge onto one.
-- Three new yards built round them (for example *The Slick*, *The Ramps*, *The Press*), and the
-  middle pool grows to nine.
+Floor features that change how bodies move, painted on the floor under everything, on the 16 px
+grid. Each one is a line you can plan round, so a yard is a set of lines, not just obstacles. All
+of it is data (`floor` on an arena) and the same for you and the enemies where it says so.
+
+- **Boost strips** (teal chevrons, 16 px wide, pointing one of four ways). Driving over one within
+  60° of its arrow lifts you to at least **250 px/s** (past your top speed, so it falls back after)
+  for as long as you're on it. It works for a Snapper (to 220) and a rolling Bouncer (+40) too.
+  Teal, because it's speed.
+- **Oil slicks** (black, glossy). With your middle on oil you have **no grip**: you can't steer,
+  thrust or brake, and you keep your line (drag almost nothing). A Rip still lunges, the Booster's
+  rev still pushes (it's a rocket), and the Jump Jets still leap. A Snapper or a stalking Rammer on
+  oil can't turn; a Rammer's skid on oil slides twice as far.
+- **Jump ramps** (32 × 32, an arrow). Drive over one at Cruise or faster within 45° of its arrow and
+  you're **airborne for 0.35 s**: over bodies, attacks, pillars and low walls, like the Jump Jets'
+  leap, but the landing is clean (no hit, no recoil). With the Jump Jets bolted on, a ramp launch
+  lands with their hit.
+- **Crusher plates** (32 × 32). Every 3 s a plate warns for 0.8 s (flashing danger red), then slams:
+  whatever stands on it takes a hit. You lose a part or a hull pip; **an enemy takes 2 damage** (a
+  Snapper or Bouncer is wrecked, a Rammer or Hopper left at 1). Airborne bodies are safe. Bait a
+  charge or a slam onto one. Each plate has its own phase, shown by its warning.
+
+New yards (the middle pool becomes nine):
+
+| Yard | Layout | Salvage | Waves (at depth 2) |
+|---|---|---|---|
+| **The Slick** | an oil lake in the middle, boost strips round it like a racetrack | Grip Treads, Booster | 2 Snappers; 2 Snappers + 1 Rammer; 3 Snappers + 1 Rammer |
+| **The Jumps** | three low walls across the yard with a ramp in front of each, both ways | Booster, Jump Jets | 2 Rammers; 1 Rammer + 1 Hopper; 2 Rammers + 2 Hoppers |
+| **The Press** | a grid of six crusher plates, posts at the corners | Plow, Booster | 1 Plow Rammer + 1 Rammer; 2 Rammers + 1 Snapper; 2 Plow Rammers + 2 Snappers |
 
 ### 9.5 M8: The Compactor and a six-yard run (outline)
 

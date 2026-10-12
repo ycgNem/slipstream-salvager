@@ -3,7 +3,7 @@
 // into recovery), the telegraph lane, contacts with the player's body (bites and charges, bumps,
 // the Plow's ram hits and blocks) and the slipstream a passing charge leaves behind.
 import { wrapAngle } from '../data/dirs';
-import { contacts, laneLength, pushOut } from './arena';
+import { along, contacts, floorAt, laneLength, onOil, pushOut } from './arena';
 import { hasBehavior } from './body';
 import { beginWindup, chargeLength, PUSH_HALF, thinkRammer, toSkid, windingUp } from './rammer';
 import { lunging, ramHit, stunEnemy } from './rip';
@@ -21,6 +21,7 @@ export function updateEnemies(w: World) {
   for (const e of w.enemies) {
     e.t += DT;
     e.cd -= DT;
+    const oil = !airborne(e) && onOil(w.arena, e.x, e.y), face0 = e.face;
     let speed: number, dir: number;
     if (e.kind === 'rammer') {
       speed = thinkRammer(w, e);
@@ -28,9 +29,23 @@ export function updateEnemies(w: World) {
     } else if (e.kind === 'hopper') ({ speed, dir } = thinkHopper(w, e));
     else if (e.kind === 'bouncer') ({ speed, dir } = thinkBouncer(w, e));
     else ({ speed, dir } = thinkSnapper(w, e));
+    if (oil && (e.state === 'stalk' || e.state === 'hunt')) {
+      // on oil it can't turn (PLAN.md 9.4): it keeps the line it came in on
+      e.face = face0;
+      dir = face0;
+    }
+    if (w.arena.floor?.length && !airborne(e)) {
+      // a boost strip speeds up a hunting Snapper or a rolling Bouncer going its way
+      const b = floorAt(w.arena, e.x, e.y, 'boost');
+      if (b && along(b, dir, t.boostConeDeg)) {
+        if (e.kind === 'snapper' && e.state === 'hunt') e.speed = speed = Math.max(speed, t.boostEnemy);
+        if (e.kind === 'bouncer' && e.state === 'roll') e.speed = speed = Math.max(speed, t.boostRoll);
+      }
+    }
     e.x += (Math.cos(dir) * speed + e.vx) * DT;
     e.y += (Math.sin(dir) * speed + e.vy) * DT;
-    const k = Math.pow(0.5, DT / PUSH_HALF);
+    // a skid (or a shove) slides twice as far on oil
+    const k = Math.pow(0.5, DT / (oil ? PUSH_HALF * 2 : PUSH_HALF));
     e.vx *= k;
     e.vy *= k;
     // in the air (a Hopper's leap) it sails over everything

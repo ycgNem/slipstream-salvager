@@ -82,8 +82,11 @@ export interface Player {
   slide: boolean;
   /** swinging round a bitten enemy with the Jaws */
   latch: Latch | null;
-  /** in the air on the Jump Jets' leap: seconds in, how long, and the tier you leapt at */
-  air: { t: number; dur: number; tier: Tier } | null;
+  /** in the air (the Jump Jets' leap, or off a ramp): seconds in, how long, the tier you went up
+   * at, and whether the landing is a hit (the Jump Jets) */
+  air: { t: number; dur: number; tier: Tier; slam: boolean } | null;
+  /** on a boost strip, going its way (for the one whoosh as you hit it) */
+  boosted: boolean;
   /** stuck after a landing (the Jump Jets' inherited weakness): no control (s) */
   recoil: number;
   /** the part towed behind on the cable */
@@ -250,7 +253,7 @@ export function createWorld(opts: WorldOpts = {}): World {
       x: s.x, y: s.y, heading: s.heading, speed: 0, face: 0,
       hull: t.hull, invuln: 0, knock: 0, stun: 0, brake: false,
       rip: null, ripCd: 0, ripBuf: 0, rev: null, pass: 0,
-      parts: {}, slide: false, latch: null, air: null, recoil: 0, tow: null, bolt: null, prevRip: false, prevBolt: false, tier: 'crawl', omega: 0, lastHeading: s.heading,
+      parts: {}, slide: false, latch: null, air: null, recoil: 0, boosted: false, tow: null, bolt: null, prevRip: false, prevBolt: false, tier: 'crawl', omega: 0, lastHeading: s.heading,
     },
     enemies: [],
     pickups: [],

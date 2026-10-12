@@ -24,7 +24,7 @@ export const SIGN_H = 54;
 /** The sign for an exit through gate `g` to yard `dest`, which would be yard number `depth`. */
 export function signLayout(g: Gate, dest: YardId, depth: number): SignLayout {
   const y = YARDS[dest], icons = y.salvage;
-  const parts = icons.length >= 4 ? `ALL ${COUNT[icons.length]} PARTS` : icons.map((id) => PARTS[id].name.toUpperCase()).join(' + ');
+  const parts = icons.length >= 4 ? `ALL ${COUNT[icons.length]} PARTS` : icons.length > 1 ? icons.map((id) => PARTS[id].short).join(' + ') : PARTS[icons[0]].name.toUpperCase();
   const wave = `LAST WAVE: ${wavesAt(y, depth).at(-1)!.enemies.length}`;
   const iconStep = icons.length > 4 ? 16 : 18;
   const tw = Math.max(textWidth(y.name), icons.length * iconStep - 2, textWidth(parts), textWidth(wave));

@@ -100,7 +100,7 @@ function startLeap(w: World) {
   p.rev = null;
   p.speed = Math.max(p.speed, t.leapMin);
   const tier = tierOf(t, p.speed);
-  p.air = { t: 0, dur: t.leapAir, tier };
+  p.air = { t: 0, dur: t.leapAir, tier, slam: true };
   p.ripCd = t.leapAir + t.leapCooldown;
   p.brake = false;
   p.slide = false;
@@ -122,6 +122,11 @@ export function updateAir(w: World, dt: number) {
   // come down clear of any pillar or low wall you sailed over
   Object.assign(p, pushOut(w.arena, p.x, p.y, t.playerRadius));
   w.events.push({ k: 'touchdown', x: p.x, y: p.y, tier: A.tier });
+  if (!A.slam) {
+    // off a ramp without the Jump Jets: a clean landing
+    p.pass = Math.max(p.pass, 0.15);
+    return;
+  }
   const under = w.enemies
     .filter((e) => !airborne(e) && Math.hypot(e.x - p.x, e.y - p.y) < t.leapSlamR + radiusOf(w, e))
     .sort((a, b) => Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y));
@@ -369,6 +374,11 @@ function shakeLoose(w: World, r: Enemy, part: PartId, mount: MountSlot) {
   delete r.parts[mount];
   w.pickups.push({ id: w.nextId++, part, x: r.x - Math.cos(r.face) * 14, y: r.y - Math.sin(r.face) * 14, vx: -Math.cos(r.face) * 70, vy: -Math.sin(r.face) * 70, age: 0, cracked: false });
   w.events.push({ k: 'drop', part, x: r.x, y: r.y });
+}
+
+/** Damage from the yard itself (a crusher plate): the same rules as a hit's damage. */
+export function dealDamage(w: World, r: Enemy, n: number, zone: Zone, x: number, y: number): number {
+  return damage(w, r, n, zone, x, y);
 }
 
 /** Returns the damage actually dealt (0 when the wave 1 safety net holds). */

@@ -5,7 +5,7 @@ import { clamp, lerp } from '../engine/rng';
 import { dirHyst, wrapAngle } from '../data/dirs';
 import { PARTS, type AttackMode, type PartDef, type StatKey } from '../data/parts';
 import { MOUNTS } from '../data/mounts';
-import { contacts, pushOut } from './arena';
+import { contacts, onOil, pushOut } from './arena';
 import { DT, tierOf, type InputFrame, type World } from './world';
 
 export interface BodyStats {
@@ -60,11 +60,12 @@ export function steer(w: World, input: InputFrame) {
   const p = w.player, t = w.t;
   const st = playerStats(w);
   const m = Math.min(1, Math.hypot(input.x, input.y));
+  const oil = onOil(w.arena, p.x, p.y);
 
   if (p.rev !== null && p.rev >= t.burnTapTime && attackMode(w) === 'leap') {
     // crouched on the Jump Jets: your speed holds (no thrust, no coasting) and you steer at half
     // rate while the ring shows where you'll land
-    if (m > 0.05) {
+    if (m > 0.05 && !oil) {
       const delta = wrapAngle(Math.atan2(input.y, input.x) - p.heading);
       const rate = turnRate(st, p.speed) * t.crouchSteerMul;
       p.heading = wrapAngle(p.heading + clamp(delta, -rate * DT, rate * DT));
@@ -81,6 +82,14 @@ export function steer(w: World, input: InputFrame) {
   if (p.rip) {
     // a committed lunge: no steering, no thrust; overspeed falls back on its own
     decayOverspeed(w, st);
+    return;
+  }
+  if (oil) {
+    // no grip (PLAN.md 9.4): no steering, no thrust, no brake; you keep your line
+    p.brake = false;
+    p.slide = false;
+    if (p.speed > st.topSpeed) decayOverspeed(w, st);
+    else p.speed = halve(p.speed, t.oilHalf);
     return;
   }
 

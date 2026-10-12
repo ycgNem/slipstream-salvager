@@ -15,7 +15,8 @@ import type { Fx } from './fx';
 import { laneOf } from '../sim/enemies';
 import { crouched, landingPoint, revving } from '../sim/rip';
 import { hopProgress, slamRadius } from '../sim/hopper';
-import { laneLength, reflectAt } from '../sim/arena';
+import { FLOOR_ANGLE, laneLength, reflectAt } from '../sim/arena';
+import { crusherState } from '../sim/terrain';
 import { airborne, type Enemy, type World } from '../sim/world';
 import { drawText, FONT_H, textWidth } from '../ui/font';
 
@@ -54,8 +55,35 @@ function background(w: World): HTMLCanvasElement {
       } else drawSprite(x, sprite(`t:floor:${Math.floor(hash2(cx, cy, 7) * 4)}`), cx * T, py);
     }
   }
+  // terrain that never changes: oil (edged by its neighbors) and ramps
+  for (const f of a.floor ?? []) {
+    const r = f.rect;
+    if (f.kind === 'ramp') drawSprite(x, sprite(`fl:ramp:${'eswn'[f.dir ?? 0]}`), r.x, r.y);
+    if (f.kind !== 'oil') continue;
+    const isOil = (tx: number, ty: number) => (a.floor ?? []).some((q) => q.kind === 'oil' && tx >= q.rect.x && tx < q.rect.x + q.rect.w && ty >= q.rect.y && ty < q.rect.y + q.rect.h);
+    for (let ty = r.y; ty < r.y + r.h; ty += T)
+      for (let tx = r.x; tx < r.x + r.w; tx += T) {
+        const m = (isOil(tx, ty - T) ? 1 : 0) | (isOil(tx + T, ty) ? 2 : 0) | (isOil(tx, ty + T) ? 4 : 0) | (isOil(tx - T, ty) ? 8 : 0);
+        drawSprite(x, sprite(`fl:oil:${m}`), tx, ty);
+      }
+  }
   bg = { arena: a, c };
   return c;
+}
+
+/** Terrain that moves: boost strips scroll their chevrons, crusher plates warn and slam. */
+function drawTerrain(ctx: Ctx, w: World, time: number) {
+  for (const f of w.arena.floor ?? []) {
+    const r = f.rect;
+    if (f.kind === 'boost') {
+      const name = `fl:boost:${'eswn'[f.dir ?? 0]}:${Math.floor(time * 12) % 3}`;
+      for (let ty = r.y; ty < r.y + r.h; ty += 16) for (let tx = r.x; tx < r.x + r.w; tx += 16) drawSprite(ctx, sprite(name), tx, ty);
+    } else if (f.kind === 'crusher') {
+      const s = crusherState(w, f).state;
+      // the warning flashes; the head stays down a moment after the slam
+      drawSprite(ctx, sprite(`fl:crusher:${s === 'warn' && Math.floor(time * 10) % 2 === 0 ? 'idle' : s}`), r.x, r.y);
+    }
+  }
 }
 
 /** Forget the cached background (after the art changes). */
@@ -158,6 +186,7 @@ export function drawWorld(ctx: Ctx, w: World, fx: Fx, o: DrawOpts) {
   ctx.drawImage(background(w), 0, 0);
 
   for (const g of w.arena.gates) drawSprite(ctx, sprite(`ob:gate:${g.orient}:${gateState(w, g, o.time)}`), g.rect.x, g.rect.y);
+  if (w.arena.floor?.length) drawTerrain(ctx, w, o.time);
   fx.drawMarks(ctx);
   o.floor?.();
 

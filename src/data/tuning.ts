@@ -250,6 +250,24 @@ export const DEFAULT_TUNING = {
   rollCdMax: 2.4,
   maxRolls: 2,
 
+  // ---- terrain (PLAN.md 9.4) ----
+  /** a boost strip lifts you to this while you drive along it (within boostConeDeg of its arrow) */
+  boostTo: 250,
+  boostConeDeg: 60,
+  /** ...a hunting Snapper to this, a rolling Bouncer to this */
+  boostEnemy: 220,
+  boostRoll: 300,
+  /** on oil you coast with this half-life (s): almost no drag */
+  oilHalf: 3,
+  /** a ramp throws you into the air for this long, if you hit it within rampConeDeg of its arrow */
+  rampAir: 0.35,
+  rampConeDeg: 45,
+  /** a crusher plate's beat: it warns, slams, and stays down a moment */
+  crusherPeriod: 3,
+  crusherWarn: 0.8,
+  crusherDown: 0.3,
+  crusherDamage: 2,
+
   // ---- the encounter ----
   bannerTime: 1.5,
   gateWarn: 1.0,
@@ -283,6 +301,7 @@ export const TUNING_GROUPS: { title: string; keys: [TuningKey, number][] }[] = [
   { title: 'Snapper', keys: [['snapperHp', 1], ['snapperTop', 5], ['snapperAcc', 20], ['snapperTurn', 0.5], ['snapRange', 5], ['snapCircle', 4], ['snapConeDeg', 5], ['snapWindup', 0.05], ['snapLock', 0.05], ['snapSpeed', 10], ['snapDist', 5], ['snapSlide', 0.05], ['snapCdMin', 0.1], ['snapCdMax', 0.1], ['maxSnaps', 1], ['jawFling', 0.1]] },
   { title: 'Hopper', keys: [['hopperHp', 1], ['hopperSpeed', 5], ['hopMin', 5], ['hopMax', 10], ['hopWindup', 0.05], ['hopLock', 0.05], ['hopAir', 0.05], ['hopSlamR', 2], ['hopStuck', 0.1], ['stompWindup', 0.05], ['stompR', 2], ['hopCdMin', 0.1], ['hopCdMax', 0.1], ['maxCrouch', 1]] },
   { title: 'Bouncer', keys: [['bouncerHp', 1], ['bouncerDrift', 5], ['rollRange', 10], ['rollWindup', 0.05], ['rollLock', 0.05], ['rollSpeed', 10], ['rollGain', 5], ['rollMax', 10], ['rollBounces', 1], ['rollTime', 0.1], ['dizzyTime', 0.1], ['rollCdMin', 0.1], ['rollCdMax', 0.1], ['maxRolls', 1]] },
+  { title: 'Terrain', keys: [['boostTo', 10], ['boostConeDeg', 5], ['boostEnemy', 10], ['boostRoll', 10], ['oilHalf', 0.25], ['rampAir', 0.05], ['rampConeDeg', 5], ['crusherPeriod', 0.25], ['crusherWarn', 0.05], ['crusherDamage', 1]] },
   { title: 'Flat mode', keys: [['flatDamage', 1], ['flatPartDamage', 1]] },
   { title: 'Rammer', keys: [['rammerHp', 1], ['stalkSpeed', 5], ['stalkTurn', 0.5], ['strippedTurn', 0.25], ['windupFar', 0.05], ['lockFar', 0.05], ['windupNear', 0.05], ['lockNear', 0.05], ['nearDist', 5], ['chargeRange', 10], ['leadFrac', 0.05], ['chargeSpeed', 10], ['chargeOver', 10], ['chargeMin', 10], ['chargeMax', 10], ['skidTime', 0.05], ['joustStun', 0.1], ['joustDeg', 5], ['draftGap', 1], ['draftBoost', 5], ['chargeCdMin', 0.1], ['chargeCdMax', 0.1], ['maxWindups', 1]] },
 ];

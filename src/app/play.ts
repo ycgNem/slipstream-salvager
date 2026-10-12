@@ -272,6 +272,19 @@ export class Play {
         a.sfx('touchdown', e.tier === 'slip' ? 1 : 0.7);
         break;
       case 'roll': a.sfx('roll'); break;
+      case 'boost':
+        for (let i = 0; i < 4; i++) fx.wind(e.x, e.y, p.heading);
+        a.sfx('slipstream', 0.8, 0.9);
+        break;
+      case 'press':
+        for (let i = 0; i < 8; i++) {
+          const ang = (i / 8) * Math.PI * 2;
+          fx.puff('dust', e.x + Math.cos(ang) * 16, e.y + Math.sin(ang) * 16, Math.cos(ang) * 30, Math.sin(ang) * 30, 0.4);
+        }
+        fx.addShake(2);
+        a.sfx('land', 0.8, 0.8);
+        break;
+      case 'pressed': break;
       case 'boing':
         fx.sparks(e.x, e.y, 4, 0, Math.PI * 2, 70);
         a.sfx('boing', e.id === undefined ? 1 : 0.6);

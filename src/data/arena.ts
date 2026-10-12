@@ -16,6 +16,18 @@ export interface Gate {
   dir: { x: number; y: number };
 }
 
+/**
+ * Terrain painted on the floor (PLAN.md 9.4): boost strips and jump ramps point one of four ways
+ * (0 east, 1 south, 2 west, 3 north); a crusher plate slams on its own phase (s into its cycle).
+ */
+export type FloorKind = 'boost' | 'oil' | 'ramp' | 'crusher';
+export interface FloorPatch {
+  kind: FloorKind;
+  rect: Rect;
+  dir?: 0 | 1 | 2 | 3;
+  phase?: number;
+}
+
 export interface ArenaDef {
   id: string;
   w: number;
@@ -27,6 +39,8 @@ export interface ArenaDef {
   pillars: Rect[];
   gates: Gate[];
   playerStart: { x: number; y: number; heading: number };
+  /** terrain on the floor (none in the older yards) */
+  floor?: FloorPatch[];
 }
 
 const W = 640, H = 360, T = 16;
@@ -43,9 +57,10 @@ const GATES: Gate[] = [
   { id: 'e', rect: { x: W - T, y: 160, w: 16, h: 32 }, orient: 'v', spawn: { x: W - 30, y: 180 }, dir: { x: -1, y: 0 } },
 ];
 
-function arena(id: string, obstacles: Rect[], start = { x: 320, y: 180, heading: 0 }): ArenaDef {
+function arena(id: string, obstacles: Rect[], start = { x: 320, y: 180, heading: 0 }, floor: FloorPatch[] = []): ArenaDef {
   return {
     id,
+    floor,
     w: W,
     h: H,
     wall: T,
@@ -107,6 +122,40 @@ export const PINBALL = arena('pinball', [
   pillar(320, 100), pillar(224, 180), pillar(416, 180), pillar(320, 260),
   post(136, 96), post(504, 96), post(136, 264), post(504, 264),
 ]);
+
+const strip = (x: number, y: number, w: number, h: number, dir: 0 | 1 | 2 | 3): FloorPatch => ({ kind: 'boost', rect: { x, y, w, h }, dir });
+const ramp = (x: number, y: number, dir: 0 | 1 | 2 | 3): FloorPatch => ({ kind: 'ramp', rect: { x, y, w: 32, h: 32 }, dir });
+const crusher = (cx: number, cy: number, phase: number): FloorPatch => ({ kind: 'crusher', rect: box(cx, cy, 32), phase });
+
+/** The Slick: an oil lake in the middle, a racetrack of boost strips round it (clockwise), posts
+ * out at the corners. Grip is the whole question. */
+export const SLICK = arena(
+  'slick',
+  [post(96, 72), post(544, 72), post(96, 288), post(544, 288)],
+  { x: 320, y: 312, heading: Math.PI },
+  [
+    { kind: 'oil', rect: { x: 208, y: 128, w: 224, h: 112 } },
+    strip(176, 80, 288, 16, 0), strip(480, 112, 16, 144, 1), strip(176, 272, 288, 16, 2), strip(144, 112, 16, 144, 3),
+  ],
+);
+
+/** The Jumps: two low walls across the yard, a ramp in front of each from both sides, so a fast
+ * line goes over them and a slow one goes round. */
+export const JUMPS = arena(
+  'jumps',
+  [{ x: 224, y: 96, w: 16, h: 176 }, { x: 400, y: 96, w: 16, h: 176 }],
+  { x: 320, y: 184, heading: 0 },
+  [ramp(192, 168, 0), ramp(240, 168, 2), ramp(368, 168, 0), ramp(416, 168, 2)],
+);
+
+/** The Press: six crusher plates in a grid, each slamming on its own beat, posts at the corners.
+ * Bait them onto the plates. */
+export const PRESS = arena(
+  'press',
+  [post(96, 80), post(544, 80), post(96, 280), post(544, 280)],
+  { x: 320, y: 184, heading: 0 },
+  [crusher(192, 128, 0), crusher(320, 128, 1.0), crusher(448, 128, 2.0), crusher(192, 240, 1.5), crusher(320, 240, 0.5), crusher(448, 240, 2.5)],
+);
 
 /** The Heap: a broken ring of scrap piles, pillars and posts, round the middle. */
 export const HEAP = arena('heap', [
