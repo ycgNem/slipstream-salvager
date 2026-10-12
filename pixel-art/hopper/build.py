@@ -1,17 +1,21 @@
 """The Hopper (M6): a squat scrap frog with jump jets on its back. It punishes hiding: it leaps over
 cover and slams down where you'll be.
 
-40x40 frames, anchor (20,26), collision r = 10. A sage carapace (34-38) on slate-steel legs (1/2/6/7):
-a low wide dome, a broad snout with a dark mouth seam, two pale eye domes with dark pupils looking
-forward, big folded haunches either side, little front legs. Drawn WITHOUT its jets: they are the
-`part:jets` overlay (pixel-art/parts6) on the rear mount; bare, its back shows the steel bracket they
-bolt to. No red, no teal, no gold anywhere on the body.
+40x40 frames, anchor (20,26), collision r = 10. A sage carapace (35-38) that sits like a frog's
+back, high at the hips and sloping down into a broad flat head with a dark mouth seam; two pale eye
+domes with dark pupils looking forward; big dark sage-slate haunches either side (34-37) on steel
+shins and webbed feet, and little steel front legs (1/2/6/7). Drawn WITHOUT its jets: they are the
+`part:jets` overlay (pixel-art/parts6) on the rear mount, just behind the hip hump; bare, its back
+shows the steel bracket they bolt to. No red, no teal, no gold anywhere on the body.
 
-States (STYLE.md): stalk (2, sitting, a waddle bob), crouch (2, flattened and spread wide, haunches
-cocked up, eyes white-hot; the renderer shakes it), air (1, stretched out: legs trailing behind,
-front legs reaching), land (1, stuck: flat, legs splayed out sideways and sunk in, eyes lidded; also
-its stunned frame). All 8 directions are rendered from the model (light stays upper left), never
-mirrored.
+States (STYLE.md), each its own silhouette at 1x:
+  stalk  (2) sitting up, a waddle bob between the frames
+  crouch (2) flattened low and spread wide, haunches out flat, eyes glaring white (no pupils); the
+             frames quiver a pixel and the renderer shakes it
+  air    (1) stretched long: hind legs trailing behind, front legs tucked back
+  land   (1) stuck: flat and wide, legs splayed back and out and sunk in, eyes lidded (also its
+             stunned frame)
+All 8 directions are rendered from the model (light stays upper left), never mirrored.
 
 Run: python pixel-art/hopper/build.py -> hopper.png (1x sheet: 8 rows = e se s sw w nw n ne,
 6 columns = stalk0 stalk1 crouch0 crouch1 air land), sprites.json, previews in e2e/out/pixel-art/.
@@ -28,8 +32,8 @@ ROOT = HERE.parents[1]
 sys.path.insert(0, str(HERE.parent / '_lib'))
 sys.path.insert(0, str(HERE.parent / 'parts'))
 from sculpt import (DIRS, Mat, sculpt, dir_angle, sd_box, sd_capsule, sd_ellipsoid,  # noqa: E402
-                    unpitch, put, get, isolated, colors_used, label_sheet, Canvas, shadow_img,
-                    grid_sheet, to_image, Painter, despeckle, add_outline, blank, stamp)
+                    unpitch, isolated, colors_used, label_sheet, Canvas, shadow_img, to_image,
+                    Painter, despeckle, add_outline, blank, stamp)
 from PIL import Image  # noqa: E402
 import model as parts  # noqa: E402
 
@@ -60,13 +64,13 @@ def lerp3(a, b, t):
 # ---------------------------------------------------------------- the model
 
 BASE = dict(lift=0.0, pitch=0.0, squash=1.0, widen=1.0, longer=1.0, fold=0.0, splay=0.0, sink=0.0, reach=0.0,
-            eye='lit', debris=False)
+            eye='lit')
 
 # leg joints (x, |y|, z) for three key poses; fold blends sit (0) -> crouch (1), and air (-1)
 SIT = dict(hip=(-3.6, 4.4, 3.7), knee=(1.0, 7.9, 4.3), ankle=(-4.8, 8.9, 1.1), toe=(2.6, 9.7, 0.55))
 CROUCH = dict(hip=(-3.6, 5.2, 1.7), knee=(1.2, 10.4, 2.0), ankle=(-5.2, 11.2, 0.8), toe=(2.2, 12.4, 0.55))
 AIR = dict(hip=(-4.6, 4.2, 4.2), knee=(-8.8, 5.8, 3.6), ankle=(-12.4, 6.4, 3.3), toe=(-15.2, 6.8, 3.2))
-SPLAY = dict(hip=(-3.2, 5.0, 2.0), knee=(-1.2, 11.0, 1.8), ankle=(-5.6, 12.0, 0.4), toe=(-2.0, 13.0, -0.3))
+SPLAY = dict(hip=(-3.6, 5.0, 1.8), knee=(-4.6, 10.6, 1.5), ankle=(-9.0, 11.2, 0.4), toe=(-7.4, 13.2, -0.3))
 
 
 def leg_joints(p):
@@ -82,7 +86,8 @@ def leg_joints(p):
 
 HUMP, HUMP_R = (-3.0, 0.0, 5.4), (5.6, 5.6, 4.3)
 HEAD, HEAD_R = (4.4, 0.0, 4.4), (5.2, 5.0, 2.7)
-EYE_P = (5.2, 2.7, 6.65)
+EYE_P = (5.0, 2.9, 6.75)
+EYE_R = (1.75, 1.7, 1.55)
 MOUTH_Z = 3.95
 
 
@@ -109,7 +114,7 @@ def scene(p):
         half = math.hypot(kx - hx, ky - hy) / 2
         c, s_ = math.cos(yaw), math.sin(yaw)
         lx, ly = (x - mx) * c + (ay - my) * s_, -(x - mx) * s_ + (ay - my) * c
-        h.add(sd_ellipsoid(lx, ly, z - mz, half + 1.6, 2.5, 2.5 - 0.85 * max(0.0, p['fold'])), THIGH, x, y, z)
+        h.add(sd_ellipsoid(lx, ly, z - mz, half + 1.6, 2.5, 2.5 - 0.85 * max(0.0, p['fold']) - 0.8 * p['splay']), THIGH, x, y, z)
         # shin: knee -> ankle, and the long foot: ankle -> toes, flat on the ground
         ax_, ay_, az_ = J['ankle']
         h.add(sd_capsule(x, ay, z, kx, ky, kz, ax_, ay_, az_, 1.05), SHIN, x, y, z)
@@ -144,7 +149,7 @@ def scene(p):
         # belly / chin: a paler underside, seen from the front
         h.add(sd_ellipsoid(bx - 1.2, by, bz - 2.9, 7.2, 4.9, 2.0) * min(sq, 1.0), BELLY, bx, by, bz)
         # eye domes on top of the head
-        h.add(sd_ellipsoid(bx - EYE_P[0], abs(by) - EYE_P[1], bz - EYE_P[2], 1.5, 1.45, 1.4), EYE, bx, by, bz)
+        h.add(sd_ellipsoid(bx - EYE_P[0], abs(by) - EYE_P[1], bz - EYE_P[2], *EYE_R), EYE, bx, by, bz)
         # the bracket on its back the jets bolt to: a steel block with two bolts
         h.add(sd_box(bx + 8.0, by, bz - 4.3, 0.7, 1.8, 1.2, 0.3), BRACKET, bx, by, bz)
         h.add(sd_ellipsoid(bx + 8.6, abs(by) - 1.05, bz - 4.8, 0.45, 0.5, 0.5), BOLT)
@@ -196,21 +201,18 @@ def details(img, grid, a, p):
                 pt.dot(*body(ex + 1.35, yy, ez + 0.15), 0, eps=1.4, only={EYE})
         elif p['eye'] == 'lit':
             # (white-hot eyes in the crouch have no pupils: a glare)
-            pt.dot(*body(ex + 1.45, ey, ez + 0.1), 0, eps=1.6, only={EYE}, normal=(1, 0, 0))
-    # the mouth: a dark seam round the front of the snout, a wide frog grin
-    for t in range(-16, 17):
+            # high on the front of the dome, so it's the middle of the eye seen from in front and
+            # its front edge seen side on
+            pt.dot(*body(ex + EYE_R[0] * 0.72, ey, ez + EYE_R[2] * 0.62), 0, eps=1.3, only={EYE}, normal=(0.75, 0, 0.66))
+    # the mouth: a dark seam round the front of the snout, a wide frog grin (not when it's
+    # flattened on landing: the snout is half sunk and the seam only muddies the face)
+    for t in (range(-16, 17) if p['splay'] < 0.5 else ()):
         ang = t / 16 * 1.25
         k = math.sqrt(max(0.0, 1 - ((MOUTH_Z - HEAD[2]) / HEAD_R[2]) ** 2))
         yy = math.sin(ang) * HEAD_R[1] * k
         xx = HEAD[0] + math.cos(ang) * HEAD_R[0] * k
         pt.dot(*body(xx, yy, MOUTH_Z), 34, eps=1.3, only={BODY, BELLY})
     return pt.mark
-
-
-def debris(img, rng_seed=7):
-    """Clods of floor kicked up round its sunk feet (land): a few warm-neutral pixels on empty
-    pixels next to the feet's outline."""
-    pass
 
 
 def render(d, p):
@@ -230,7 +232,7 @@ def poses():
         ('crouch', 0, P(lift=-2.6, squash=0.72, widen=1.18, longer=1.1, fold=1.0, pitch=0.04, eye='hot', reach=-0.2)),
         ('crouch', 1, P(lift=-3.0, squash=0.68, widen=1.2, longer=1.12, fold=1.0, pitch=0.04, eye='hot', reach=-0.2)),
         ('air', None, P(lift=1.8, pitch=0.18, widen=0.94, longer=1.08, fold=-1.0, reach=-1.0)),
-        ('land', None, P(lift=-3.0, squash=0.72, widen=1.15, longer=1.08, fold=0.4, splay=1.0, sink=0.6, pitch=-0.1, eye='dim', reach=0.2)),
+        ('land', None, P(lift=-2.4, squash=0.68, widen=1.3, longer=1.05, fold=0.4, splay=1.0, sink=0.6, pitch=-0.1, eye='dim', reach=0.2)),
     ]
 
 

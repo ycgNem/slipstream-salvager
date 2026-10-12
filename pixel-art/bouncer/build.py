@@ -2,10 +2,11 @@
 its rolls bounce off walls and pillars.
 
 32x32 frames, anchor (16,20), collision r = 9. A chrome ball (cool neutrals 5-8, white 9 highlight)
-that mirrors the sky above its horizon line and the floor below it; a dark visor slit at its front
-with a lit eye (blue-slate 44-47, never the speed blue 48); a blue-slate cap on top; a dark belt
-low round its middle with four stub brackets, where the Springs sit. Drawn WITHOUT its springs: they
-are the `part:springs` overlay (pixel-art/parts6), drawn under it.
+painted by what it reflects: pale sky above its horizon line, the floor below it, a lit rim; a dark
+visor slit high on its front with a lit eye (blue-slate 44-47, never the speed blue 48); a little
+vent grille on its back, so it faces somewhere from behind too; a blue-slate cap on top; a dark belt
+low round its middle, level with the Springs' coils. Drawn WITHOUT its springs: they are the
+`part:springs` overlay (pixel-art/parts6), drawn under it, the coils against the belt.
 
 States (STYLE.md): idle (2, a bob), windup (2, squashed down, the eye white-hot), roll (2, the shell
 spins under the fixed visor and cap: two blue bands round it turn 45 degrees between the frames, a
@@ -27,9 +28,9 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 sys.path.insert(0, str(HERE.parent / '_lib'))
 sys.path.insert(0, str(HERE.parent / 'parts'))
-from sculpt import (DIRS, Mat, sculpt, dir_angle, sd_box, sd_cyl, sd_ellipsoid, unroll, project,  # noqa: E402
+from sculpt import (DIRS, Mat, sculpt, dir_angle, sd_cyl, unroll, project,  # noqa: E402
                     put, get, isolated, colors_used, label_sheet, Canvas, shadow_img, to_image,
-                    Painter, despeckle, add_outline, blank, stamp, LIGHT)
+                    despeckle, add_outline, blank, stamp, LIGHT)
 from PIL import Image  # noqa: E402
 import model as parts  # noqa: E402
 

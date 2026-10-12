@@ -139,35 +139,33 @@ def icon_jets():
 
 
 def icon_springs():
-    """Hand-drawn: a coil bumper side on, between two steel end plates: gold turns lit on top, a
-    dark gap between each two, the turns slanting like a helix; the steel rod through
-    them shows in the gaps. Art 14x12 with its outline."""
+    """Hand-drawn: a coil bumper side on, as it shows mounted: fat gold turns (lit on top, shadow
+    underneath, each one rounded off so the silhouette ripples) with a dark gap between each two,
+    on a steel rod between two steel end plates. Art 13x12 with its outline."""
     img = blank(16, 16)
     y0, y1 = 4, 11                                         # coil rows (inclusive)
     for y in range(y0, y1 + 1):
-        for x in range(4, 12):
-            i = x - 4
-            gap = (i - (y - y0) // 3) % 3 == 2                # the turns slant down to the left
-            if y in (y0, y1) and gap:
-                continue                                   # round each turn off top and bottom
+        for x in range(3, 12):
+            i = x - 3
+            gap = i % 3 == 2
+            edge = y in (y0, y1)
+            if gap and edge:
+                continue                                   # the ripple between two turns
             if gap:
-                c = 1 if y in (y0 + 1, y1 - 1) else 2
+                c = 2 if y0 + 2 <= y <= y1 - 2 else 1      # the rod, in the gap
             elif y == y0:
-                c = 28
-            elif y == y0 + 1:
-                c = 28 if i < 4 else 18
+                c = 28 if i % 3 == 0 else 18
+            elif y <= y0 + 2:
+                c = 28 if (i % 3 == 0 and x < 9) else 18
             elif y >= y1 - 1:
                 c = 17
             else:
                 c = 18
             img[y][x] = c
-    # steel end plates, a row taller than the coil each way
+    # steel end plates, a row taller than the coil each way, lit on the left
     for y in range(y0 - 1, y1 + 2):
         img[y][2] = 8 if y < 7 else 7 if y < 10 else 6
-        img[y][3] = 7 if y < 7 else 6 if y < 10 else 2
         img[y][12] = 7 if y < 7 else 6 if y < 10 else 2
-        img[y][13] = 6 if y < 7 else 2
-    img[y0 - 1][2] = img[y1 + 1][2] = 7
     add_outline(img, 0)
     return img
 
