@@ -19,12 +19,16 @@ try {
   await wait(400);
   await shot('01-title');
 
-  // click Play: the button is at logical (260..380, 168..190)
+  // click Play (logical 260..380, 162..182): the Garage; then Start (260..380, 290..312) starts the run
   const geo = await page.evaluate(() => ({ zoom: window.__app.zoom, ox: window.__app.ox, oy: window.__app.oy, dpr: window.__app.dpr }));
   const at = (x, y) => [(geo.ox + x * geo.zoom) / geo.dpr, (geo.oy + y * geo.zoom) / geo.dpr];
-  await page.mouse.click(...at(320, 179));
+  await page.mouse.click(...at(320, 172));
   await wait(300);
-  check(await page.evaluate(() => window.__app.screen === 'play'), 'Play starts an encounter');
+  check(await page.evaluate(() => window.__app.screen === 'garage'), 'Play opens the Garage');
+  await shot('01b-garage');
+  await page.mouse.click(...at(320, 301));
+  await wait(300);
+  check(await page.evaluate(() => window.__app.screen === 'play'), 'Start starts a run');
 
   // drive right for a second: should reach Slipstream
   await page.keyboard.down('KeyD');

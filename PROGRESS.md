@@ -2,6 +2,24 @@
 
 What's built. Newest first.
 
+## 2026-10-12 — M6-M8: the expansion (new salvage, terrain, The Compactor)
+
+The owner asked to "make this game more expansive" (DECISIONS #82). On `works`, not published:
+- **M6, new salvage** (#83-#86, #89): the Hopper (leaps with a ring telegraph, slams, stuck) and
+  the Jump Jets (hold to crouch, let go to leap; the landing is a hit); the Bouncer (rolls that
+  bounce off walls) and the Springs (you bounce off walls instead of clanking); the Spring Rammer;
+  The Hurdles and The Pinball. The pixel art for all of it is imported.
+- **M7, terrain** (#87-#88): boost strips, oil, jump ramps, crusher plates; The Slick, The Jumps,
+  The Press. Nine middle yards.
+- **M8, The Compactor** (#90): a boss you take apart, each worn part one of its moves; core open it
+  leaps like a Hopper; it calls Snappers in. The run is six yards: The Heap leads to it.
+- **The critic's M6 review, fixed** (#91-#92): the rev limit, leaps striking the zone you came
+  from and leading you fully, Bouncers keeping their distance, new Hurdles and Pinball layouts,
+  and more. Guard tests for each.
+- **Checks:** 148 tests, typecheck, the smoke test, 44 screenshots with 0 overlaps, coverage 685
+  names (0 missing), the strategy-bot guards. The search bot clears every yard on every seed
+  (35-85 s; the boss 35-38 s).
+
 ## 2026-10-12 — M5: 0.2.0 published
 
 - **Live:** the owner said to push live. `main` was fast-forwarded to `works` and both were

@@ -3,6 +3,7 @@
 import { Rng } from '../engine/rng';
 import { RING, type ArenaDef, type Gate } from '../data/arena';
 import { defaultTuning, type Tuning } from '../data/tuning';
+import { CHASSIS, type ChassisId } from '../data/chassis';
 import { WAVES, type WaveDef } from '../data/waves';
 import { PARTS, type EnemyKind, type PartId } from '../data/parts';
 import { MOUNTS, type MountSlot } from '../data/mounts';
@@ -201,6 +202,8 @@ export interface Stats {
 
 export interface World {
   t: Tuning;
+  /** the body you drive (PLAN.md 9.6) */
+  chassis: ChassisId;
   /** flat mode, the removal test A/B: speed doesn't change damage, and parts add damage instead of changing how you move */
   flat: boolean;
   rng: Rng;
@@ -231,6 +234,8 @@ export interface World {
 
 export interface WorldOpts {
   seed?: number;
+  /** the body you drive: its tuning goes under `tuning` */
+  chassis?: ChassisId;
   tuning?: Partial<Tuning>;
   flat?: boolean;
   sandbox?: boolean;
@@ -241,12 +246,14 @@ export interface WorldOpts {
 }
 
 export function createWorld(opts: WorldOpts = {}): World {
-  const t = { ...defaultTuning(), ...opts.tuning };
+  const chassis = opts.chassis ?? 'scrapper';
+  const t = { ...defaultTuning(), ...CHASSIS[chassis].tuning, ...opts.tuning };
   const arena = opts.arena ?? RING;
   const seed = opts.seed ?? 1;
   const s = arena.playerStart;
   return {
     t,
+    chassis,
     flat: !!opts.flat,
     rng: new Rng(seed),
     seed,

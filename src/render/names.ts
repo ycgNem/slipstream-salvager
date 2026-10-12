@@ -20,8 +20,10 @@ export function allSpriteNames(): string[] {
   for (const s of ['idle', 'warn', 'down']) out.push(`fl:crusher:${s}`);
   for (const o of ['h', 'v']) for (const s of ['closed', 'open', 'warn']) out.push(`ob:gate:${o}:${s}`);
   for (const d of DIRS) {
-    for (const f of R(2)) out.push(`pl:scrapper:drive:${d}:${f}`, `pl:scrapper:rip:${d}:${f}`);
-    out.push(`pl:scrapper:hurt:${d}`);
+    for (const c of ['scrapper', 'skiff', 'hauler']) {
+      for (const f of R(2)) out.push(`pl:${c}:drive:${d}:${f}`, `pl:${c}:rip:${d}:${f}`);
+      out.push(`pl:${c}:hurt:${d}`);
+    }
     for (const f of R(2)) out.push(`en:rammer:stalk:${d}:${f}`, `en:rammer:windup:${d}:${f}`, `en:rammer:charge:${d}:${f}`, `en:rammer:stunned:${d}:${f}`);
     out.push(`en:rammer:skid:${d}`);
     for (const f of R(2)) out.push(`en:snapper:hunt:${d}:${f}`, `en:snapper:windup:${d}:${f}`, `en:snapper:snap:${d}:${f}`, `en:snapper:stunned:${d}:${f}`);
@@ -59,7 +61,7 @@ export function spriteSpec(name: string): { w: number; h: number; ox: number; oy
     case 'en:snapper': case 'en:bouncer': return { w: 32, h: 32, ox: 16, oy: 20 };
     case 'en:hopper': return { w: 40, h: 40, ox: 20, oy: 26 };
     case 'ob:gate': return p[2] === 'h' ? { w: 32, h: 16, ox: 0, oy: 0 } : { w: 16, h: 32, ox: 0, oy: 0 };
-    case 'pl:scrapper': return { w: 32, h: 32, ox: 16, oy: 20 };
+    case 'pl:scrapper': case 'pl:skiff': case 'pl:hauler': return { w: 32, h: 32, ox: 16, oy: 20 };
     case 'en:rammer': return { w: 40, h: 40, ox: 20, oy: 26 };
     case 'bo:compactor': return { w: 64, h: 64, ox: 32, oy: 44 };
     case 'bo:part': return p[2] === 'springs' ? { w: 64, h: 64, ox: 32, oy: 44 } : { w: 32, h: 32, ox: 16, oy: 16 };

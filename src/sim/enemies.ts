@@ -12,7 +12,8 @@ import { beginSnap, snapping, thinkSnapper } from './snapper';
 import { beginCrouch, crouching, thinkHopper } from './hopper';
 import { beginRoll, hasSprings, rollingUp, thinkBouncer } from './bouncer';
 import { beginBossWindup, bossChargeLength, thinkCompactor } from './compactor';
-import { airborne, DT, hasAnyPart, radiusOf, tierOf, type Enemy, type World } from './world';
+import { CHASSIS } from '../data/chassis';
+import { airborne, DT, hasAnyPart, KINDS, radiusOf, tierOf, type Enemy, type World } from './world';
 
 const deg = (d: number) => (d * Math.PI) / 180;
 
@@ -56,7 +57,10 @@ export function updateEnemies(w: World) {
     // stunned), unless it's on springs, which bounce it off (a Bouncer's roll every time, faster;
     // a Spring Rammer's charge once); otherwise it slides along
     const rr = radiusOf(w, e);
-    for (const c of contacts(w.arena, e.x, e.y, rr)) {
+    const cs = contacts(w.arena, e.x, e.y, rr);
+    // The Compactor keeps its head below the HUD band: the top of the yard is a wall to it
+    if (e.kind === 'compactor' && e.state !== 'enter' && e.y < t.bossTopY) cs.push({ nx: 0, ny: 1, depth: t.bossTopY - e.y });
+    for (const c of cs) {
       e.x += c.nx * c.depth;
       e.y += c.ny * c.depth;
       const into = -(Math.cos(dir) * c.nx + Math.sin(dir) * c.ny);
@@ -138,7 +142,10 @@ export function laneOf(w: World, r: Enemy): { angle: number; len: number; width:
   const t = w.t, rr = radiusOf(w, r);
   // a Bouncer's roll runs to the first wall (and bounces on: the renderer adds the stub)
   const max = r.kind === 'bouncer' ? 640 : r.kind === 'snapper' ? t.snapDist : chargeLenOf(w, r);
-  return { angle: r.face, len: laneLength(w.arena, r.x, r.y, r.face, max, rr), width: rr * 2 };
+  let len = laneLength(w.arena, r.x, r.y, r.face, max, rr);
+  // The Compactor's lane stops at its top limit, where its charge does
+  if (r.kind === 'compactor' && Math.sin(r.face) < -0.01) len = Math.min(len, Math.max(0, (r.y - t.bossTopY) / -Math.sin(r.face)));
+  return { angle: r.face, len, width: rr * 2 };
 }
 
 /** How far a Rammer's (or The Compactor's) charge or shove runs: fixed once its lane locks. */
@@ -209,6 +216,23 @@ export function resolveContacts(w: World) {
     }
     let vx = Math.cos(p.heading) * p.speed, vy = Math.sin(p.heading) * p.speed;
     const vn = vx * nx + vy * ny;
+    if (vn < 0 && CHASSIS[w.chassis].bump === 'shove' && !w.result) {
+      // the Hauler: a bump is a shove, the Cruise hit's interrupt at any speed (PLAN.md 9.6). It's
+      // pushed away and its windup is cancelled; you plough on, a little slower
+      const push = (t.cruiseShove * Math.LN2) / 0.08;
+      r.vx -= nx * push;
+      r.vy -= ny * push;
+      if (r.state === 'windup') {
+        r.state = KINDS[r.kind].state;
+        r.leap = false;
+        r.t = 0;
+        r.cd = 0.8;
+        w.events.push({ k: 'cancel', id: r.id });
+      }
+      p.speed *= t.cruiseKeep;
+      w.events.push({ k: 'shove', id: r.id, x: r.x + nx * rr, y: r.y + ny * rr });
+      continue;
+    }
     if (vn < 0) {
       vx -= 2 * vn * nx;
       vy -= 2 * vn * ny;

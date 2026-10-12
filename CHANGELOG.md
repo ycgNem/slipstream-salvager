@@ -1,5 +1,50 @@
 # Patch notes
 
+## 0.3.0 — The expansion (draft, not released)
+
+A bigger run, new salvage, terrain and a boss.
+
+**The run**
+- Six yards now: The Ring, three of nine middle yards, The Heap, and The Compactor.
+
+**Two new enemies, two new parts**
+- **The Hopper** crouches, paints a red ring where it will land, leaps over everything and slams
+  down. Then it's stuck: hit its back to take its **Jump Jets**. With the jets, hold Rip to crouch
+  and let go to leap over charges and walls. The landing is a hit.
+- **The Bouncer** rolls at you, bouncing off walls and getting faster. Cut across it to take its
+  **Springs**. With the springs, you bounce off walls instead of clanking.
+- **The Spring Rammer**: its charge bounces off the first wall.
+
+**Terrain**
+- Boost strips (drive along the arrows), oil (no grip), jump ramps (jump the low walls at speed),
+  crusher plates (lure enemies onto them before they slam).
+
+**Five new yards**
+- The Hurdles, The Pinball, The Slick, The Jumps, The Press.
+
+**The Compactor**
+- The last yard is a boss. It wears a Booster, Springs and a Plow, and each part is one of its
+  moves: tear one off and that move is gone, and the part is yours. Strip it bare and it leaps.
+  It calls Snappers in to help.
+
+**The Garage**
+- PLAY now opens the Garage. Pick your chassis and any run modifiers you've unlocked.
+- Two new chassis, unlocked by playing. **The Skiff** holds its speed through any turn and glides,
+  but it has 3 hull and can hardly brake. **The Hauler** shoves enemies out of their windups just
+  by bumping them and has 7 hull, but it's slow to get up to speed.
+- Two run modifiers: **Bare Bones** (your parts don't carry between yards) and **No Breather** (the
+  next wave comes in at once).
+- **The Log**: every enemy and part you've met, with what to do about it.
+- **The daily run**: one seed a day, the same for everyone. Your best for the day shows on the
+  title.
+
+**Balance**
+- Holding Rip with the Booster now launches the Burn on its own after a second.
+- A Jump Jets leap hits the side you came from, not where you land.
+- The Hopper's ring leads you all the way: dodge it by turning, not by going fast.
+- Bouncers keep their distance, and their round front glances off unless you meet their roll
+  head-on at full speed.
+
 ## 0.2.0 — A short run (2026-10-12)
 
 The one arena is now the first of five. Rip, bolt on and drive on.

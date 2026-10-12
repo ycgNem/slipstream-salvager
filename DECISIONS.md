@@ -578,3 +578,60 @@ a number in the tuning panel, and the M1 rule is one setting away (given with ea
     - The search bots can't show what a shortcut is worth: even with the critic's leap plans
       (`scripts/pacing/hleap.ts`) the bot is slower with the Jets, because its value only looks a
       moment ahead. Judge the Jets in the Hurdles by play, not by the bot.
+93. **M9 planned in detail** (PLAN.md 9.6), from the outline in #82.
+    - A chassis is tuning overrides plus at most one behavior, so it's data like a part, and the
+      run carries it. The Skiff's identity is the turn it can hold at speed (its scrub line sits
+      above its own top-speed turn) and the coast; its cost is hull, braking and a weight per
+      part. The Hauler's is the shove-bump (the Cruise hit's interrupt at any speed, no button);
+      its cost is the run-up and a narrow Slipstream band.
+    - The tiers stay absolute for every chassis (DECISIONS #4's marks), so the chassis changes the
+      path to Slipstream, never what Slipstream means.
+    - Unlocks are for variety, never power: two chassis (sidegrades with real weaknesses) and two
+      modifiers that make a run different, not easier. The thresholds (20 tears, 10 jousts, clear
+      The Heap, win a run) are first guesses for the owner's playtest.
+    - The daily run fixes the chassis and modifiers so a day's results compare.
+94. **M9a, the chassis, as built.**
+    - `src/data/chassis.ts`: a chassis is tuning overrides and a bump rule. A world takes
+      `chassis` (its tuning goes under any explicit overrides) and a run carries it. The tuning
+      panel's live numbers now go over a chassis only where you changed them (`liveOverrides`).
+    - **The Hauler was retuned from the plan** (215 / 120 / scrub 650 to 230 / 160 / scrub 800): at
+      the plan's numbers the search bot took 70-124 s a yard and cleared only 2 of 4 Kennels; its
+      band was too narrow to fight in. Now it's ~20% slower than the Scrapper (Heap 76 s, Pinball
+      72 s, The Compactor 50 s) with 7 hull, and still drops out of Slipstream in a full-lock turn.
+    - The Skiff paces like the Scrapper for the bot (Kennel 33 s, Pinball 59 s, The Compactor
+      39 s), which takes no hits; its cost (3 hull) is a person's cost.
+    - Bodies are code-drawn (`m9.ts`), the Scrapper's frames, anchor and claw: the Skiff a low
+      wedge on skids with a fin, the Hauler a slab on wide treads with a steel push plate.
+    - The boss bar packs its pips 3 px apart, so it fits beside the Hauler's seven hull pips.
+    - `?chassis=skiff` (debug builds) and `CHASSIS=` for `hrun.ts`.
+95. **M9b-d: the Garage, unlocks, the Log, the daily run, as built.**
+    - The title has PLAY (the Garage), DAILY RUN, THE LOG and SETTINGS. The Garage has a card per
+      chassis (a locked one is a dark silhouette with its unlock and your progress) and the
+      modifiers; START starts the run. AGAIN after a run keeps the chassis and modifiers.
+    - Unlocks (`src/data/unlocks.ts`, pure) read lifetime counts: tears and jousts are banked per
+      yard as it ends (`tearsTotal`, `joustsTotal` in the save), plus the existing most-yards and
+      wins. A run quit mid-yard loses only that yard's counts.
+    - **Bare Bones** clears your parts and tow when a yard ends (the hull carries); **No Breather**
+      sets the breather between waves to 0. Both are run state, so the bots and tests see them.
+    - The Log (`salvager.log`) counts met (an enemy coming in), wrecked, torn and bolted, by kind
+      and part. Scripted scenes don't write it.
+    - The daily run: the seed is a hash of the local date, always the Scrapper with no modifiers;
+      the day's best (most yards, then fastest) is kept and shown on the title and the results.
+      "The same for everyone" holds for anyone on the same build (the seed drives the yard choices
+      and every wave; a balance change changes the run).
+    - The debug scenes `garage` and `log` show made-up progress (`app.preview`), not the save.
+96. **Fixes from the M7-M8 visual QA** (the qa-screens agent at e599e43).
+    - The Compactor keeps its centre at y 64 or lower (`bossTopY`; the top of the yard is a wall to
+      it, its lane and its leap ring stop there too), so the HUD band never covers its head; its
+      "CALLS FOR HELP" goes below it when above would land on its body.
+    - Its mounts drop with its pose (lift 5 winding up, 6 charging, 4 stunned, 7 otherwise), so its
+      parts stay on its body.
+    - Its Springs' bounces are most of its charge: both are drawn, and once locked in the lane's
+      own colours (a Spring Rammer's and a Bouncer's single stub stay dim and dashed).
+    - Oil's base is dark blue (44), never palette 0, the outline colour, so bodies and shadows on
+      it keep their edges.
+    - A crusher plate's warning is a steady red border drawn over the bodies standing on it.
+    - Hints: teal for a speed move, gold only for salvage (tearing, bolting, the exit signs), plain
+      frost otherwise (oil, the plates).
+    - Passed to the art agent: the boss's springs and plow must be the imported parts' models at
+      2x (the code ones aren't what drops).

@@ -47,7 +47,7 @@ function scene(p: Pose): Scene {
     // the bin on its back, ribbed, and its lid
     h.add(sdBox(hx + 2.6, hy, hz - 12.4, 6.2, 6.4, 2.8, 1.0), BIN, hx + 2.6, hy, hz - 12.4);
     if (p.lid > 0) {
-      // thrown open, hinged at the back: the core glows inside
+      // thrown open, hinged at the cab end: the core glows inside
       h.add(sdEllipsoid(hx + 2.6, hy, hz - 14.8, 3.6, 3.6, 1.6), CORE, hx + 2.6, hy, hz);
       let lx = hx - 9.0, lz = hz - 15.6;
       [lx, lz] = unpitch(lx, lz, -1.1 * p.lid, 0, 0);

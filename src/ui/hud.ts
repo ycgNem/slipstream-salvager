@@ -28,11 +28,11 @@ export function drawHud(ui: UI, w: World, keys: { bolt: string }, label?: string
   // The Compactor: its name and a pip per hull point, on the wall band left of the north gate
   const boss = w.enemies.find((e) => e.kind === 'compactor');
   if (boss) {
-    const name = 'COMPACTOR', bx = 300 - t.compactorHp * 4 - 4 - textWidth(name);
+    const name = 'COMPACTOR', bx = 300 - t.compactorHp * 3 - 4 - textWidth(name);
     ui.fill(bx - 4, 1, 300 - bx + 6, 14, C.ink);
     ui.text(name, bx, 4, C.mist);
     const px0 = bx + textWidth(name) + 4;
-    for (let i = 0; i < t.compactorHp; i++) ui.fill(px0 + i * 4, 4, 3, 7, i < boss.hp ? C.frost : C.plum);
+    for (let i = 0; i < t.compactorHp; i++) ui.fill(px0 + i * 3, 4, 2, 7, i < boss.hp ? C.frost : C.plum);
   }
 
   // the three part slots, top right, with what you're towing to their left

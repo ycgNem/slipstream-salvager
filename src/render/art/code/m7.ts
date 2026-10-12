@@ -38,8 +38,9 @@ function boost(d: number, f: number) {
   };
 }
 
-/** Oil: near-black with a glossy blue-violet sheen; edges where there's no oil next door are
- * rounded off, so a patch reads as a puddle, not a carpet. mask bits: 1 up, 2 right, 4 down, 8 left. */
+/** Oil: a deep blue-black with a glossy sheen; edges where there's no oil next door are rounded
+ * off, so a patch reads as a puddle, not a carpet. Its base is never palette 0 (the outline
+ * colour), so bodies and shadows on it keep their edges. mask bits: 1 up, 2 right, 4 down, 8 left. */
 function oil(mask: number) {
   return {
     w: 16, h: 16, ox: 0, oy: 0,
@@ -51,10 +52,10 @@ function oil(mask: number) {
         const cy = !up && y < 3 ? 3 - y : !down && y > 12 ? y - 12 : 0;
         if (cx * cx + cy * cy > 6) continue;
         const edge = (!up && y === 0) || (!down && y === 15) || (!left && x === 0) || (!right && x === 15) || cx * cx + cy * cy > 3;
-        let c = edge ? 49 : 0;
-        // the sheen: a dither of dark blue-violet in slanted bands, and a few bright glints
+        let c = edge ? 49 : 44;
+        // the sheen: dark slanted bands dithered in, a lighter streak, and a few bright glints
         const band = (x + y * 2 + 64) % 12;
-        if (!edge && band < 3 && (x + y) % 2 === 0) c = 44;
+        if (!edge && band > 6 && band < 10 && (x + y) % 2 === 0) c = 0;
         if (!edge && band === 1 && x % 3 === 0) c = 45;
         if (!edge && hash(x, y, 77) > 0.99) c = 47;
         px(ctx, x, y, c);
