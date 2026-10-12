@@ -10,6 +10,7 @@ import { registerM3 } from './m3';
 import { registerM6 } from './m6';
 import { registerM7 } from './m7';
 import { registerM8 } from './m8';
+import { registerM9 } from './m9';
 
 export function registerCodeArt() {
   registerTiles();
@@ -22,4 +23,5 @@ export function registerCodeArt() {
   registerM6();
   registerM7();
   registerM8();
+  registerM9();
 }

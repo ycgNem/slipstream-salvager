@@ -266,7 +266,7 @@ family by family when it beats the placeholder.
   - **8b — The M6 review's fixes.** Built (DECISIONS #92).
   - **8c — Verify.** Both agents on M7 and M8, fixes, docs; the art agents on M7 and M8.
 - **M9 — The Garage** (PLAN.md 9.6).
-  - **9a — The chassis.** The Skiff and the Hauler: chassis as data (tuning overrides and a
+  - **9a — The chassis.** Built (DECISIONS #94). The Skiff and the Hauler: chassis as data (tuning overrides and a
     behavior), carried by the run; their bodies (code-drawn); the Hauler's shove-bump; the Skiff's
     part weight. Checks: movement tests (the Skiff holds Slipstream through a full-lock turn and the
     Scrapper doesn't; the Hauler's bump cancels a windup), pacing with each chassis.

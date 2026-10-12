@@ -8,6 +8,7 @@ import type { MountSlot } from '../data/mounts';
 import type { PartId } from '../data/parts';
 import type { Tuning } from '../data/tuning';
 import { MIDDLE, RUN_LENGTH, YARDS, wavesAt, type YardId } from '../data/yards';
+import type { ChassisId } from '../data/chassis';
 import { createWorld, tierOf, type Bolted, type World } from './world';
 
 export interface Loadout {
@@ -30,6 +31,8 @@ export interface RunTotals {
 export interface Run {
   seed: number;
   rng: Rng;
+  /** the body you drive, all run */
+  chassis: ChassisId;
   /** which yard of the run (1 = The Ring .. RUN_LENGTH - 1 = The Heap, RUN_LENGTH = The Compactor) */
   depth: number;
   yard: YardId;
@@ -56,9 +59,9 @@ function nextOptions(run: Run): YardId[] {
   return run.rng.shuffle([...left]).slice(0, 2);
 }
 
-export function newRun(seed: number, start: YardId = 'ring'): Run {
+export function newRun(seed: number, start: YardId = 'ring', opts: { chassis?: ChassisId } = {}): Run {
   const run: Run = {
-    seed, rng: new Rng(seed ^ 0x5eed), depth: start === 'ring' ? 1 : start === 'compactor' ? RUN_LENGTH : start === 'heap' ? RUN_LENGTH - 1 : 2, yard: start, path: [start], options: [], entry: null, loadout: null,
+    seed, rng: new Rng(seed ^ 0x5eed), chassis: opts.chassis ?? 'scrapper', depth: start === 'ring' ? 1 : start === 'compactor' ? RUN_LENGTH : start === 'heap' ? RUN_LENGTH - 1 : 2, yard: start, path: [start], options: [], entry: null, loadout: null,
     totals: { ticks: 0, tears: 0, wrecks: 0, slipHits: 0, hitsTaken: 0, jousts: 0, partsShattered: 0, topSpeed: 0 },
     over: null,
   };
@@ -72,6 +75,7 @@ export function yardWorld(run: Run, opts: { tuning?: Partial<Tuning>; flat?: boo
   const gates = EXIT_GATES[run.options.length];
   const w = createWorld({
     seed: (run.seed * 31 + run.depth * 7919) >>> 0,
+    chassis: run.chassis,
     tuning: opts.tuning,
     flat: opts.flat,
     arena: y.arena,

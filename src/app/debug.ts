@@ -22,6 +22,8 @@ export const SCENES = [
   'boost', 'oil', 'ramp', 'crusher', 'yard-slick', 'yard-jumps', 'yard-press',
   // M8: The Compactor, its core open, its yard
   'boss', 'boss-open', 'yard-compactor',
+  // M9: the chassis
+  'skiff', 'hauler',
 ] as const;
 
 /** The yard a scene that isn't `yard-*` is set in (default: The Ring). */
@@ -62,7 +64,7 @@ export function scene(app: App, name: SceneName) {
     app.toTitle();
     return app.openSettings();
   }
-  app.startPlay(3, name.startsWith('yard-') ? (name.slice(5) as YardId) : SCENE_YARD[name] ?? 'ring');
+  app.startPlay(3, name.startsWith('yard-') ? (name.slice(5) as YardId) : SCENE_YARD[name] ?? 'ring', name === 'skiff' || name === 'hauler' ? name : undefined);
   const play = app.play!;
   // scripted scenes never touch the player's best record
   play.record = false;
@@ -276,6 +278,28 @@ export function scene(app: App, name: SceneName) {
       const s = addEnemy(w, 'snapper', 560, 100, Math.PI);
       s.cd = 99;
       run(play, 30, { x: 1, y: 0, rip: false, bolt: false });
+      break;
+    }
+    case 'skiff': {
+      // the Skiff at Slipstream, holding a full-lock turn round a pillar, booster on
+      quiet(play);
+      giveBolted(w, 'booster');
+      place(w, 300, 220, 0, 250);
+      for (let i = 0; i < 40; i++) {
+        const h = w.player.heading - Math.PI / 2;
+        run(play, 1, { x: Math.cos(h), y: Math.sin(h), rip: false, bolt: false });
+      }
+      break;
+    }
+    case 'hauler': {
+      // the Hauler bumping a Rammer out of its windup, plow on
+      quiet(play);
+      giveBolted(w, 'plow');
+      const r = addRammer(w, 300, 180, Math.PI);
+      beginWindup(w, r, false);
+      r.cd = 99;
+      place(w, 240, 180, 0, 90);
+      run(play, 14, { x: 1, y: 0, rip: false, bolt: false });
       break;
     }
     case 'exits':

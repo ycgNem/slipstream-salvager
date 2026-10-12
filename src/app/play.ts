@@ -9,6 +9,7 @@ import { drawWorld, playerSprite } from '../render/renderer';
 import { giveBolted, hasBooster, maxHpOf, type Bolted, type InputFrame, type World } from '../sim/world';
 import { finishYard, newRun, yardWorld, type Run } from '../sim/run';
 import { RUN_LENGTH, YARDS, type YardId } from '../data/yards';
+import { CHASSIS, type ChassisId } from '../data/chassis';
 import { signLayout } from '../ui/signs';
 import { PARTS, PART_IDS, type PartId } from '../data/parts';
 import { drawSprite, sprite } from '../render/atlas';
@@ -20,7 +21,7 @@ import type { SimEvent } from '../sim/events';
 import { drawHud } from '../ui/hud';
 import { Hints } from '../ui/hints';
 import type { UI } from '../ui/ui';
-import { LIVE, TuningPanel } from './tuning';
+import { LIVE, liveOverrides, TuningPanel } from './tuning';
 import { loadBest, loadSeenHints, saveBest, saveSeenHints, type Settings } from './settings';
 
 /** seconds the wipe between yards takes */
@@ -41,6 +42,13 @@ function startYard(): YardId {
   if (!DEBUG_KEYS || typeof location === 'undefined') return 'ring';
   const y = new URLSearchParams(location.search).get('yard');
   return y && y in YARDS ? (y as YardId) : 'ring';
+}
+
+/** ?chassis=skiff (debug builds): drive that body */
+function startChassis(): ChassisId {
+  if (!DEBUG_KEYS || typeof location === 'undefined') return 'scrapper';
+  const c = new URLSearchParams(location.search).get('chassis');
+  return c && c in CHASSIS ? (c as ChassisId) : 'scrapper';
 }
 
 export class Play {
@@ -72,9 +80,9 @@ export class Play {
   /** a scripted player (src/sim/bots.ts) drives instead of the input, for e2e and the critic */
   autopilot: ((w: World) => InputFrame) | null = null;
 
-  constructor(private host: PlayHost, seed = (Math.random() * 1e9) | 0, start: YardId = startYard()) {
-    this.run = newRun(seed, start);
-    this.world = yardWorld(this.run, { tuning: LIVE.t, flat: LIVE.flat });
+  constructor(private host: PlayHost, seed = (Math.random() * 1e9) | 0, start: YardId = startYard(), chassis: ChassisId = startChassis()) {
+    this.run = newRun(seed, start, { chassis });
+    this.world = yardWorld(this.run, { tuning: liveOverrides(), flat: LIVE.flat });
     for (const id of LIVE.parts) giveBolted(this.world, id);
     this.hints = new Hints(loadSeenHints(), host.settings.hints);
     this.hints.onSeen = saveSeenHints;
@@ -83,7 +91,7 @@ export class Play {
   /** The next yard: fold this one into the run and build the next world (mid-wipe). */
   private nextYard() {
     finishYard(this.run, this.world);
-    this.world = yardWorld(this.run, { tuning: LIVE.t, flat: LIVE.flat });
+    this.world = yardWorld(this.run, { tuning: liveOverrides(), flat: LIVE.flat });
     this.fx.parts.length = 0;
     this.fx.marks.length = 0;
     this.fx.after.length = 0;

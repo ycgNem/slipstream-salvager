@@ -16,6 +16,7 @@ import { Play } from './play';
 import { loadBest, loadSettings, saveSettings, type Settings } from './settings';
 import { scene, SCENES, type SceneName } from './debug';
 import type { YardId } from '../data/yards';
+import type { ChassisId } from '../data/chassis';
 
 export const VIEW_W = 640;
 export const VIEW_H = 360;
@@ -125,8 +126,8 @@ export class App {
     return SCENES;
   }
 
-  startPlay(seed?: number, yard?: YardId) {
-    this.play = new Play(this, seed, yard);
+  startPlay(seed?: number, yard?: YardId, chassis?: ChassisId) {
+    this.play = new Play(this, seed, yard, chassis);
     this.screen = 'play';
   }
 

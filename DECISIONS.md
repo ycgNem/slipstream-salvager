@@ -590,3 +590,17 @@ a number in the tuning panel, and the M1 rule is one setting away (given with ea
       modifiers that make a run different, not easier. The thresholds (20 tears, 10 jousts, clear
       The Heap, win a run) are first guesses for the owner's playtest.
     - The daily run fixes the chassis and modifiers so a day's results compare.
+94. **M9a, the chassis, as built.**
+    - `src/data/chassis.ts`: a chassis is tuning overrides and a bump rule. A world takes
+      `chassis` (its tuning goes under any explicit overrides) and a run carries it. The tuning
+      panel's live numbers now go over a chassis only where you changed them (`liveOverrides`).
+    - **The Hauler was retuned from the plan** (215 / 120 / scrub 650 to 230 / 160 / scrub 800): at
+      the plan's numbers the search bot took 70-124 s a yard and cleared only 2 of 4 Kennels; its
+      band was too narrow to fight in. Now it's ~20% slower than the Scrapper (Heap 76 s, Pinball
+      72 s, The Compactor 50 s) with 7 hull, and still drops out of Slipstream in a full-lock turn.
+    - The Skiff paces like the Scrapper for the bot (Kennel 33 s, Pinball 59 s, The Compactor
+      39 s), which takes no hits; its cost (3 hull) is a person's cost.
+    - Bodies are code-drawn (`m9.ts`), the Scrapper's frames, anchor and claw: the Skiff a low
+      wedge on skids with a fin, the Hauler a slab on wide treads with a steel push plate.
+    - The boss bar packs its pips 3 px apart, so it fits beside the Hauler's seven hull pips.
+    - `?chassis=skiff` (debug builds) and `CHASSIS=` for `hrun.ts`.

@@ -9,6 +9,13 @@ import { PARTS, PART_IDS, type PartId } from '../data/parts';
 /** The numbers new encounters start with (edits here carry over to Again). */
 export const LIVE: { t: Tuning; flat: boolean; parts: PartId[] } = { t: defaultTuning(), flat: false, parts: [] };
 
+/** Only the numbers the panel changed, so a chassis's own numbers stay under them. */
+export function liveOverrides(): Partial<Tuning> {
+  const out: Partial<Tuning> = {};
+  for (const k of Object.keys(DEFAULT_TUNING) as TuningKey[]) if (LIVE.t[k] !== DEFAULT_TUNING[k]) out[k] = LIVE.t[k];
+  return out;
+}
+
 const round = (v: number) => Math.round(v * 1000) / 1000;
 
 export class TuningPanel {

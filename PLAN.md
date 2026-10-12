@@ -632,10 +632,10 @@ Slipstream and how you keep it.
 | | **Scrapper** (the default) | **Skiff** (light) | **Hauler** (heavy) |
 |---|---|---|---|
 | Hull | 5 | 3 | 7 |
-| Top speed | 240 | 270 | 215 |
-| Acceleration above 60 px/s | 180 | 220 | 120 |
+| Top speed | 240 | 270 | 230 |
+| Acceleration above 60 px/s | 180 | 220 | 160 |
 | Turn rate (rest -> top) | 14 -> 4 | 10 -> 3.4 | 12 -> 4.4 |
-| Turn scrub starts at | 900 px/s^2 | 1300 | 650 |
+| Turn scrub starts at | 900 px/s^2 | 1300 | 800 |
 | Coast half-life | 0.3 s | 0.9 s | 0.25 s |
 | Brake | 900 px/s^2 | 300 | 1200 |
 | Bumping an enemy | you bounce off, losing 60% | you bounce off, losing 60%, thrown 40% further by hits | **a shove**: like a Cruise hit (it's pushed 24 px and its windup is cancelled), you keep 85% |
@@ -644,8 +644,8 @@ Slipstream and how you keep it.
 - **The Skiff glides.** It holds Slipstream through a full-lock turn (270 x 3.4 is under its scrub
   line) and coasts nearly a second, but it turns wide, can hardly brake, and three hits scrap it.
   Its line is the big sweeping arc, and it wants few parts.
-- **The Hauler bullies.** It's slow to Slipstream and its Slipstream band is narrow (215 against
-  190), so a hard turn drops it out. But it walks into enemies: a bump is a shove that cancels a
+- **The Hauler bullies.** It's slower to Slipstream and its Slipstream band is narrower (230
+  against 190), so a hard turn drops it out. But it walks into enemies: a bump is a shove that cancels a
   windup at any speed, and it has seven hull. Its line is in close, interrupting, then a run-up.
 - Each has its own body sprite (`pl:<chassis>:...`, the Scrapper's sizes and mounts) and carries
   the same parts on the same mounts.

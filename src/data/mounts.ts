@@ -38,9 +38,9 @@ export function frontMount(d: number, dist: number, lift = 3): MountPos {
 }
 
 /** Rear-mount distance per body (px from the anchor). */
-export const MOUNT_DIST = { scrapper: 7, rammer: 10, snapper: 7, hopper: 9, bouncer: 7, compactor: 20 } as const;
+export const MOUNT_DIST = { scrapper: 7, skiff: 8, hauler: 8, rammer: 10, snapper: 7, hopper: 9, bouncer: 7, compactor: 20 } as const;
 /** Front-mount distance per body (px from the anchor). */
-export const FRONT_DIST = { scrapper: 9, rammer: 12, snapper: 9, hopper: 11, bouncer: 9, compactor: 22 } as const;
+export const FRONT_DIST = { scrapper: 9, skiff: 9, hauler: 10, rammer: 12, snapper: 9, hopper: 11, bouncer: 9, compactor: 22 } as const;
 
 /**
  * Where the claw's tip is, relative to the Scrapper's anchor, for a heading angle (continuous, not

@@ -360,8 +360,8 @@ function drawPlayer(ctx: Ctx, w: World, fx: Fx, time: number) {
     ctx.drawImage(silhouette(s, a.name, young ? C.speed3 : C.speed1, young ? 1 : 2), Math.round(a.x) - s.ox, Math.round(a.y) - s.oy);
   }
   // the tow cable, drawn as pixel geometry from the rear mount
-  const m = rearMount(d, MOUNT_DIST.scrapper);
-  const fm = frontMount(d, FRONT_DIST.scrapper);
+  const m = rearMount(d, MOUNT_DIST[w.chassis]);
+  const fm = frontMount(d, FRONT_DIST[w.chassis]);
   if (p.tow) pline(ctx, x + m.dx, y + m.dy + 3, Math.round(p.tow.x), Math.round(p.tow.y) + 2, C.gold0);
 
   if (p.invuln > 0 && p.knock <= 0 && Math.floor(time * 20) % 2 === 0) return;
@@ -409,14 +409,14 @@ function drawPlayer(ctx: Ctx, w: World, fx: Fx, time: number) {
 /** Where the near tread guard sits, by facing (anchor-relative), for its crack. */
 const NEAR_TRACK: Record<string, [number, number]> = { e: [0, 4], w: [0, 4], se: [-8, 2], sw: [8, 2], ne: [6, 2], nw: [-6, 2], s: [-10, -2], n: [-10, -2] };
 
-/** The Scrapper's sprite name this frame. */
+/** Your body's sprite name this frame (the Scrapper, the Skiff or the Hauler). */
 export function playerSprite(w: World, time: number): string {
-  const p = w.player, dn = DIRS[p.face];
-  if (p.knock > 0 || p.stun > 0) return `pl:scrapper:hurt:${dn}`;
-  if (p.rip || p.latch) return `pl:scrapper:rip:${dn}:${Math.floor(time * 20) % 2}`;
+  const p = w.player, dn = DIRS[p.face], c = w.chassis;
+  if (p.knock > 0 || p.stun > 0) return `pl:${c}:hurt:${dn}`;
+  if (p.rip || p.latch) return `pl:${c}:rip:${dn}:${Math.floor(time * 20) % 2}`;
   // treads advance with distance travelled, not time
   const f = Math.floor((p.x + p.y) / 3) % 2 === 0 ? 0 : 1;
-  return `pl:scrapper:drive:${dn}:${p.speed > 2 ? f : 0}`;
+  return `pl:${c}:drive:${dn}:${p.speed > 2 ? f : 0}`;
 }
 
 function drawBanner(ctx: Ctx, fx: Fx) {

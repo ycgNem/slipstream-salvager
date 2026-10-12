@@ -133,6 +133,8 @@ export const DEFAULT_TUNING = {
 
   // ---- the player's hull ----
   hull: 5,
+  /** each bolted part multiplies your top speed by this (the Skiff's weight; 1 for the others) */
+  partWeight: 1,
   invulnTime: 1.0,
   knockTime: 0.3,
   knockSpeed: 160,
@@ -344,7 +346,7 @@ export const TUNING_GROUPS: { title: string; keys: [TuningKey, number][] }[] = [
   { title: 'Jump Jets, Springs', keys: [['leapAir', 0.05], ['leapMin', 10], ['leapSlamR', 2], ['leapRecoil', 0.05], ['leapKeep', 0.05], ['leapCooldown', 0.05], ['crouchSteerMul', 0.05], ['springKeep', 0.05], ['springKick', 5], ['springsTurnMul', 0.05], ['springsGripMul', 0.05]] },
   { title: 'Treads, Plow, Jaws', keys: [['treadsTopMul', 0.02], ['treadsTurnMul', 0.05], ['treadsGripMul', 0.05], ['slideTurn', 0.5], ['slideKeep', 0.02], ['plowAccMul', 0.05], ['plowConeDeg', 5], ['latchTime', 0.02], ['slingBoost', 5]] },
   { title: 'Salvage', keys: [['boltTime', 0.05], ['boltSteerMul', 0.05], ['rearArcDeg', 5], ['partLives', 1]] },
-  { title: 'Hull', keys: [['hull', 1], ['invulnTime', 0.1], ['knockSpeed', 10], ['bumpKeep', 0.05]] },
+  { title: 'Hull', keys: [['hull', 1], ['invulnTime', 0.1], ['knockSpeed', 10], ['bumpKeep', 0.05], ['partWeight', 0.01]] },
   { title: 'Snapper', keys: [['snapperHp', 1], ['snapperTop', 5], ['snapperAcc', 20], ['snapperTurn', 0.5], ['snapRange', 5], ['snapCircle', 4], ['snapConeDeg', 5], ['snapWindup', 0.05], ['snapLock', 0.05], ['snapSpeed', 10], ['snapDist', 5], ['snapSlide', 0.05], ['snapCdMin', 0.1], ['snapCdMax', 0.1], ['maxSnaps', 1], ['jawFling', 0.1]] },
   { title: 'Hopper', keys: [['hopperHp', 1], ['hopperSpeed', 5], ['hopMin', 5], ['hopMax', 10], ['hopWindup', 0.05], ['hopLock', 0.05], ['hopAir', 0.05], ['hopSlamR', 2], ['hopStuck', 0.1], ['stompWindup', 0.05], ['stompR', 2], ['hopCdMin', 0.1], ['hopCdMax', 0.1], ['maxCrouch', 1]] },
   { title: 'Bouncer', keys: [['bouncerHp', 1], ['bouncerKeep', 10], ['bouncerDrift', 5], ['rollRange', 10], ['rollWindup', 0.05], ['rollLock', 0.05], ['rollSpeed', 10], ['rollGain', 5], ['rollMax', 10], ['rollBounces', 1], ['rollTime', 0.1], ['dizzyTime', 0.1], ['rollCdMin', 0.1], ['rollCdMax', 0.1], ['maxRolls', 1]] },

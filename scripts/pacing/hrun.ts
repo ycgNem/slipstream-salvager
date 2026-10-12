@@ -4,7 +4,7 @@
 //   npx vite-node scripts/pacing/hrun.ts <yards> <seeds> [parts|-] [tuning-json] [norip]
 //   e.g. npx vite-node scripts/pacing/hrun.ts ring,kennel 1,2,3,4 treads+plow '{"chargeOver":100}'
 // LAT (reaction delay in ticks, default 12) and DIRS (8: keyboard) shape the bot; ORACLE=1 uses the
-// no-delay version.
+// no-delay version; CHASSIS=skiff|hauler drives that body.
 import { newRun, yardWorld } from '../../src/sim/run';
 import { step } from '../../src/sim/tick';
 import { giveBolted } from '../../src/sim/world';
@@ -22,7 +22,7 @@ for (const yard of yards) {
   const res: string[] = [];
   const tot = { secs: 0, clr: 0, hits: 0, n: 0 };
   for (const seed of seeds) {
-    const run = newRun(seed, yard);
+    const run = newRun(seed, yard, { chassis: (process.env.CHASSIS as 'skiff' | 'hauler' | undefined) ?? 'scrapper' });
     const w = yardWorld(run, { tuning: tune });
     for (const id of parts) giveBolted(w, id);
     const lat = +(process.env.LAT ?? 12), dirs = +(process.env.DIRS ?? 8);

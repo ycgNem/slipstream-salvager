@@ -40,7 +40,10 @@ export function hasBehavior<K extends keyof PartDef['behavior']>(w: World, key: 
 export function playerStats(w: World): BodyStats {
   const t = w.t;
   const s: BodyStats = { topSpeed: t.topSpeed, turnLow: t.turnLow, turnHigh: t.turnHigh, scrubLat: t.scrubLat, accHigh: t.accHigh };
-  for (const part of activeParts(w)) for (const [k, key] of Object.entries(part.stats) as [StatKey, keyof typeof t][]) s[k] *= t[key];
+  const parts = activeParts(w);
+  for (const part of parts) for (const [k, key] of Object.entries(part.stats) as [StatKey, keyof typeof t][]) s[k] *= t[key];
+  // the Skiff: every part weighs it down
+  s.topSpeed *= Math.pow(t.partWeight, parts.length);
   return s;
 }
 
