@@ -2,6 +2,24 @@
 
 What's built. Newest first.
 
+## 2026-10-12 — M2: tune the loop (the critic's open points, as defaults)
+
+The owner said "looks good, continue as planned" with no notes, so M2 took the critic's open points
+(DECISIONS #55-#63). Each is a tuning-panel number; the M1 rule is one setting away.
+
+- **Hit zones:** a Rammer's front is armored (a Slipstream hit there glances for 1), a side takes 2,
+  the back tears the booster or, once it's off, takes 4 and wrecks it. The decisive pass is from
+  behind, after the charge.
+- **The joust:** a Slipstream Rip nose to nose into a charge stops it and stuns it 1.3 s ("JOUST!").
+- **The slipstream:** a charge that just misses you lifts you to 220 px/s ("SLIPSTREAM!"), so a close
+  dodge sets up the counter-pass.
+- **Parts are knocked loose, cracked,** instead of shattering; a second hit shatters a cracked part,
+  and a charge crushes loose parts it runs over.
+- **A tap with the Booster is a plain Rip;** holding past 0.15 s revs the Burn.
+- **Stripped Rammers** turn slowly and shove from 140 px; the booster **glints gold** while a
+  Rammer's back is open.
+- Bots: hit-and-run aims behind, chases the tail of a charge and regrabs loose parts. 61 tests.
+
 ## 2026-10-12 — Published for the playtest
 
 - GitHub repo https://github.com/ycgNem/slipstream-salvager (public) with Pages deploying from `main`. Playable at
@@ -93,4 +111,5 @@ What's built. Newest first.
 | M1b — The Rip and the Rammer | done |
 | M1c — Salvage and the Booster | done |
 | M1d — Verify, hand over for playtest | done |
-| M2+ | waiting for the owner's playtest |
+| M2 — Tune the loop | done (critic's points as defaults) |
+| M3 — A short run | in progress |

@@ -198,3 +198,58 @@ as notes in HANDOFF.md):*
     It's public like Sprocket & Sprout and Last Watt, because GitHub Pages on a free plan needs a
     public repo. Pushing `main` deploys.
 
+*Milestone 2, tune the loop (2026-10-12). The owner played M1 and said "looks good, continue as
+planned", with no notes. So M2 took the critic's open points from HANDOFF.md as defaults. Each one is
+a number in the tuning panel, and the M1 rule is one setting away (given with each).*
+
+55. **Hit zones and an armored front.** A Slipstream hit within 60° of an enemy's front glances off
+    for 1, a side hit does 2, and a back hit tears the part off or, once the part is gone, does 4
+    (enough to wreck a Rammer). *Why:* the critic's front-only bot cleared 34 of 40 runs against
+    hit-and-run's 17, because hitting a Rammer head-on while it stalked did full damage. The tear and
+    the charge-and-recover rhythm were optional. Now the decisive pass is the one from behind after a
+    charge, and chipping at the front still works, slowly, so nobody gets stuck. The wave 1 safety
+    net now shakes the booster loose after two hits at 1 HP (it was three) to make up for the slower
+    damage. *M1 rule:* `frontDamage` 2, `rearDamage` 2.
+56. **The joust.** A Slipstream Rip that meets a charge nose to nose (front zone, and your heading
+    within 30° of head-on) does its 1, stops the charge dead and stuns the Rammer for 1.3 s with its
+    back exposed. You pass through unhurt (as in M1). "JOUST!" in white, a slam and a big hit-stop.
+    *Why:* the critic found the head-on Rip into a charge already won outright in a ~6-frame window,
+    with no feedback. Kept as a skill move, with its own payoff (the stun opens its back), not cut.
+    The 30° rule came from the camper bot, which got 56 jousts by accident with a front-zone-only
+    check. *Off:* `joustDeg` 0.
+57. **A tap with the Booster is a plain Rip.** Pressing Rip starts the rev, but for the first 0.15 s
+    nothing locks (you steer and accelerate normally); let go inside that and you get the plain Rip.
+    Held longer, the heading locks, the lane and the rev whine come in, and letting go launches the
+    Burn. *Why:* a tap was an instant Burn locked for 0.43 s over ~106 px, worse than a Rip (#41;
+    the critic). The new hint already said to hold. *M1 rule:* `burnTapTime` 0.
+58. **Parts are knocked loose, not shattered.** A hit knocks your bolted part off to the side of the
+    hit, cracked, onto the floor. Tow it and bolt it again; a cracked part that takes a second hit
+    shatters. A charging Rammer that runs over a loose part crushes it. *Why:* the critic measured the
+    Booster on for only 10-27% of fight time, because the first hit destroyed it, so a player barely
+    got to use the part the slice is about. Getting it back is a movement task (a loose part in a
+    busy arena), not a free refill: you lose the part's behavior until you've towed it and spent
+    0.7 s bolting. This revises #15 and Q6. *M1 rule:* `partLives` 1.
+59. **A stripped Rammer limps and turns slowly** (2.5 rad/s instead of 6) and shoves within 140 px
+    (was 90). *Why:* with an armored front, a stripped Rammer that turned to face you as fast as ever
+    and rarely attacked was a stalemate: the bots circled it forever. Now a fast circle gets round
+    its front, and it attacks often enough to open its back.
+60. **The booster glints when the back is open.** While a Rammer is locked, charging, skidding or
+    stunned, its booster gets a blinking gold outline. *Why:* the critic found the tear target (a
+    ~3 px nozzle) hard to read at 1x; gold is the salvage color, so it says "take this now".
+61. **The slipstream.** A Rammer's charge that passes within 16 px of you (edge to edge) without
+    hitting you lifts you to at least Slipstream + 30 (220 px/s), once per charge: "SLIPSTREAM!" in
+    teal, wind lines and the Slipstream sound. *Why:* with the decisive hit now from behind, the
+    natural counter is to dodge and chase the tail, but a dodge left you too slow to strike before
+    the skid ended (the bots were under Cruise at the start of 2 skids in 3). The game is named for
+    this: a close dodge pays you in speed. Dodging wide is still safe. *Off:* `draftGap` 0.
+62. **Coasting stays as it was.** The critic suggested a 0.6 s half-life above Cruise; it's a feel
+    call with no playtest behind it, and #29 set 0.3 deliberately ("responsive, not Asteroids"). Left
+    for the owner's tuning panel.
+63. **The bots and guards after #55-#61.** Hit-and-run now aims behind a committed Rammer, only cuts
+    in on a stalking one whose flank is turned, chases the tail of a charge that has gone past, and
+    goes back for parts on the floor. The full-slice guard runs 600 s instead of 300 (fights take more
+    passes now). Measured over 40 seeds at 600 s: hit-and-run clears 15 (dealing 152-164 of its damage
+    from behind), the camper 3. Wave 1: hit-and-run clears 6 of 8, 0.6 hits taken per run. The bot
+    is weaker than a person at getting behind a Rammer; the guards compare strategies, they don't
+    measure difficulty.
+

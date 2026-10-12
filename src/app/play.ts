@@ -7,6 +7,7 @@ import { Fx } from '../render/fx';
 import { drawWorld, playerSprite } from '../render/renderer';
 import { createWorld, type InputFrame, type World } from '../sim/world';
 import { step } from '../sim/tick';
+import { revving } from '../sim/rip';
 import type { SimEvent } from '../sim/events';
 import { drawHud } from '../ui/hud';
 import { Hints } from '../ui/hints';
@@ -122,11 +123,34 @@ export class Play {
           a.sfx('clank');
           break;
         }
+        if (e.zone === 'front' && e.dmg < this.world.t.slipDamage) {
+          // its armored front: a glancing blow, still worth a point, but it reads as the wrong side
+          fx.sparks(e.x, e.y, 7, p.heading + Math.PI, 2.2, 110);
+          fx.flash.set(e.id, 0.04);
+          fx.text(e.x, e.y - 18, 'GLANCED', C.mist);
+          fx.addShake(1);
+          a.sfx('hit', 0.7, 0.8);
+          a.sfx('clank', 0.5);
+          break;
+        }
         fx.sparks(e.x, e.y, 12, p.heading, Math.PI, 160);
         fx.dots(e.x, e.y, 6, [C.steel1, C.steel2, C.violet], 110);
         fx.flash.set(e.id, 0.07);
         fx.addShake(2);
         a.sfx('hit');
+        break;
+      case 'draft':
+        for (let i = 0; i < 6; i++) fx.wind(e.x, e.y, p.heading);
+        fx.text(e.x, e.y - 18, 'SLIPSTREAM!', C.speed4);
+        a.sfx('slipstream');
+        break;
+      case 'joust':
+        fx.sparks(e.x, e.y, 16, 0, Math.PI * 2, 170);
+        fx.dots(e.x, e.y, 10, [C.white, C.frost, C.mist], 130);
+        fx.text(e.x, e.y - 22, 'JOUST!', C.white);
+        fx.addShake(3);
+        a.sfx('slam');
+        a.sfx('hit', 1, 1.2);
         break;
       case 'shove':
         fx.sparks(e.x, e.y, 5, p.heading, 1.2, 90);
@@ -178,6 +202,19 @@ export class Play {
         fx.playerFlash = 0.08;
         fx.addShake(3);
         a.sfx('shatter');
+        break;
+      case 'knock':
+        fx.dots(e.x, e.y, 10, [C.gold0, C.gold, C.mist], 120, 0.5);
+        fx.text(e.x, e.y - 18, 'KNOCKED LOOSE', C.gold2);
+        fx.playerFlash = 0.08;
+        fx.addShake(3);
+        a.sfx('drop');
+        a.sfx('bump');
+        break;
+      case 'crush':
+        fx.dots(e.x, e.y, 14, [C.gold0, C.gold, C.mist, C.lilac], 120, 0.5);
+        fx.text(e.x, e.y - 14, 'CRUSHED', C.lilac);
+        a.sfx('shatter', 0.7);
         break;
       case 'stun': a.sfx('stun'); fx.addShake(2); break;
       case 'skid': a.sfx('skid'); break;
@@ -231,7 +268,7 @@ export class Play {
     }
     if (this.world.result) this.endT += dt;
     const p = this.world.player;
-    this.host.audio.engine(p.speed / this.world.t.burnMax, p.rev !== null, !this.paused && !this.world.result);
+    this.host.audio.engine(p.speed / this.world.t.burnMax, revving(this.world), !this.paused && !this.world.result);
   }
 
   draw(ui: UI, dt: number) {

@@ -4,6 +4,8 @@
 import { wrapAngle } from '../data/dirs';
 import { attackMode } from './body';
 import { cancelBolt, grabPart } from './salvage';
+import { toSkid } from './rammer';
+import type { Zone } from './events';
 import { tierOf, type Rammer, type World } from './world';
 
 const deg = (d: number) => (d * Math.PI) / 180;
@@ -17,13 +19,21 @@ function ready(w: World): boolean {
 /** Rip pressed (or a buffered press fires): start the Rip, or start revving the Burn. */
 export function tryAttack(w: World): boolean {
   if (!ready(w)) return false;
-  const p = w.player, t = w.t;
+  const p = w.player;
   if (p.bolt !== null) cancelBolt(w);
   if (attackMode(w) === 'burn') {
+    // a press starts the rev, but nothing locks until it's held past burnTapTime: a tap is a
+    // plain Rip (DECISIONS #57)
     p.rev = 0;
-    w.events.push({ k: 'rev' });
     return true;
   }
+  startRip(w);
+  return true;
+}
+
+/** The plain Rip: a committed lunge at the tier you're in now. */
+function startRip(w: World) {
+  const p = w.player, t = w.t;
   const tier = tierOf(t, p.speed); // locked at the press: the lunge's own boost doesn't count
   aimAssist(w);
   p.speed += t.ripImpulse;
@@ -31,13 +41,23 @@ export function tryAttack(w: World): boolean {
   p.ripCd = t.ripCooldown;
   p.pass = t.ripTime + t.passThrough;
   w.events.push({ k: 'rip', tier, burn: false });
-  return true;
+}
+
+/** Revving for real: held past the tap window, so the heading is locked and the lane shows. */
+export function revving(w: World): boolean {
+  return w.player.rev !== null && w.player.rev >= w.t.burnTapTime;
 }
 
 /** Let go of the Burn (or touch an enemy while revving): lunge at the tier you reached. */
 export function releaseBurn(w: World) {
   const p = w.player, t = w.t;
   if (p.rev === null) return;
+  if (!revving(w)) {
+    // a tap: the plain Rip
+    p.rev = null;
+    startRip(w);
+    return;
+  }
   const tier = tierOf(t, p.speed);
   p.rev = null;
   p.rip = { t: t.burnTime, tier, burn: true, hits: [] };
@@ -102,20 +122,32 @@ export function resolveRipHits(w: World) {
 
 /** Is the player behind this Rammer (within rearArcDeg of straight behind it)? */
 export function inRearArc(w: World, r: Rammer): boolean {
+  return hitZone(w, r) === 'rear';
+}
+
+/**
+ * Where the player is striking this enemy from: its armored front (within frontArcDeg of its
+ * facing), its back (within rearArcDeg of straight behind), or a side (DECISIONS #55).
+ */
+export function hitZone(w: World, r: Rammer): Zone {
   const p = w.player;
-  const rel = Math.atan2(p.y - r.y, p.x - r.x);
-  return Math.abs(wrapAngle(rel - (r.face + Math.PI))) <= deg(w.t.rearArcDeg);
+  const off = Math.abs(wrapAngle(Math.atan2(p.y - r.y, p.x - r.x) - r.face));
+  if (off >= Math.PI - deg(w.t.rearArcDeg)) return 'rear';
+  if (off <= deg(w.t.frontArcDeg)) return 'front';
+  return 'side';
 }
 
 function hitRammer(w: World, r: Rammer) {
   const p = w.player, t = w.t, rip = p.rip!;
   rip.hits.push(r.id);
   const hx = (p.x + r.x) / 2, hy = (p.y + r.y) / 2;
+  const zone = hitZone(w, r);
 
   if (w.flat) {
-    // the removal test: speed doesn't matter, and a bolted part is just a bigger number
-    if (r.booster && inRearArc(w, r)) tear(w, r, hx, hy);
-    else damage(w, r, t.flatDamage + (p.part ? t.flatPartDamage : 0), 'slip', hx, hy);
+    // the removal test: speed doesn't matter, and a bolted part is just a bigger number (the
+    // front armor stays: where you hit isn't about speed)
+    if (r.booster && zone === 'rear') tear(w, r, hx, hy);
+    else damage(w, r, (zone === 'front' ? t.frontDamage : t.flatDamage) + (p.part ? t.flatPartDamage : 0), zone, hx, hy);
     w.hitstop = Math.max(w.hitstop, t.hitstopCruise);
     return;
   }
@@ -151,13 +183,23 @@ function hitRammer(w: World, r: Rammer) {
     }
     case 'slip': {
       w.stats.slipHits++;
-      if (r.booster && inRearArc(w, r)) {
+      if (r.booster && zone === 'rear') {
         tear(w, r, hx, hy);
+        w.hitstop = Math.max(w.hitstop, t.hitstopTear);
+        break;
+      }
+      // the joust: a Slipstream Rip into the front of a charge stops it dead and stuns it, back
+      // exposed (DECISIONS #56)
+      const joust = r.state === 'charge' && zone === 'front' && Math.abs(wrapAngle(p.heading - r.face - Math.PI)) <= deg(t.joustDeg);
+      const dealt = damage(w, r, zone === 'front' ? t.frontDamage : zone === 'rear' ? t.rearDamage : t.slipDamage, zone, hx, hy);
+      if (joust && w.rammers.includes(r)) {
+        toSkid(w, r, true, t.joustStun);
+        w.stats.jousts++;
+        w.events.push({ k: 'joust', id: r.id, x: hx, y: hy });
         w.hitstop = Math.max(w.hitstop, t.hitstopTear);
       } else {
         // a hit the wave 1 safety net absorbs gets a lighter hit-stop: it shouldn't feel like damage
-        const dealt = damage(w, r, t.slipDamage, 'slip', hx, hy);
-        w.hitstop = Math.max(w.hitstop, dealt > 0 ? t.hitstopSlip : t.hitstopCruise);
+        w.hitstop = Math.max(w.hitstop, dealt > 2 ? t.hitstopTear : dealt > 1 ? t.hitstopSlip : dealt > 0 ? t.hitstopCruise + 1 : t.hitstopCruise);
       }
       break;
     }
@@ -173,15 +215,16 @@ function tear(w: World, r: Rammer, x: number, y: number) {
 }
 
 /** Returns the damage actually dealt (0 when the wave 1 safety net holds). */
-function damage(w: World, r: Rammer, n: number, tier: 'slip', x: number, y: number): number {
+function damage(w: World, r: Rammer, n: number, zone: Zone, x: number, y: number): number {
+  const tier = 'slip';
   if (r.safety && r.booster && r.hp <= 1) {
     // the wave 1 safety net's own way out: hit it hard enough times and the booster shakes loose
     // onto the floor (DECISIONS #33), so nobody is stuck in wave 1
     r.shaken++;
-    w.events.push({ k: 'hit', tier, id: r.id, x, y, dmg: 0 });
-    if (r.shaken >= 3) {
+    w.events.push({ k: 'hit', tier, id: r.id, x, y, dmg: 0, zone });
+    if (r.shaken >= 2) {
       r.booster = false;
-      w.pickups.push({ id: w.nextId++, part: 'booster', x: r.x - Math.cos(r.face) * 14, y: r.y - Math.sin(r.face) * 14, vx: -Math.cos(r.face) * 70, vy: -Math.sin(r.face) * 70, age: 0 });
+      w.pickups.push({ id: w.nextId++, part: 'booster', x: r.x - Math.cos(r.face) * 14, y: r.y - Math.sin(r.face) * 14, vx: -Math.cos(r.face) * 70, vy: -Math.sin(r.face) * 70, age: 0, cracked: false });
       w.events.push({ k: 'drop', part: 'booster', x: r.x, y: r.y });
     }
     return 0;
@@ -190,7 +233,7 @@ function damage(w: World, r: Rammer, n: number, tier: 'slip', x: number, y: numb
   r.hp = r.safety && r.booster ? Math.max(1, r.hp - n) : r.hp - n;
   const dealt = before - r.hp;
   w.stats.damageDealt += dealt;
-  w.events.push({ k: 'hit', tier, id: r.id, x, y, dmg: dealt });
+  w.events.push({ k: 'hit', tier, id: r.id, x, y, dmg: dealt, zone });
   if (r.hp <= 0) {
     w.rammers.splice(w.rammers.indexOf(r), 1);
     w.stats.wrecks++;

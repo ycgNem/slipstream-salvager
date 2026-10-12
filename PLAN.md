@@ -131,7 +131,7 @@ Releasing coasts briefly. Pushing hard against your motion brakes and skids, the
 |---|---|---|---|
 | Crawl | < 110 | nothing (clank) | you bounce off and stop |
 | Cruise | 110–190 | **no damage**: shoves the enemy 24 px and **cancels its windup** | keep 85% of your speed |
-| **Slipstream** | ≥ 190 | **2 damage**, or **tears off a part** (see 4.4) | keep all your speed and pass through |
+| **Slipstream** | ≥ 190 | **damage by where you hit** (front 1, side 2, back 4), or **tears off a part** (see 4.3, 4.4) | keep all your speed and pass through |
 
 So Cruise is a defensive tool (interrupt a charge) and only Slipstream hurts. Damage always needs a
 run-up.
@@ -150,9 +150,10 @@ Hit-stop (2 / 4 / 7 frames by tier), screen shake, sparks.
 **Hull:** 5 pips. No healing in the slice. At 0: "Scrapped" → results → instant restart.
 
 **Your parts are your armor:** when a hit lands and you have a part bolted on, the *part* takes it
-and **shatters**, and your hull is untouched. With nothing bolted on, the hit costs a hull pip. Any
-hit also knocks a towed part loose (it lands nearby; drive over it to grab it again). Living Rammers
-are the only source of spare parts.
+and is **knocked loose**, cracked, onto the floor; your hull is untouched. Drive over it to tow it
+again and bolt it back on, before a charging Rammer runs it over and crushes it. A cracked part that
+takes a second hit **shatters** (DECISIONS #58). With nothing bolted on, the hit costs a hull pip.
+Any hit also knocks a towed part loose. Living Rammers are the only source of new parts.
 
 ### 4.3 The enemy: the Rammer
 
@@ -170,29 +171,40 @@ A heavy scrap bot with a **booster bolted to its back**. It is the slice's whole
     punished.
   - Then it charges straight along the lane at 330 px/s for up to ~260 px.
 - **Bumping it** outside a Rip bounces you off and starts its quick windup.
+- **Its slipstream:** a charge that passes within 16 px of you without hitting you drags you along
+  in its wake: you're lifted to at least 220 px/s (Slipstream), so a tight dodge sets up the
+  counter-pass (DECISIONS #61). Dodging wide is safe; dodging close pays.
 - **Recovers** after the charge: skids for 0.9 s, steaming, unable to turn. This is the opening. A
   charge into a wall or pillar rebounds it ~24 px off the surface into the same recovery (no extra
   stun, so parking by a pillar earns nothing). A charge into another Rammer puts both into recovery,
   with no damage.
-- A charge hit shatters your bolted part (or costs **1 hull pip** if you have none), throws you along
-  the lane and kills your momentum.
+- A charge hit knocks your bolted part loose (or costs **1 hull pip** if you have none), throws you
+  along the lane and kills your momentum.
 - At most two Rammers wind up at once, so a crowd stays readable.
-- **HP 4:** two Slipstream rips wreck it.
-- **Stripped:** once its booster is torn off it can't charge any more. It limps (35 px/s) and does a
-  short telegraphed shove (0.5 s windup, 70 px). Weaker, never harmless.
+- **HP 4, and an armored front** (DECISIONS #55). Where a Slipstream hit lands decides what it does:
+  within 60° of its front it **glances** off the plating for 1; on a side it does 2; in the back it
+  **tears the booster off** (no damage), or, once the booster is gone, does 4, which wrecks it. So the
+  decisive pass is the one after its charge, from behind; chipping at its front always works, slowly.
+- **The joust:** a Slipstream Rip that meets a charge nose to nose (within 30° of head-on) stops it
+  dead and stuns it for 1.3 s, back exposed, and you pass through unhurt (DECISIONS #56). A skill
+  move with a window of a few frames.
+- **Stripped:** once its booster is torn off it can't charge any more. It limps (35 px/s), turns
+  slowly (2.5 rad/s, so a fast circle gets round its front) and does a short telegraphed shove
+  (0.5 s windup, 70 px) when you're within 140 px. Weaker, never harmless (DECISIONS #59).
 
 ### 4.4 The part: the Booster
 
 - **Tearing it off:** a **Slipstream-tier** rip that strikes the Rammer's **rear** (within 70° of
   straight behind it) tears the booster off. **The tearing hit does no damage**: all of it goes into
-  the part, so tearing and wrecking are always two separate passes. Any other Slipstream hit does 2
-  damage. **Wrecking a Rammer wrecks its booster.** The charge-and-recover rhythm is what gives you
-  the window to get behind it. (While it recovers or is stunned, its facing snaps to its sprite's
-  direction, so the rear you see is the rear the game uses.)
+  the part, so tearing and wrecking are always two separate passes. **Wrecking a Rammer wrecks its
+  booster.** The charge-and-recover rhythm is what gives you the window to get behind it, and while
+  its back is open (locked, charging, skidding or stunned) the booster glints gold (DECISIONS #60).
+  (While it recovers or is stunned, its facing snaps to its sprite's direction, so the rear you see
+  is the rear the game uses.)
 - **Wave 1 safety net:** the first Rammer can't be wrecked while it still has its booster (it stops
   at 1 HP), so every new player gets to see a tear-off. If you keep hitting its front instead, the
-  third Slipstream hit at 1 HP shakes the booster loose onto the floor, so nobody is stuck in wave 1
-  (DECISIONS #33).
+  second Slipstream hit at 1 HP shakes the booster loose onto the floor, so nobody is stuck in wave 1
+  (DECISIONS #33, #55).
 - **Grabbing it:** your claw keeps hold of what it tears off. The part is **towed behind you on a
   short cable** (a trailing point on a spring), swinging with your momentum.
 - **Bolting it on:** tap *Bolt on*, and bolting takes 0.7 s (ratchet clicks, wrench sparks). It works
@@ -200,8 +212,8 @@ A heavy scrap bot with a **booster bolted to its back**. It is the slice's whole
   get clear first. The Scrapper has one mount for it (rear); bolting a second booster drops the
   first.
 - **What it does: you inherit the Rammer's charge, weakness included.**
-  - **The Rip becomes the Burn.** *Hold* the button to rev: your steering locks to your current
-    heading, your own lane is painted ahead of you (in teal, the speed color), and thrust climbs past
+  - **The Rip becomes the Burn.** *Hold* the button to rev (a tap shorter than 0.15 s is still a
+    plain Rip; DECISIONS #57): your steering locks to your current heading, your own lane is painted ahead of you (in teal, the speed color), and thrust climbs past
     your top speed toward 330. *Release* to lunge at whatever tier you reached, piercing through
     everything in the lane. Touching an enemy while revving releases it automatically. **Revving into
     a wall stuns you for 0.6 s**, just like a Rammer. Tuned so a burn from rest reaches Slipstream in

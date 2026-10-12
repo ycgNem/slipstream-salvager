@@ -4,10 +4,15 @@ import type { PartId } from '../data/parts';
 import type { Gate } from '../data/arena';
 import type { Tier } from './world';
 
+/** Where a hit landed on an enemy, relative to its facing. */
+export type Zone = 'front' | 'side' | 'rear';
+
 export type SimEvent =
   | { k: 'rip'; tier: Tier; burn: boolean }
   | { k: 'rev' }
-  | { k: 'hit'; tier: Tier; id: number; x: number; y: number; dmg: number }
+  | { k: 'hit'; tier: Tier; id: number; x: number; y: number; dmg: number; zone: Zone }
+  | { k: 'joust'; id: number; x: number; y: number }
+  | { k: 'draft'; id: number; x: number; y: number }
   | { k: 'shove'; id: number; x: number; y: number }
   | { k: 'clank'; x: number; y: number; wall: boolean }
   | { k: 'scrape'; x: number; y: number }
@@ -21,6 +26,8 @@ export type SimEvent =
   | { k: 'bump'; id: number; x: number; y: number }
   | { k: 'hurt'; x: number; y: number }
   | { k: 'shatter'; part: PartId; x: number; y: number }
+  | { k: 'knock'; part: PartId; x: number; y: number }
+  | { k: 'crush'; part: PartId; x: number; y: number }
   | { k: 'stun'; x: number; y: number }
   | { k: 'skid' }
   | { k: 'tier'; tier: Tier; prev: Tier }

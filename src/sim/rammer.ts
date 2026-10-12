@@ -26,6 +26,7 @@ export function beginWindup(w: World, r: Rammer, near: boolean) {
   r.t = 0;
   r.locked = false;
   r.windup = r.shove ? t.shoveWindup : near ? t.windupNear : t.windupFar;
+  r.drafted = false;
   r.lock = r.shove ? t.shoveLock : near ? t.lockNear : t.lockFar;
   w.events.push({ k: 'windup', id: r.id, near, shove: r.shove });
 }
@@ -61,11 +62,13 @@ export function aimPoint(w: World, r: Rammer): { x: number; y: number } {
   return led(T);
 }
 
-function toSkid(w: World, r: Rammer, slammed: boolean) {
+/** Into the recovery skid (stunned if it slammed into something), for `dur` seconds. */
+export function toSkid(w: World, r: Rammer, slammed: boolean, dur = w.t.skidTime) {
   const t = w.t;
   r.state = 'skid';
   r.t = 0;
   r.slammed = slammed;
+  r.skidFor = dur;
   // its facing snaps to its sprite's direction, so the rear you see is the rear the game uses
   r.face = dirAngle(dirOf(r.face));
   const fx = Math.cos(r.face), fy = Math.sin(r.face);
@@ -114,7 +117,7 @@ export function updateRammers(w: World) {
         break;
       case 'stalk': {
         const goal = stalkGoal(w, r);
-        r.face = turnToward(r.face, Math.atan2(goal.y - r.y, goal.x - r.x), t.stalkTurn * DT);
+        r.face = turnToward(r.face, Math.atan2(goal.y - r.y, goal.x - r.x), (r.booster ? t.stalkTurn : t.strippedTurn) * DT);
         if (dist > t.playerRadius + t.rammerRadius + 6) move = r.booster ? t.stalkSpeed : t.strippedSpeed;
         const can = r.cd <= 0 && windingUp(w) < t.maxWindups && !w.result;
         const range = r.booster ? t.chargeRange : t.shoveRange;
@@ -144,7 +147,7 @@ export function updateRammers(w: World) {
         break;
       }
       case 'skid':
-        if (r.t >= t.skidTime) {
+        if (r.t >= r.skidFor) {
           r.state = 'stalk';
           r.t = 0;
           r.cd = w.rng.range(t.chargeCdMin, t.chargeCdMax);
@@ -167,6 +170,16 @@ export function updateRammers(w: World) {
       }
     }
   }
+  // a charge runs over loose parts and crushes them (DECISIONS #58)
+  for (const r of w.rammers) {
+    if (r.state !== 'charge') continue;
+    for (const k of [...w.pickups]) {
+      if (k.age < 0.3 || Math.hypot(k.x - r.x, k.y - r.y) > t.rammerRadius + t.pickupRadius) continue;
+      w.pickups.splice(w.pickups.indexOf(k), 1);
+      w.stats.partsShattered++;
+      w.events.push({ k: 'crush', part: k.part, x: k.x, y: k.y });
+    }
+  }
   // Rammers against each other: pushed apart; a charge into another puts both into recovery
   for (let i = 0; i < w.rammers.length; i++)
     for (let j = i + 1; j < w.rammers.length; j++) {
@@ -183,6 +196,25 @@ export function updateRammers(w: World) {
         toSkid(w, b, b.state === 'charge');
       }
     }
+}
+
+/**
+ * The slipstream: a charge that passes close by without hitting you drags you along in its wake,
+ * lifting you to Slipstream, so a tight dodge sets up the counter-pass (DECISIONS #61).
+ */
+export function checkDrafts(w: World) {
+  const p = w.player, t = w.t;
+  if (p.invuln > 0 || p.knock > 0 || p.stun > 0 || w.result) return;
+  for (const r of w.rammers) {
+    if (r.state !== 'charge' || r.shove || r.drafted) continue;
+    const dx = p.x - r.x, dy = p.y - r.y, d = Math.hypot(dx, dy);
+    const touch = t.playerRadius + t.rammerRadius;
+    // it has gone past you (you're beside or behind its nose), close but not touching
+    if (d <= touch || d > touch + t.draftGap || dx * Math.cos(r.face) + dy * Math.sin(r.face) > 4) continue;
+    r.drafted = true;
+    p.speed = Math.min(t.burnMax, Math.max(p.speed + 15, t.slipAt + t.draftBoost));
+    w.events.push({ k: 'draft', id: r.id, x: p.x, y: p.y });
+  }
 }
 
 /** The lane a winding-up Rammer will charge along: its angle and how far it runs. */

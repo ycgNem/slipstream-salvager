@@ -103,3 +103,14 @@ export function silhouette(s: Sprite, key: string, c: number, dither = 0): HTMLC
 export function clearSilhouettes() {
   silCache.clear();
 }
+
+/** A 1 px outline round a sprite in one color (draw it, then the sprite on top). */
+export function outline(ctx: Ctx, s: Sprite, key: string, x: number, y: number, c: number) {
+  const sil = silhouette(s, key, c);
+  for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) ctx.drawImage(sil, x - s.ox + dx, y - s.oy + dy);
+}
+
+/** A cracked part: a short zigzag of ink pixels across it (anchor-relative). */
+export function crack(ctx: Ctx, x: number, y: number) {
+  for (const [dx, dy] of [[-2, -2], [-1, -1], [-1, 0], [0, 1], [1, 1], [1, 2]]) dot(ctx, x + dx, y + dy, 0);
+}

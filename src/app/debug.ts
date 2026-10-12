@@ -90,7 +90,7 @@ export function scene(app: App, name: SceneName) {
     case 'bolting': {
       quiet(play);
       place(w, 200, 300, 0, 150);
-      w.player.tow = { part: 'booster', x: 186, y: 300, vx: 0, vy: 0 };
+      w.player.tow = { part: 'booster', x: 186, y: 300, vx: 0, vy: 0, cracked: false };
       const r = addRammer(w, 520, 80, Math.PI, { booster: false });
       r.cd = 99;
       run(play, 10, { x: 1, y: 0, rip: false, bolt: false });

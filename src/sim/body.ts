@@ -44,7 +44,7 @@ export function steer(w: World, input: InputFrame) {
   const st = playerStats(w);
   const m = Math.min(1, Math.hypot(input.x, input.y));
 
-  if (p.rev !== null) {
+  if (p.rev !== null && p.rev >= t.burnTapTime) {
     // revving the Burn: heading locked, thrust climbs past top speed toward burnMax
     const a = p.speed < t.accSplit ? t.accLow : t.burnAccel;
     if (p.speed < t.burnMax) p.speed = Math.min(t.burnMax, p.speed + a * DT);
@@ -127,7 +127,7 @@ export function movePlayer(w: World) {
       const headOn = -vn / Math.max(p.speed, 1e-6);
       if (headOn > t.clankCos && p.speed > 40) {
         w.events.push({ k: 'clank', x: p.x - c.nx * t.playerRadius, y: p.y - c.ny * t.playerRadius, wall: true });
-        if (p.rev !== null || p.rip?.burn) {
+        if ((p.rev !== null && p.rev >= t.burnTapTime) || p.rip?.burn) {
           // you inherit the Rammer's weakness: burning into a wall stuns you
           p.rev = null;
           p.rip = null;

@@ -3,7 +3,7 @@
 // pickups → bolting → waves.
 import { drift, movePlayer, settleFacing, steer } from './body';
 import { autoRelease, releaseBurn, resolveRipHits, tryAttack, updateRip } from './rip';
-import { resolveContacts, updateRammers } from './rammer';
+import { checkDrafts, resolveContacts, updateRammers } from './rammer';
 import { startBolt, updateBolt, updatePickups, updateTow } from './salvage';
 import { updateWaves } from './waves';
 import { DT, type InputFrame, type World } from './world';
@@ -30,7 +30,12 @@ export function step(w: World, input: InputFrame): boolean {
   p.knock = Math.max(0, p.knock - DT);
   p.stun = Math.max(0, p.stun - DT);
   p.ripBuf = Math.max(0, p.ripBuf - DT);
-  if (p.rev !== null) p.rev += DT;
+  if (p.rev !== null) {
+    const before = p.rev;
+    p.rev += DT;
+    // held past the tap window: now it's a Burn (the lane shows, the heading locks)
+    if (before < w.t.burnTapTime && p.rev >= w.t.burnTapTime) w.events.push({ k: 'rev' });
+  }
 
   // button edges
   const ripEdge = input.rip && !p.prevRip;
@@ -42,7 +47,7 @@ export function step(w: World, input: InputFrame): boolean {
   const control = p.knock <= 0 && p.stun <= 0;
   if (control) {
     if (p.rev !== null && !input.rip) releaseBurn(w);
-    // a press a moment too early fires when it can (a tapped Burn revs and releases at once)
+    // a press a moment too early fires when it can (a tap with the Booster is a plain Rip)
     if (p.ripBuf > 0 && tryAttack(w)) p.ripBuf = 0;
     if (p.rev !== null && !input.rip) releaseBurn(w);
     if (boltEdge) startBolt(w);
@@ -59,6 +64,7 @@ export function step(w: World, input: InputFrame): boolean {
   autoRelease(w);
   resolveRipHits(w);
   resolveContacts(w);
+  checkDrafts(w);
 
   updateTow(w);
   updatePickups(w);

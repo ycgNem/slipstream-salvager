@@ -53,8 +53,10 @@ export interface Player {
   pass: number;
   /** the part bolted on (one rear mount) */
   part: PartId | null;
+  /** it was knocked loose once already: the next hit shatters it (DECISIONS #58) */
+  partCracked: boolean;
   /** the part towed behind on the cable */
-  tow: { part: PartId; x: number; y: number; vx: number; vy: number } | null;
+  tow: { part: PartId; x: number; y: number; vx: number; vy: number; cracked: boolean } | null;
   /** seconds into bolting, or null */
   bolt: number | null;
   prevRip: boolean;
@@ -92,8 +94,12 @@ export interface Rammer {
   vx: number;
   vy: number;
   enter: { x: number; y: number };
-  /** the charge ended against a wall, pillar or Rammer */
+  /** the charge ended against a wall, pillar or Rammer (or a joust): it's stunned */
   slammed: boolean;
+  /** how long this skid lasts (s) */
+  skidFor: number;
+  /** this charge already gave the player its slipstream */
+  drafted: boolean;
   /** Slipstream hits taken at 1 HP under the wave 1 safety net */
   shaken: number;
 }
@@ -106,6 +112,8 @@ export interface Pickup {
   vx: number;
   vy: number;
   age: number;
+  /** knocked off you once already: shatters if it comes off again */
+  cracked: boolean;
 }
 
 export type WavePhase = 'banner' | 'warn' | 'fight' | 'breather' | 'done';
@@ -122,6 +130,9 @@ export interface Stats {
   hitsTaken: number;
   hullLost: number;
   partsShattered: number;
+  /** parts knocked loose by hits (they can be grabbed again) */
+  partsKnocked: number;
+  jousts: number;
   /** ticks spent at each tier (for the route tests) */
   tierTicks: Record<Tier, number>;
 }
@@ -172,7 +183,7 @@ export function createWorld(opts: WorldOpts = {}): World {
       x: s.x, y: s.y, heading: s.heading, speed: 0, face: 0,
       hull: t.hull, invuln: 0, knock: 0, stun: 0, brake: false,
       rip: null, ripCd: 0, ripBuf: 0, rev: null, pass: 0,
-      part: null, tow: null, bolt: null, prevRip: false, prevBolt: false, tier: 'crawl', omega: 0, lastHeading: s.heading,
+      part: null, partCracked: false, tow: null, bolt: null, prevRip: false, prevBolt: false, tier: 'crawl', omega: 0, lastHeading: s.heading,
     },
     rammers: [],
     pickups: [],
@@ -182,7 +193,7 @@ export function createWorld(opts: WorldOpts = {}): World {
     events: [],
     stats: {
       ticks: 0, topSpeed: 0, slipHits: 0, cruiseHits: 0, crawlHits: 0, tears: 0, wrecks: 0,
-      damageDealt: 0, hitsTaken: 0, hullLost: 0, partsShattered: 0,
+      damageDealt: 0, hitsTaken: 0, hullLost: 0, partsShattered: 0, partsKnocked: 0, jousts: 0,
       tierTicks: { crawl: 0, cruise: 0, slip: 0 },
     },
     result: null,
@@ -195,7 +206,7 @@ export function addRammer(w: World, x: number, y: number, face = 0, opts: { boos
   const r: Rammer = {
     id: w.nextId++, x, y, face, hp: w.t.rammerHp, booster: opts.booster ?? true, safety: !!opts.safety,
     state: opts.state ?? 'stalk', t: 0, windup: 0, lock: 0, shove: false, locked: false, travelled: 0,
-    cd: w.rng.range(0.6, 1.2), vx: 0, vy: 0, enter: { x: Math.cos(face), y: Math.sin(face) }, slammed: false, shaken: 0,
+    cd: w.rng.range(0.6, 1.2), vx: 0, vy: 0, enter: { x: Math.cos(face), y: Math.sin(face) }, slammed: false, skidFor: w.t.skidTime, drafted: false, shaken: 0,
   };
   w.rammers.push(r);
   return r;

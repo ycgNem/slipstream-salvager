@@ -39,12 +39,26 @@ describe('speed tiers', () => {
     expect(r.x - x0).toBeGreaterThan(10);
   });
 
-  it('Slipstream: 2 damage from the front, and you keep your speed', () => {
-    const { w, r } = setup(220, 34, Math.PI);
+  it('Slipstream: 2 damage from the side, and you keep your speed', () => {
+    const { w, r } = setup(220, 34, -Math.PI / 2);
     rip(w);
     for (let i = 0; i < 6; i++) tick(w, IN(1, 0));
     expect(r.hp).toBe(w.t.rammerHp - 2);
     expect(w.player.speed).toBeGreaterThan(200);
+  });
+
+  it('Slipstream into the front of a charge: the joust stops it, stuns it, and you are not hit (DECISIONS #56)', () => {
+    const { w, r } = setup(220, 60, Math.PI);
+    Object.assign(r, { state: 'charge', t: 0, travelled: 0 });
+    const ev = [...rip(w)];
+    for (let i = 0; i < 10; i++) ev.push(...tick(w, IN(1, 0)));
+    expect(ev.some((e) => e.k === 'joust')).toBe(true);
+    expect(r.state).toBe('skid');
+    expect(r.slammed).toBe(true);
+    expect(r.skidFor).toBe(w.t.joustStun);
+    expect(r.hp).toBe(w.t.rammerHp - w.t.frontDamage);
+    expect(w.player.hull).toBe(w.t.hull);
+    expect(w.stats.hitsTaken).toBe(0);
   });
 
   it('locks the tier at the press: the lunge boost cannot turn Cruise into Slipstream', () => {
@@ -56,7 +70,7 @@ describe('speed tiers', () => {
   });
 
   it('two Slipstream rips wreck a stripped Rammer', () => {
-    const { w, r } = setup(230, 34, Math.PI, { booster: false });
+    const { w, r } = setup(230, 34, -Math.PI / 2, { booster: false });
     rip(w);
     for (let i = 0; i < 4; i++) tick(w, IN(1, 0));
     expect(r.hp).toBe(2);
@@ -162,5 +176,34 @@ describe('the Rammer', () => {
     expect(ev).toContain('bump');
     expect(r.state).toBe('windup');
     expect(r.windup).toBe(w.t.windupNear);
+  });
+});
+
+describe('the slipstream (DECISIONS #61)', () => {
+  it('a charge that just misses you lifts you to Slipstream', () => {
+    const w = openWorld();
+    Object.assign(w.player, { x: 1000, y: 2028, heading: Math.PI / 2, speed: 0 });
+    const r = addRammer(w, 940, 2000, 0);
+    Object.assign(r, { state: 'charge', t: 0, travelled: 0, cd: 99 });
+    const ev: string[] = [];
+    let top = 0;
+    for (let i = 0; i < 20; i++) {
+      ev.push(...tick(w, IDLE).map((e) => e.k));
+      top = Math.max(top, w.player.speed);
+    }
+    expect(ev).toContain('draft');
+    expect(ev).not.toContain('hurt');
+    expect(top).toBeGreaterThanOrEqual(w.t.slipAt + w.t.draftBoost);
+  });
+
+  it('only once per charge, and never from a hit', () => {
+    const w = openWorld();
+    Object.assign(w.player, { x: 1000, y: 2000, heading: Math.PI / 2, speed: 0 });
+    const r = addRammer(w, 940, 2000, 0);
+    Object.assign(r, { state: 'charge', t: 0, travelled: 0, cd: 99 });
+    const ev: string[] = [];
+    for (let i = 0; i < 30; i++) ev.push(...tick(w, IDLE).map((e) => e.k));
+    expect(ev).toContain('hurt');
+    expect(ev).not.toContain('draft');
   });
 });

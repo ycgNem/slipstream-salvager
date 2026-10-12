@@ -124,7 +124,7 @@ describe('the full slice (40 seeds, all three waves)', () => {
     let outside = false;
     const inside = (x: number, y: number, r: number) =>
       x >= w.arena.wall + r - 0.5 && y >= w.arena.wall + r - 0.5 && x <= w.arena.w - w.arena.wall - r + 0.5 && y <= w.arena.h - w.arena.wall - r + 0.5;
-    for (let i = 0; i < 300 * 60 && !w.result; i++) {
+    for (let i = 0; i < 600 * 60 && !w.result; i++) {
       step(w, bot(w));
       w.events.length = 0;
       if (!inside(w.player.x, w.player.y, w.t.playerRadius) || w.rammers.some((r) => !inside(r.x, r.y, w.t.rammerRadius))) outside = true;

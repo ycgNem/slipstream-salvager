@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { addRammer, type World } from '../src/sim/world';
 import { hitPlayer } from '../src/sim/salvage';
 import { playerStats } from '../src/sim/body';
+import { revving } from '../src/sim/rip';
 import { IN, openWorld, tick, until } from './helpers';
 
 /** Player moving east at speed toward a Rammer 34 px ahead facing `face` (0 = away from us). */
@@ -34,8 +35,16 @@ describe('tearing a part off', () => {
     expect(w.player.tow).toBeNull();
   });
 
-  it('a Slipstream hit on its front damages it instead', () => {
+  it('a Slipstream hit on its front glances off its armor for 1 instead (DECISIONS #55)', () => {
     const { w, r } = setup(220, Math.PI);
+    const ev = [...rip(w), ...tick(w, IN(1, 0))];
+    expect(r.booster).toBe(true);
+    expect(r.hp).toBe(w.t.rammerHp - w.t.frontDamage);
+    expect(ev.find((e) => e.k === 'hit')).toMatchObject({ zone: 'front', dmg: 1 });
+  });
+
+  it('a Slipstream hit on its side damages it for 2, and leaves the booster on', () => {
+    const { w, r } = setup(220, -Math.PI / 2);
     rip(w);
     tick(w, IN(1, 0));
     expect(r.booster).toBe(true);
@@ -43,7 +52,7 @@ describe('tearing a part off', () => {
   });
 
   it('wrecking a Rammer wrecks its booster', () => {
-    const { w, r } = setup(220, Math.PI);
+    const { w, r } = setup(220, -Math.PI / 2);
     r.hp = 2;
     const ev = [...rip(w), ...tick(w, IN(1, 0))];
     expect(ev.find((e) => e.k === 'wreck')).toMatchObject({ lost: 'booster' });
@@ -51,12 +60,12 @@ describe('tearing a part off', () => {
     expect(w.player.tow).toBeNull();
   });
 
-  it("wave 1's Rammer can't be wrecked while it has its booster, and shakes it loose after three hits at 1 HP", () => {
-    const { w, r } = setup(220, Math.PI, { safety: true });
-    for (let n = 0; n < 5; n++) {
+  it("wave 1's Rammer can't be wrecked while it has its booster, and shakes it loose after two hits at 1 HP", () => {
+    const { w, r } = setup(220, -Math.PI / 2, { safety: true });
+    for (let n = 0; n < 4; n++) {
       Object.assign(w.player, { x: r.x - 34, y: r.y, heading: 0, speed: 220, ripCd: 0, prevRip: false, invuln: 99, rip: null, pass: 0 });
       w.hitstop = 0;
-      Object.assign(r, { face: Math.PI, state: 'skid' });
+      Object.assign(r, { face: -Math.PI / 2, state: 'skid' });
       rip(w);
       tick(w, IN(1, 0));
     }
@@ -70,7 +79,7 @@ describe('tearing a part off', () => {
 describe('bolting on', () => {
   function towing() {
     const w = openWorld();
-    w.player.tow = { part: 'booster', x: w.player.x - 14, y: w.player.y, vx: 0, vy: 0 };
+    w.player.tow = { part: 'booster', x: w.player.x - 14, y: w.player.y, vx: 0, vy: 0, cracked: false };
     return w;
   }
 
@@ -105,15 +114,53 @@ describe('bolting on', () => {
 });
 
 describe('parts are armor', () => {
-  it('a hit shatters the bolted part before it touches the hull', () => {
+  it('a hit knocks the bolted part loose, cracked, before it touches the hull (DECISIONS #58)', () => {
     const w = openWorld();
     w.player.part = 'booster';
     hitPlayer(w, 0);
+    expect(w.events.some((e) => e.k === 'knock')).toBe(true);
     expect(w.player.part).toBeNull();
     expect(w.player.hull).toBe(w.t.hull);
+    expect(w.pickups).toMatchObject([{ part: 'booster', cracked: true }]);
     w.player.invuln = 0;
     hitPlayer(w, 0);
     expect(w.player.hull).toBe(w.t.hull - 1);
+  });
+
+  it('a cracked part shatters on the next hit', () => {
+    const w = openWorld();
+    w.player.part = 'booster';
+    w.player.partCracked = true;
+    hitPlayer(w, 0);
+    expect(w.events.some((e) => e.k === 'shatter')).toBe(true);
+    expect(w.pickups.length).toBe(0);
+    expect(w.player.hull).toBe(w.t.hull);
+  });
+
+  it('a cracked part stays cracked through grabbing and bolting', () => {
+    const w = openWorld();
+    w.player.part = 'booster';
+    hitPlayer(w, 0);
+    const k = w.pickups[0];
+    Object.assign(k, { x: w.player.x, y: w.player.y, vx: 0, vy: 0, age: 1 });
+    Object.assign(w.player, { knock: 0, speed: 0 });
+    tick(w, IN(0, 0));
+    expect(w.player.tow).toMatchObject({ part: 'booster', cracked: true });
+    tick(w, IN(0, 0, false, true));
+    for (let i = 0; i < 50; i++) tick(w, IN(0, 0));
+    expect(w.player.part).toBe('booster');
+    expect(w.player.partCracked).toBe(true);
+  });
+
+  it('a charging Rammer crushes a loose part it runs over', () => {
+    const w = openWorld();
+    w.pickups.push({ id: 99, part: 'booster', x: 1100, y: 2000, vx: 0, vy: 0, age: 1, cracked: false });
+    const r = addRammer(w, 1040, 2000, 0);
+    Object.assign(r, { state: 'charge', t: 0, travelled: 0, cd: 99 });
+    const ev: string[] = [];
+    for (let i = 0; i < 20; i++) ev.push(...tick(w, IN(0, 0)).map((e) => e.k));
+    expect(ev).toContain('crush');
+    expect(w.pickups.length).toBe(0);
   });
 });
 
@@ -122,11 +169,22 @@ describe("the Burn (the Booster turns the Rip into the Rammer's charge)", () => 
     const w = openWorld();
     w.player.part = 'booster';
     const h0 = w.player.heading;
-    const n = until(w, IN(0, 1, true), (w) => w.player.speed >= w.t.slipAt, 120);
+    // held past the tap window the heading locks: steering down after that does nothing
+    const n = until(w, (w) => IN(revving(w) ? 0 : 1, revving(w) ? 1 : 0, true), (w) => w.player.speed >= w.t.slipAt, 120);
     expect(n / 60).toBeGreaterThan(0.45);
     expect(n / 60).toBeLessThan(0.7);
-    expect(w.player.heading).toBe(h0); // steering down did nothing: the heading is locked
+    expect(w.player.heading).toBe(h0);
     expect(w.player.rev).not.toBeNull();
+  });
+
+  it('a tap is a plain Rip, not a Burn (DECISIONS #57)', () => {
+    const w = openWorld();
+    w.player.part = 'booster';
+    Object.assign(w.player, { speed: 200 });
+    const ev = [...tick(w, IN(1, 0, true)), ...tick(w, IN(1, 0, true)), ...tick(w, IN(1, 0, false))];
+    expect(ev.filter((e) => e.k === 'rip')).toEqual([{ k: 'rip', tier: 'slip', burn: false }]);
+    expect(ev.some((e) => e.k === 'rev')).toBe(false);
+    expect(w.player.rev).toBeNull();
   });
 
   it('releasing burns through at the tier you reached, piercing', () => {
@@ -139,8 +197,8 @@ describe("the Burn (the Booster turns the Rip into the Rammer's charge)", () => 
     const ev = tick(w, IN(1, 0, false));
     expect(ev.find((e) => e.k === 'rip')).toMatchObject({ burn: true, tier: 'slip' });
     for (let i = 0; i < 24; i++) tick(w, IN(1, 0));
-    expect(a.hp).toBe(w.t.rammerHp - 2);
-    expect(b.hp).toBe(w.t.rammerHp - 2);
+    expect(a.hp).toBe(w.t.rammerHp - w.t.frontDamage);
+    expect(b.hp).toBe(w.t.rammerHp - w.t.frontDamage);
   });
 
   it('revving into a wall stuns you, like a Rammer', () => {
@@ -165,7 +223,7 @@ describe("the Burn (the Booster turns the Rip into the Rammer's charge)", () => 
     const bare = playerStats(w);
     w.player.part = 'booster';
     expect(playerStats(w)).toEqual(bare);
-    const r = addRammer(w, w.player.x + 20, w.player.y, Math.PI);
+    const r = addRammer(w, w.player.x + 20, w.player.y, -Math.PI / 2);
     r.cd = 99;
     tick(w, IN(1, 0, true));
     for (let i = 0; i < 12 && r.hp === w.t.rammerHp; i++) tick(w, IN(1, 0));

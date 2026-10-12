@@ -8,9 +8,10 @@ import type { Gate } from '../data/arena';
 import { hash2 } from '../engine/rng';
 import { drawSprite, sprite } from './atlas';
 import { makeCanvas, ctx2d } from './art/pixel';
-import { dot, lane, pline, ring, silhouette } from './pixgeom';
+import { crack, dot, lane, outline, pline, ring, silhouette } from './pixgeom';
 import type { Fx } from './fx';
 import { laneOf } from '../sim/rammer';
+import { revving } from '../sim/rip';
 import { laneLength } from '../sim/arena';
 import type { Rammer, World } from '../sim/world';
 import { drawText, textWidth } from '../ui/font';
@@ -91,7 +92,7 @@ export function drawWorld(ctx: Ctx, w: World, fx: Fx, o: DrawOpts) {
     } else lane(ctx, sx, sy, l.angle, l.len, l.width, C.danger1, C.danger0, { dash: 4, phase: Math.floor(o.time * 30), density: 4 });
   }
   const p = w.player;
-  if (p.rev !== null) {
+  if (revving(w)) {
     const len = laneLength(w.arena, p.x, p.y, p.heading, 420, w.t.playerRadius);
     lane(ctx, p.x, p.y, p.heading, len, w.t.playerRadius * 2, C.speed2, C.speed0, { dash: 3, phase: -Math.floor(o.time * 40), density: 3 });
   }
@@ -106,13 +107,19 @@ export function drawWorld(ctx: Ctx, w: World, fx: Fx, o: DrawOpts) {
   for (const pr of w.arena.pillars) items.push({ y: pr.y + pr.h, draw: () => drawSprite(ctx, sprite('ob:pillar'), pr.x, pr.y) });
   for (const k of w.pickups) {
     const bob = Math.floor(o.time * 3 + k.id) % 2;
-    items.push({ y: k.y, draw: () => drawSprite(ctx, sprite('pickup:booster'), Math.round(k.x), Math.round(k.y) - bob) });
+    items.push({ y: k.y, draw: () => {
+      drawSprite(ctx, sprite('pickup:booster'), Math.round(k.x), Math.round(k.y) - bob);
+      if (k.cracked) crack(ctx, Math.round(k.x), Math.round(k.y) - bob - 5);
+    } });
   }
   for (const r of w.rammers) items.push({ y: r.y, draw: () => drawRammer(ctx, r, fx, o.time) });
   items.push({ y: p.y, draw: () => drawPlayer(ctx, w, fx, o.time) });
   if (p.tow) {
     const tw = p.tow;
-    items.push({ y: tw.y, draw: () => drawSprite(ctx, sprite('pickup:booster'), Math.round(tw.x), Math.round(tw.y) + 4) });
+    items.push({ y: tw.y, draw: () => {
+      drawSprite(ctx, sprite('pickup:booster'), Math.round(tw.x), Math.round(tw.y) + 4);
+      if (tw.cracked) crack(ctx, Math.round(tw.x), Math.round(tw.y) - 1);
+    } });
   }
   items.sort((a, b) => a.y - b.y);
   for (const it of items) it.draw();
@@ -133,11 +140,16 @@ function drawRammer(ctx: Ctx, r: Rammer, fx: Fx, time: number) {
   const x = Math.round(r.x) + shake, y = Math.round(r.y);
   const name = rammerSprite(r, time);
   const m = rearMount(d, MOUNT_DIST.rammer);
+  // its back is open (committed, skidding or stunned): the booster glints gold, so the tear target
+  // reads at 1x (DECISIONS #60)
+  const open = r.state === 'skid' || r.state === 'charge' || (r.state === 'windup' && r.locked);
   const part = () => {
     if (!r.booster) return;
     // the flame shares the booster's anchor and goes under it (it starts at the nozzle)
     if (r.state === 'charge') drawSprite(ctx, sprite(`fx:plume:${DIRS[d]}:${Math.floor(time * 20) % 2}`), x + m.dx, y + m.dy);
-    drawSprite(ctx, sprite(`part:booster:${DIRS[d]}`), x + m.dx, y + m.dy);
+    const bn = `part:booster:${DIRS[d]}`, bs = sprite(bn);
+    if (open && Math.floor(time * 10) % 2 === 0) outline(ctx, bs, bn, x + m.dx, y + m.dy, C.gold3);
+    drawSprite(ctx, bs, x + m.dx, y + m.dy);
   };
   if (m.behind) part();
   const s = sprite(name);
@@ -163,11 +175,12 @@ function drawPlayer(ctx: Ctx, w: World, fx: Fx, time: number) {
 
   if (p.invuln > 0 && p.knock <= 0 && Math.floor(time * 20) % 2 === 0) return;
   const name = playerSprite(w, time);
-  const thrust = p.part === 'booster' && (p.rev !== null || p.rip?.burn || p.speed > 60);
+  const thrust = p.part === 'booster' && (revving(w) || p.rip?.burn || p.speed > 60);
   const part = () => {
     if (p.part !== 'booster') return;
     if (thrust) drawSprite(ctx, sprite(`fx:plume:${dn}:${Math.floor(time * 24) % 2}`), x + m.dx, y + m.dy);
     drawSprite(ctx, sprite(`part:booster:${dn}`), x + m.dx, y + m.dy);
+    if (p.partCracked) crack(ctx, x + m.dx, y + m.dy);
   };
   if (m.behind) part();
   const s = sprite(name);

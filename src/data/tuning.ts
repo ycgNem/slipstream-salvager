@@ -45,6 +45,11 @@ export const DEFAULT_TUNING = {
   aimAssistConeDeg: 35,
   aimAssistRange: 140,
   slipDamage: 2,
+  /** a Slipstream hit within frontArcDeg of an enemy's front glances off its armor for this much (DECISIONS #55) */
+  frontDamage: 1,
+  frontArcDeg: 60,
+  /** a Slipstream hit in the back (once the booster is off) is the decisive one */
+  rearDamage: 4,
   /** Cruise rips push the enemy this far and cancel its windup */
   cruiseShove: 24,
   cruiseKeep: 0.85,
@@ -64,6 +69,8 @@ export const DEFAULT_TUNING = {
   burnTime: 0.4,
   burnCooldown: 0.6,
   burnWallStun: 0.6,
+  /** let go of Rip sooner than this and it's a plain Rip, not a Burn (DECISIONS #57) */
+  burnTapTime: 0.15,
 
   // ---- salvage ----
   boltTime: 0.7,
@@ -71,6 +78,10 @@ export const DEFAULT_TUNING = {
   rearArcDeg: 70,
   towLen: 14,
   pickupRadius: 7,
+  /** a hit knocks your part loose this fast; a cracked part shatters instead (DECISIONS #58) */
+  knockLooseKick: 120,
+  /** hits a part takes before it shatters: 2 = knocked loose, then shatters; 1 = the M1 rule */
+  partLives: 2,
 
   // ---- the player's hull ----
   hull: 5,
@@ -86,6 +97,8 @@ export const DEFAULT_TUNING = {
   stalkSpeed: 45,
   stalkTurn: 6,
   strippedSpeed: 35,
+  /** stripped, it limps and turns slowly: a fast circle gets round its armored front (DECISIONS #59) */
+  strippedTurn: 2.5,
   windupFar: 0.85,
   lockFar: 0.35,
   windupNear: 0.45,
@@ -98,6 +111,14 @@ export const DEFAULT_TUNING = {
   chargeSpeed: 330,
   chargeDist: 260,
   skidTime: 0.9,
+  /** a charge that passes within this of you (edge to edge, px) gives you its slipstream... */
+  draftGap: 16,
+  /** ...lifting you to at least Slipstream + this (DECISIONS #61) */
+  draftBoost: 30,
+  /** a Slipstream Rip into the front of a charge stops it and stuns it this long (the joust; DECISIONS #56) */
+  joustStun: 1.3,
+  /** ...if you meet it nose to nose, within this many degrees of head-on */
+  joustDeg: 30,
   reboundDist: 24,
   chargeCdMin: 1.2,
   chargeCdMax: 2.2,
@@ -106,7 +127,7 @@ export const DEFAULT_TUNING = {
   shoveLock: 0.2,
   shoveDist: 70,
   shoveSpeed: 220,
-  shoveRange: 90,
+  shoveRange: 140,
 
   // ---- the encounter ----
   bannerTime: 1.5,
@@ -132,10 +153,10 @@ export function defaultTuning(): Tuning {
 export const TUNING_GROUPS: { title: string; keys: [TuningKey, number][] }[] = [
   { title: 'Movement', keys: [['topSpeed', 10], ['accLow', 50], ['accHigh', 10], ['accSplit', 5], ['turnLow', 0.5], ['turnHigh', 0.25], ['scrubLat', 25], ['scrubK', 0.05], ['coastHalf', 0.05], ['brakeDecel', 50], ['brakeDeg', 5], ['pivotSpeed', 5], ['overspeedHalf', 0.05], ['clankCos', 0.05], ['clankKeep', 0.05]] },
   { title: 'Tiers', keys: [['cruiseAt', 5], ['slipAt', 5]] },
-  { title: 'Rip', keys: [['ripTime', 0.02], ['ripImpulse', 10], ['ripCooldown', 0.05], ['aimAssistDeg', 1], ['slipDamage', 1], ['cruiseShove', 2], ['cruiseKeep', 0.05], ['hitstopSlip', 1], ['passThrough', 0.02]] },
-  { title: 'Booster', keys: [['boosterTopMul', 0.025], ['boosterTurnLowMul', 0.05], ['boosterTurnHighMul', 0.05], ['burnAccel', 10], ['burnMax', 10], ['burnTime', 0.05], ['burnCooldown', 0.05], ['burnWallStun', 0.05]] },
-  { title: 'Salvage', keys: [['boltTime', 0.05], ['boltSteerMul', 0.05], ['rearArcDeg', 5]] },
+  { title: 'Rip', keys: [['ripTime', 0.02], ['ripImpulse', 10], ['ripCooldown', 0.05], ['aimAssistDeg', 1], ['slipDamage', 1], ['frontDamage', 1], ['rearDamage', 1], ['frontArcDeg', 5], ['cruiseShove', 2], ['cruiseKeep', 0.05], ['hitstopSlip', 1], ['passThrough', 0.02]] },
+  { title: 'Booster', keys: [['boosterTopMul', 0.025], ['boosterTurnLowMul', 0.05], ['boosterTurnHighMul', 0.05], ['burnAccel', 10], ['burnMax', 10], ['burnTime', 0.05], ['burnCooldown', 0.05], ['burnWallStun', 0.05], ['burnTapTime', 0.01]] },
+  { title: 'Salvage', keys: [['boltTime', 0.05], ['boltSteerMul', 0.05], ['rearArcDeg', 5], ['partLives', 1]] },
   { title: 'Hull', keys: [['hull', 1], ['invulnTime', 0.1], ['knockSpeed', 10], ['bumpKeep', 0.05]] },
   { title: 'Flat mode', keys: [['flatDamage', 1], ['flatPartDamage', 1]] },
-  { title: 'Rammer', keys: [['rammerHp', 1], ['stalkSpeed', 5], ['stalkTurn', 0.5], ['windupFar', 0.05], ['lockFar', 0.05], ['windupNear', 0.05], ['lockNear', 0.05], ['nearDist', 5], ['chargeRange', 10], ['leadFrac', 0.05], ['chargeSpeed', 10], ['chargeDist', 10], ['skidTime', 0.05], ['chargeCdMin', 0.1], ['chargeCdMax', 0.1], ['maxWindups', 1]] },
+  { title: 'Rammer', keys: [['rammerHp', 1], ['stalkSpeed', 5], ['stalkTurn', 0.5], ['strippedTurn', 0.25], ['windupFar', 0.05], ['lockFar', 0.05], ['windupNear', 0.05], ['lockNear', 0.05], ['nearDist', 5], ['chargeRange', 10], ['leadFrac', 0.05], ['chargeSpeed', 10], ['chargeDist', 10], ['skidTime', 0.05], ['joustStun', 0.1], ['joustDeg', 5], ['draftGap', 1], ['draftBoost', 5], ['chargeCdMin', 0.1], ['chargeCdMax', 0.1], ['maxWindups', 1]] },
 ];

@@ -119,12 +119,19 @@ export function hitAndRunBot(): Bot {
     const committed = r.state === 'skid' || r.state === 'charge' || (r.state === 'windup' && r.locked);
     // under the wave 1 safety net only a tear helps, so only its back is worth a pass
     const capped = r.booster && r.safety && r.hp <= 1;
-    const skidOpen = r.state === 'skid' && r.t < 0.55 && d < 230;
-    const headOn = r.state === 'stalk' && !capped && d > 90 && d < 200;
-    if (!striking && los && p.speed >= t.slipAt - 15 && (skidOpen || headOn)) striking = true;
+    const skidOpen = r.state === 'skid' && r.t < r.skidFor - 0.35 && d < 230;
+    // its front is armored (DECISIONS #55): only cut in on a stalking one when its flank is turned
+    const flank = Math.abs(wrapAngle(Math.atan2(p.y - r.y, p.x - r.x) - r.face)) > 1.2;
+    const headOn = r.state === 'stalk' && !capped && flank && d > 90 && d < 200;
+    // chase its tail: once a charge has gone past, follow it at full throttle, so you're at
+    // Slipstream behind it when it skids
+    const behind = Math.abs(wrapAngle(Math.atan2(p.y - r.y, p.x - r.x) - r.face)) > Math.PI - 1.1;
+    const chase = r.state === 'charge' && behind && d < 260;
+    if (!striking && los && (chase || (p.speed >= t.slipAt - 15 && (skidOpen || headOn)))) striking = true;
     if (striking) {
       let tx = r.x, ty = r.y;
-      if (r.booster && committed) {
+      if (committed) {
+        // aim behind it: that's where the booster comes off, and away from the armored front
         tx = r.x - Math.cos(r.face) * 20;
         ty = r.y - Math.sin(r.face) * 20;
       }
@@ -148,10 +155,18 @@ export function hitAndRunBot(): Bot {
         striking = false;
         return { x: Math.cos(p.heading), y: Math.sin(p.heading), rip: true, bolt: false };
       }
-      const stale = capped && r.state !== 'skid';
+      const stale = capped && r.state !== 'skid' && r.state !== 'charge';
+      // too close and too slow to hurt it: peel off and come round again (unless it's still
+      // charging away, when following keeps the run-up going)
+      const tooSlow = d < 70 && p.speed < t.slipAt && r.state !== 'charge';
       // (turning in from the circle starts ~90° off, so only give up past ~115°)
-      if ((d < 70 && p.speed < t.slipAt) || off > 2.0 || !los || stale) striking = false;
+      if (tooSlow || off > 2.0 || !los || stale) striking = false;
       else return { ...toward(w, tx, ty), rip: false, bolt };
+    }
+    // a part on the floor (knocked loose, or torn off and dropped): go and get it while it's safe
+    if (!p.tow && !committed) {
+      const k = w.pickups.find((k) => Math.hypot(k.x - p.x, k.y - p.y) < 220 && Math.hypot(k.x - r.x, k.y - r.y) > 70);
+      if (k) return { ...toward(w, k.x, k.y), rip: false, bolt };
     }
     // circle it ~140 px out, a little ahead on the circle (pure pursuit); go the other way round,
     // or wider or tighter, when a wall or pillar is in the way
