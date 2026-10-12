@@ -23,7 +23,7 @@ const boss = (w: World, x: number, y: number, face: number, parts: readonly stri
   addEnemy(w, 'compactor', x, y, face, { parts: parts as never });
 
 describe('The Compactor', () => {
-  it('wears all three parts and has 12 hull', () => {
+  it('wears all three parts and has its hull', () => {
     const w = openWorld();
     const b = boss(w, 1200, 2000, Math.PI);
     expect(b.parts).toEqual({ rear: 'booster', sides: 'springs', front: 'plow' });
@@ -266,11 +266,13 @@ describe('the M6 review fixes', () => {
     expect(ev.indexOf('rip')).toBeGreaterThanOrEqual(ev.indexOf('boing'));
   });
 
-  it('a charge still hits you if your rev only bumped it at a crawl', () => {
+  it('a charge still hits you if your rev only shoved it at Cruise', () => {
     const w = openWorld();
     giveBolted(w, 'booster');
-    Object.assign(w.player, { x: 1000, y: 2000, heading: -Math.PI / 2, speed: 60, rev: w.t.burnTapTime + 0.05 });
-    const r = addRammer(w, 940, 2000, 0);
+    Object.assign(w.player, { x: 1000, y: 2000, heading: -Math.PI / 2, speed: 130, rev: w.t.burnTapTime + 0.05 });
+    // close by its side, so the touch fires the Burn at Cruise: a shove, which used to count as
+    // having beaten the charge
+    const r = addRammer(w, 975, 2000, 0);
     Object.assign(r, { state: 'charge', t: 0, travelled: 0, chargeLen: 300, cd: 99 });
     evs(w, 30, IN(0, -1, true));
     expect(w.stats.hitsTaken).toBe(1);
@@ -308,3 +310,77 @@ describe('the M6 review fixes', () => {
     expect(x <= block.x - r + 0.5 || x >= block.x + block.w + r - 0.5).toBe(true);
   });
 });
+
+describe('the M8 review fixes (DECISIONS #97)', () => {
+  it("can't be wrecked while it wears a part: its yard is under the safety net", () => {
+    const w = yardWorld(newRun(2, 'compactor'));
+    for (let i = 0; i < 600 && !w.enemies.length; i++) tick(w, IDLE);
+    const b = w.enemies[0];
+    expect(b.safety).toBe(true);
+    // as if it had been worn down: its side hits can't finish it while its springs are on
+    Object.assign(w.player, { x: b.x + 40, y: b.y, heading: Math.PI, speed: 220, invuln: 999 });
+    b.hp = 1;
+    Object.assign(b, { state: 'stunned', t: 0, skidFor: 9, cd: 99, face: -Math.PI / 2, parts: { sides: 'springs' } });
+    tick(w, IN(-1, 0, true));
+    evs(w, 4, IN(-1, 0));
+    expect(w.enemies.includes(b)).toBe(true);
+  });
+
+  it('wrecking it takes the Snappers it called down with it, and the yard clears', () => {
+    const r = newRun(2, 'compactor');
+    const w = yardWorld(r);
+    for (let i = 0; i < 600 && !w.enemies.length; i++) tick(w, IDLE);
+    const b = w.enemies[0];
+    addEnemy(w, 'snapper', 100, 100);
+    addEnemy(w, 'snapper', 500, 300);
+    Object.assign(b, { parts: {}, safety: false, hp: 1, state: 'stunned', t: 0, skidFor: 9, cd: 99 });
+    Object.assign(w.player, { x: b.x - Math.cos(b.face) * 45, y: b.y - Math.sin(b.face) * 45, heading: b.face, speed: 220, invuln: 999 });
+    const ev = [...evs(w, 1, IN(Math.cos(b.face), Math.sin(b.face), true)), ...evs(w, 6, IN(Math.cos(b.face), Math.sin(b.face)))];
+    expect(ev.filter((k) => k === 'wreck').length).toBe(3);
+    expect(w.enemies).toHaveLength(0);
+    evs(w, 2);
+    expect(w.result).toBe('cleared');
+  });
+
+  it('core open and stuck after a landing, every side is its back', () => {
+    const w = openWorld();
+    Object.assign(w.player, { x: 1040, y: 2000, heading: Math.PI, speed: 220 });
+    const b = boss(w, 1000, 2000, Math.PI, []);
+    Object.assign(b, { state: 'land', t: 0, skidFor: 9, cd: 99 });
+    // you hit its front; it counts as its back
+    evs(w, 1, IN(-1, 0, true));
+    evs(w, 4, IN(-1, 0));
+    expect(b.hp).toBe(w.t.compactorHp - w.t.rearDamage);
+  });
+
+  it('on its Springs its shove bounces off a wall once', () => {
+    const w = box();
+    Object.assign(w.player, { x: 60, y: 260, invuln: 999 });
+    const b = boss(w, 330, 150, 0, ['springs', 'plow']);
+    Object.assign(b, { state: 'charge', t: 0, travelled: 0, chargeLen: 400, shove: true, bounces: 0, cd: 99 });
+    expect(evs(w, 30).filter((k) => k === 'boing')).toHaveLength(1);
+  });
+
+  it('a crusher plate only presses what is slow: at Cruise you are over it', () => {
+    const plate = (speed: number) => {
+      const w = createWorld({ sandbox: true, arena: { ...openArena(), floor: [{ kind: 'crusher', rect: { x: 984, y: 1984, w: 32, h: 32 }, phase: 0 }] } });
+      Object.assign(w.player, { x: 1000, y: 2000, heading: 0, speed });
+      w.tick = Math.round(w.t.crusherPeriod * 60) - 1;
+      tick(w, IN(0, 0));
+      return w.stats.hitsTaken;
+    };
+    expect(plate(40)).toBe(1);
+    expect(plate(150)).toBe(0);
+  });
+
+  it('a charge through a Snapper is one slam, not one a tick', () => {
+    const w = openWorld();
+    Object.assign(w.player, { x: 1000, y: 2400, invuln: 999 });
+    const b = boss(w, 1000, 2000, 0);
+    Object.assign(b, { state: 'charge', t: 0, travelled: 0, chargeLen: 400, shove: false, cd: 99 });
+    const s = addEnemy(w, 'snapper', 1040, 2000);
+    s.cd = 99;
+    expect(evs(w, 20).filter((k) => k === 'slam')).toHaveLength(1);
+  });
+});
+

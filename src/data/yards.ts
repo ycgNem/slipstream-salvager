@@ -61,13 +61,14 @@ export const YARDS: Record<YardId, YardDef> = {
     id: 'heap', name: 'THE HEAP', arena: HEAP, salvage: ['booster', 'treads', 'plow', 'jaws', 'jets', 'springs'], extra: RAMMER,
     waves: [
       { enemies: [RAMMER, SNAPPER, HOPPER, JAW_SNAPPER] },
-      { enemies: [PLOW_RAMMER, JAW_SNAPPER, JAW_SNAPPER, RAMMER] },
       { enemies: [SPRING_RAMMER, RAMMER, PLOW_RAMMER, BOUNCER, SNAPPER, JAW_SNAPPER] },
     ],
   },
   compactor: {
     id: 'compactor', name: 'THE COMPACTOR', arena: FOUNDRY, salvage: ['booster', 'springs', 'plow'], extra: SNAPPER,
-    waves: [{ enemies: [COMPACTOR] }],
+    // the safety net: it can't be wrecked while it wears a part, so every fight ends in the core-open
+    // act (DECISIONS #97)
+    waves: [{ enemies: [COMPACTOR], safety: true }],
   },
 };
 

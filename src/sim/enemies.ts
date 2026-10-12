@@ -92,7 +92,9 @@ export function updateEnemies(w: World) {
 function springy(w: World, e: Enemy): boolean {
   if (!hasSprings(e)) return false;
   if (e.kind === 'bouncer') return true;
-  if (e.state !== 'charge' || e.shove) return false;
+  if (e.state !== 'charge') return false;
+  // The Compactor's Springs bounce its shove too, once (DECISIONS #97)
+  if (e.shove) return e.kind === 'compactor' && e.bounces < 1;
   return e.kind === 'rammer' ? e.bounces < 1 : e.kind === 'compactor' && e.bounces < w.t.bossBounces;
 }
 
@@ -124,8 +126,11 @@ function separate(w: World) {
       b.x += nx * o; b.y += ny * o;
       for (const e of [a, b]) Object.assign(e, pushOut(w.arena, e.x, e.y, radiusOf(w, e)));
       if (lunging(a) || lunging(b)) {
-        w.events.push({ k: 'slam', id: a.id, x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
-        // The Compactor ploughs on through: only the other one recoils
+        // one slam (sound, sparks) per collision, not one a tick: only when something wasn't
+        // already knocked back. The recoil itself keeps applying while they overlap (a pile-up
+        // keeps them skidding; the Ring is tuned with it). The Compactor ploughs on through.
+        const fresh = (e: Enemy) => e.state !== 'skid' && e.state !== 'stunned';
+        if ((a.kind !== 'compactor' && fresh(a)) || (b.kind !== 'compactor' && fresh(b))) w.events.push({ k: 'slam', id: a.id, x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
         for (const e of [a, b]) if (e.kind !== 'compactor') recoil(w, e, lunging(e));
       }
     }

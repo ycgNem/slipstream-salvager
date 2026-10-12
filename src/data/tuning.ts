@@ -281,9 +281,9 @@ export const DEFAULT_TUNING = {
   /** without Springs, a charge into a wall stuns it this long */
   bossWallStun: 1.8,
   /** without the Booster it shoves */
-  bossShoveRange: 160,
+  bossShoveRange: 230,
   bossShoveWindup: 0.6,
-  bossShoveDist: 90,
+  bossShoveDist: 120,
   bossShoveSpeed: 240,
   bossCdMin: 1.2,
   bossCdMax: 2.0,
