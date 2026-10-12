@@ -29,15 +29,16 @@ def treads_scene(h, x, y, z):
     tx = x - POD_X
     # the track loop: a long rounded box, cleats painted on
     h.add(sd_box(tx, ay - POD_Y, z - POD_H / 2, POD_HX, POD_HY, POD_H / 2, 1.6), T_TRACK, tx, y, z)
-    # the gold guard: a rail along the outer top edge, wrapping down over the front of the loop
-    rail = sd_box(tx + 0.3, ay - (POD_Y + 0.85), z - (POD_H + 0.15), 4.2, 0.95, 0.5, 0.3)
-    nose = sd_box(tx - (POD_HX - 1.6), ay - (POD_Y + 0.85), z - (POD_H - 0.3), 0.7, 0.95, 0.7, 0.3)
-    h.add(min(rail, nose), T_GUARD, tx, y, z)
-    # bolts on the rail
-    for bx in (-2.6, 1.8):
-        h.add(sd_ellipsoid(tx - bx, ay - (POD_Y + 0.85), z - (POD_H + 0.62), 0.55, 0.55, 0.4), T_BOLT)
-    # sprocket hub on the outer face, at the front of the loop
-    h.add(sd_cyl(ay - (POD_Y + POD_HY), tx - (POD_HX - 1.9), z - 1.75, 1.05, 0.25, 0.1), T_HUB, tx, y, z)
+    # the gold guard, an L in section: a rail along the outer top edge and a skirt down the outer
+    # face, so the near guard shows below a body and the far one is a thin line beyond it
+    rail = sd_box(tx + 0.3, ay - (POD_Y + 1.2), z - (POD_H + 0.1), 4.2, 0.6, 0.45, 0.25)
+    skirt = sd_box(tx + 0.5, ay - (POD_Y + POD_HY + 0.15), z - (POD_H - 0.6), 3.6, 0.35, 0.75, 0.25)
+    h.add(min(rail, skirt), T_GUARD, tx, y, z)
+    # bolts on the skirt
+    for bx in (-2.0, 1.6):
+        h.add(sd_ellipsoid(tx - bx, ay - (POD_Y + POD_HY + 0.5), z - (POD_H - 0.6), 0.45, 0.4, 0.45), T_BOLT)
+    # sprocket hub on the outer face, at the front of the loop, ahead of the skirt
+    h.add(sd_cyl(ay - (POD_Y + POD_HY), tx - (POD_HX - 1.0), z - 1.6, 1.0, 0.3, 0.1), T_HUB, tx, y, z)
 
 
 def treads_mats():
