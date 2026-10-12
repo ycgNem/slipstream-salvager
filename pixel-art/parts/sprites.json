@@ -1,0 +1,569 @@
+{
+ "name": "parts",
+ "kind": "sprites",
+ "scale": 1,
+ "defaults": {
+  "place": "none",
+  "keepStrays": true
+ },
+ "sprites": [
+  {
+   "match": "part:treads:e",
+   "file": "parts.png",
+   "rect": [
+    0,
+    0,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    16,
+    20
+   ]
+  },
+  {
+   "match": "part:treads:se",
+   "file": "parts.png",
+   "rect": [
+    32,
+    0,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    16,
+    20
+   ]
+  },
+  {
+   "match": "part:treads:s",
+   "file": "parts.png",
+   "rect": [
+    64,
+    0,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    16,
+    20
+   ]
+  },
+  {
+   "match": "part:treads:sw",
+   "file": "parts.png",
+   "rect": [
+    96,
+    0,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    16,
+    20
+   ]
+  },
+  {
+   "match": "part:treads:w",
+   "file": "parts.png",
+   "rect": [
+    128,
+    0,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    16,
+    20
+   ]
+  },
+  {
+   "match": "part:treads:nw",
+   "file": "parts.png",
+   "rect": [
+    160,
+    0,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    16,
+    20
+   ]
+  },
+  {
+   "match": "part:treads:n",
+   "file": "parts.png",
+   "rect": [
+    192,
+    0,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    16,
+    20
+   ]
+  },
+  {
+   "match": "part:treads:ne",
+   "file": "parts.png",
+   "rect": [
+    224,
+    0,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    16,
+    20
+   ]
+  },
+  {
+   "match": "part:plow:e",
+   "file": "parts.png",
+   "rect": [
+    0,
+    32,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    8,
+    8
+   ]
+  },
+  {
+   "match": "part:plow:se",
+   "file": "parts.png",
+   "rect": [
+    16,
+    32,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    8,
+    8
+   ]
+  },
+  {
+   "match": "part:plow:s",
+   "file": "parts.png",
+   "rect": [
+    32,
+    32,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    8,
+    8
+   ]
+  },
+  {
+   "match": "part:plow:sw",
+   "file": "parts.png",
+   "rect": [
+    48,
+    32,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    8,
+    8
+   ]
+  },
+  {
+   "match": "part:plow:w",
+   "file": "parts.png",
+   "rect": [
+    64,
+    32,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    8,
+    8
+   ]
+  },
+  {
+   "match": "part:plow:nw",
+   "file": "parts.png",
+   "rect": [
+    80,
+    32,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    8,
+    8
+   ]
+  },
+  {
+   "match": "part:plow:n",
+   "file": "parts.png",
+   "rect": [
+    96,
+    32,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    8,
+    8
+   ]
+  },
+  {
+   "match": "part:plow:ne",
+   "file": "parts.png",
+   "rect": [
+    112,
+    32,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    8,
+    8
+   ]
+  },
+  {
+   "match": "part:jaws:e",
+   "file": "parts.png",
+   "rect": [
+    0,
+    48,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    8,
+    8
+   ]
+  },
+  {
+   "match": "part:jaws:se",
+   "file": "parts.png",
+   "rect": [
+    16,
+    48,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    8,
+    8
+   ]
+  },
+  {
+   "match": "part:jaws:s",
+   "file": "parts.png",
+   "rect": [
+    32,
+    48,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    8,
+    8
+   ]
+  },
+  {
+   "match": "part:jaws:sw",
+   "file": "parts.png",
+   "rect": [
+    48,
+    48,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    8,
+    8
+   ]
+  },
+  {
+   "match": "part:jaws:w",
+   "file": "parts.png",
+   "rect": [
+    64,
+    48,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    8,
+    8
+   ]
+  },
+  {
+   "match": "part:jaws:nw",
+   "file": "parts.png",
+   "rect": [
+    80,
+    48,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    8,
+    8
+   ]
+  },
+  {
+   "match": "part:jaws:n",
+   "file": "parts.png",
+   "rect": [
+    96,
+    48,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    8,
+    8
+   ]
+  },
+  {
+   "match": "part:jaws:ne",
+   "file": "parts.png",
+   "rect": [
+    112,
+    48,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    8,
+    8
+   ]
+  },
+  {
+   "match": "pickup:treads",
+   "file": "parts.png",
+   "rect": [
+    0,
+    64,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    8,
+    12
+   ]
+  },
+  {
+   "match": "pickup:plow",
+   "file": "parts.png",
+   "rect": [
+    16,
+    64,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    8,
+    12
+   ]
+  },
+  {
+   "match": "pickup:jaws",
+   "file": "parts.png",
+   "rect": [
+    32,
+    64,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    8,
+    12
+   ]
+  },
+  {
+   "match": "icon:part:treads",
+   "file": "parts.png",
+   "rect": [
+    48,
+    64,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "icon:part:plow",
+   "file": "parts.png",
+   "rect": [
+    64,
+    64,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "icon:part:jaws",
+   "file": "parts.png",
+   "rect": [
+    80,
+    64,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "icon:part:booster",
+   "file": "parts.png",
+   "rect": [
+    96,
+    64,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  }
+ ]
+}
