@@ -1,0 +1,659 @@
+{
+ "name": "bouncer",
+ "kind": "sprites",
+ "scale": 1,
+ "defaults": {
+  "frame": [
+   32,
+   32
+  ],
+  "origin": [
+   16,
+   20
+  ],
+  "place": "none",
+  "keepStrays": true
+ },
+ "sprites": [
+  {
+   "match": "en:bouncer:idle:e:0",
+   "file": "bouncer.png",
+   "rect": [
+    0,
+    0,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:idle:e:1",
+   "file": "bouncer.png",
+   "rect": [
+    32,
+    0,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:windup:e:0",
+   "file": "bouncer.png",
+   "rect": [
+    64,
+    0,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:windup:e:1",
+   "file": "bouncer.png",
+   "rect": [
+    96,
+    0,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:roll:e:0",
+   "file": "bouncer.png",
+   "rect": [
+    128,
+    0,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:roll:e:1",
+   "file": "bouncer.png",
+   "rect": [
+    160,
+    0,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:stunned:e:0",
+   "file": "bouncer.png",
+   "rect": [
+    192,
+    0,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:stunned:e:1",
+   "file": "bouncer.png",
+   "rect": [
+    224,
+    0,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:idle:se:0",
+   "file": "bouncer.png",
+   "rect": [
+    0,
+    32,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:idle:se:1",
+   "file": "bouncer.png",
+   "rect": [
+    32,
+    32,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:windup:se:0",
+   "file": "bouncer.png",
+   "rect": [
+    64,
+    32,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:windup:se:1",
+   "file": "bouncer.png",
+   "rect": [
+    96,
+    32,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:roll:se:0",
+   "file": "bouncer.png",
+   "rect": [
+    128,
+    32,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:roll:se:1",
+   "file": "bouncer.png",
+   "rect": [
+    160,
+    32,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:stunned:se:0",
+   "file": "bouncer.png",
+   "rect": [
+    192,
+    32,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:stunned:se:1",
+   "file": "bouncer.png",
+   "rect": [
+    224,
+    32,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:idle:s:0",
+   "file": "bouncer.png",
+   "rect": [
+    0,
+    64,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:idle:s:1",
+   "file": "bouncer.png",
+   "rect": [
+    32,
+    64,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:windup:s:0",
+   "file": "bouncer.png",
+   "rect": [
+    64,
+    64,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:windup:s:1",
+   "file": "bouncer.png",
+   "rect": [
+    96,
+    64,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:roll:s:0",
+   "file": "bouncer.png",
+   "rect": [
+    128,
+    64,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:roll:s:1",
+   "file": "bouncer.png",
+   "rect": [
+    160,
+    64,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:stunned:s:0",
+   "file": "bouncer.png",
+   "rect": [
+    192,
+    64,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:stunned:s:1",
+   "file": "bouncer.png",
+   "rect": [
+    224,
+    64,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:idle:sw:0",
+   "file": "bouncer.png",
+   "rect": [
+    0,
+    96,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:idle:sw:1",
+   "file": "bouncer.png",
+   "rect": [
+    32,
+    96,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:windup:sw:0",
+   "file": "bouncer.png",
+   "rect": [
+    64,
+    96,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:windup:sw:1",
+   "file": "bouncer.png",
+   "rect": [
+    96,
+    96,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:roll:sw:0",
+   "file": "bouncer.png",
+   "rect": [
+    128,
+    96,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:roll:sw:1",
+   "file": "bouncer.png",
+   "rect": [
+    160,
+    96,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:stunned:sw:0",
+   "file": "bouncer.png",
+   "rect": [
+    192,
+    96,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:stunned:sw:1",
+   "file": "bouncer.png",
+   "rect": [
+    224,
+    96,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:idle:w:0",
+   "file": "bouncer.png",
+   "rect": [
+    0,
+    128,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:idle:w:1",
+   "file": "bouncer.png",
+   "rect": [
+    32,
+    128,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:windup:w:0",
+   "file": "bouncer.png",
+   "rect": [
+    64,
+    128,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:windup:w:1",
+   "file": "bouncer.png",
+   "rect": [
+    96,
+    128,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:roll:w:0",
+   "file": "bouncer.png",
+   "rect": [
+    128,
+    128,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:roll:w:1",
+   "file": "bouncer.png",
+   "rect": [
+    160,
+    128,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:stunned:w:0",
+   "file": "bouncer.png",
+   "rect": [
+    192,
+    128,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:stunned:w:1",
+   "file": "bouncer.png",
+   "rect": [
+    224,
+    128,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:idle:nw:0",
+   "file": "bouncer.png",
+   "rect": [
+    0,
+    160,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:idle:nw:1",
+   "file": "bouncer.png",
+   "rect": [
+    32,
+    160,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:windup:nw:0",
+   "file": "bouncer.png",
+   "rect": [
+    64,
+    160,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:windup:nw:1",
+   "file": "bouncer.png",
+   "rect": [
+    96,
+    160,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:roll:nw:0",
+   "file": "bouncer.png",
+   "rect": [
+    128,
+    160,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:roll:nw:1",
+   "file": "bouncer.png",
+   "rect": [
+    160,
+    160,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:stunned:nw:0",
+   "file": "bouncer.png",
+   "rect": [
+    192,
+    160,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:stunned:nw:1",
+   "file": "bouncer.png",
+   "rect": [
+    224,
+    160,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:idle:n:0",
+   "file": "bouncer.png",
+   "rect": [
+    0,
+    192,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:idle:n:1",
+   "file": "bouncer.png",
+   "rect": [
+    32,
+    192,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:windup:n:0",
+   "file": "bouncer.png",
+   "rect": [
+    64,
+    192,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:windup:n:1",
+   "file": "bouncer.png",
+   "rect": [
+    96,
+    192,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:roll:n:0",
+   "file": "bouncer.png",
+   "rect": [
+    128,
+    192,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:roll:n:1",
+   "file": "bouncer.png",
+   "rect": [
+    160,
+    192,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:stunned:n:0",
+   "file": "bouncer.png",
+   "rect": [
+    192,
+    192,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:stunned:n:1",
+   "file": "bouncer.png",
+   "rect": [
+    224,
+    192,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:idle:ne:0",
+   "file": "bouncer.png",
+   "rect": [
+    0,
+    224,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:idle:ne:1",
+   "file": "bouncer.png",
+   "rect": [
+    32,
+    224,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:windup:ne:0",
+   "file": "bouncer.png",
+   "rect": [
+    64,
+    224,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:windup:ne:1",
+   "file": "bouncer.png",
+   "rect": [
+    96,
+    224,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:roll:ne:0",
+   "file": "bouncer.png",
+   "rect": [
+    128,
+    224,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:roll:ne:1",
+   "file": "bouncer.png",
+   "rect": [
+    160,
+    224,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:stunned:ne:0",
+   "file": "bouncer.png",
+   "rect": [
+    192,
+    224,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:bouncer:stunned:ne:1",
+   "file": "bouncer.png",
+   "rect": [
+    224,
+    224,
+    32,
+    32
+   ]
+  }
+ ]
+}

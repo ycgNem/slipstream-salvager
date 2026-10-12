@@ -224,6 +224,24 @@ lightest ramp color.
   - Dust, steam, smoke and sparks. Smoke is plum 0, 2 and 6: the old 1/2/5 vanished on the floor.
     Sparks are white, frost and orange, never gold.
   - The Snapper, the treads, plow and jaws (mounted and as pickups), and all four part icons.
+  - M6: the Hopper (`pixel-art/hopper`), the Bouncer (`pixel-art/bouncer`), and the Jump Jets
+    and the Springs mounted (the Rammer's wide `part:bigsprings` too), loose and as icons
+    (`pixel-art/parts6`, a sheet of its own so the M3 parts sheet stays as it was; the models are
+    in `pixel-art/parts/model.py` with the others). Notes from drawing them:
+    - The Hopper sits like a frog, high at the hips: the jets stand just behind that hump, so from
+      the front their domes show over its back. Its four states are four silhouettes at 1x:
+      upright (stalk), flat and wide with white glaring eyes (crouch), long with trailing legs
+      (air), flattened and splayed with lidded eyes (land).
+    - The Bouncer is chrome by what it reflects (pale sky over a dark horizon line, the floor
+      under it, a lit rim), with blue-slate accents that stop at 47 (48 is speed). Its roll shows
+      as two bands on the shell turning 45 degrees a frame (a "+", then an "x"); the visor and cap
+      stay put.
+    - The Springs are fat gold coils with a 1 px dark gap every 3 px along them, painted in screen
+      space so every direction gets the same rhythm; the treads are a thin gold rail on a dark
+      track, so the two side parts never look alike. The coils sit ~10.5 px out (outside the
+      Scrapper's treads, against the Bouncer's belt), ~14.6 px out on a Rammer.
+    - The jets are two tall cans: on the Scrapper they show in every direction but straight
+      south, where the cab hides all but their dome tips (the booster hides completely there).
 - **Still code-drawn, because a redraw didn't clearly beat them at 1x:**
   - The Scrapper, the Rammer, the booster and its pickup, the plume and the slash.
   - Stars, shadows and the hull pips.

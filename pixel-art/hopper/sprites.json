@@ -1,0 +1,499 @@
+{
+ "name": "hopper",
+ "kind": "sprites",
+ "scale": 1,
+ "defaults": {
+  "frame": [
+   40,
+   40
+  ],
+  "origin": [
+   20,
+   26
+  ],
+  "place": "none",
+  "keepStrays": true
+ },
+ "sprites": [
+  {
+   "match": "en:hopper:stalk:e:0",
+   "file": "hopper.png",
+   "rect": [
+    0,
+    0,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:stalk:e:1",
+   "file": "hopper.png",
+   "rect": [
+    40,
+    0,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:crouch:e:0",
+   "file": "hopper.png",
+   "rect": [
+    80,
+    0,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:crouch:e:1",
+   "file": "hopper.png",
+   "rect": [
+    120,
+    0,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:air:e",
+   "file": "hopper.png",
+   "rect": [
+    160,
+    0,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:land:e",
+   "file": "hopper.png",
+   "rect": [
+    200,
+    0,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:stalk:se:0",
+   "file": "hopper.png",
+   "rect": [
+    0,
+    40,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:stalk:se:1",
+   "file": "hopper.png",
+   "rect": [
+    40,
+    40,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:crouch:se:0",
+   "file": "hopper.png",
+   "rect": [
+    80,
+    40,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:crouch:se:1",
+   "file": "hopper.png",
+   "rect": [
+    120,
+    40,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:air:se",
+   "file": "hopper.png",
+   "rect": [
+    160,
+    40,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:land:se",
+   "file": "hopper.png",
+   "rect": [
+    200,
+    40,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:stalk:s:0",
+   "file": "hopper.png",
+   "rect": [
+    0,
+    80,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:stalk:s:1",
+   "file": "hopper.png",
+   "rect": [
+    40,
+    80,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:crouch:s:0",
+   "file": "hopper.png",
+   "rect": [
+    80,
+    80,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:crouch:s:1",
+   "file": "hopper.png",
+   "rect": [
+    120,
+    80,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:air:s",
+   "file": "hopper.png",
+   "rect": [
+    160,
+    80,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:land:s",
+   "file": "hopper.png",
+   "rect": [
+    200,
+    80,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:stalk:sw:0",
+   "file": "hopper.png",
+   "rect": [
+    0,
+    120,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:stalk:sw:1",
+   "file": "hopper.png",
+   "rect": [
+    40,
+    120,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:crouch:sw:0",
+   "file": "hopper.png",
+   "rect": [
+    80,
+    120,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:crouch:sw:1",
+   "file": "hopper.png",
+   "rect": [
+    120,
+    120,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:air:sw",
+   "file": "hopper.png",
+   "rect": [
+    160,
+    120,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:land:sw",
+   "file": "hopper.png",
+   "rect": [
+    200,
+    120,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:stalk:w:0",
+   "file": "hopper.png",
+   "rect": [
+    0,
+    160,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:stalk:w:1",
+   "file": "hopper.png",
+   "rect": [
+    40,
+    160,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:crouch:w:0",
+   "file": "hopper.png",
+   "rect": [
+    80,
+    160,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:crouch:w:1",
+   "file": "hopper.png",
+   "rect": [
+    120,
+    160,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:air:w",
+   "file": "hopper.png",
+   "rect": [
+    160,
+    160,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:land:w",
+   "file": "hopper.png",
+   "rect": [
+    200,
+    160,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:stalk:nw:0",
+   "file": "hopper.png",
+   "rect": [
+    0,
+    200,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:stalk:nw:1",
+   "file": "hopper.png",
+   "rect": [
+    40,
+    200,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:crouch:nw:0",
+   "file": "hopper.png",
+   "rect": [
+    80,
+    200,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:crouch:nw:1",
+   "file": "hopper.png",
+   "rect": [
+    120,
+    200,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:air:nw",
+   "file": "hopper.png",
+   "rect": [
+    160,
+    200,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:land:nw",
+   "file": "hopper.png",
+   "rect": [
+    200,
+    200,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:stalk:n:0",
+   "file": "hopper.png",
+   "rect": [
+    0,
+    240,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:stalk:n:1",
+   "file": "hopper.png",
+   "rect": [
+    40,
+    240,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:crouch:n:0",
+   "file": "hopper.png",
+   "rect": [
+    80,
+    240,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:crouch:n:1",
+   "file": "hopper.png",
+   "rect": [
+    120,
+    240,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:air:n",
+   "file": "hopper.png",
+   "rect": [
+    160,
+    240,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:land:n",
+   "file": "hopper.png",
+   "rect": [
+    200,
+    240,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:stalk:ne:0",
+   "file": "hopper.png",
+   "rect": [
+    0,
+    280,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:stalk:ne:1",
+   "file": "hopper.png",
+   "rect": [
+    40,
+    280,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:crouch:ne:0",
+   "file": "hopper.png",
+   "rect": [
+    80,
+    280,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:crouch:ne:1",
+   "file": "hopper.png",
+   "rect": [
+    120,
+    280,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:air:ne",
+   "file": "hopper.png",
+   "rect": [
+    160,
+    280,
+    40,
+    40
+   ]
+  },
+  {
+   "match": "en:hopper:land:ne",
+   "file": "hopper.png",
+   "rect": [
+    200,
+    280,
+    40,
+    40
+   ]
+  }
+ ]
+}
