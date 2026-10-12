@@ -1,6 +1,7 @@
-// Offline support: the game is fully procedural, so caching the page and its one script is enough.
-// Pages are fetched network-first (updates arrive), hashed assets cache-first.
-const CACHE = 'salvager-v1';
+// Offline support: the page, its script and its sprite sheets are all the game needs.
+// Pages are fetched network-first (updates arrive), hashed assets cache-first. Bump the cache name
+// with each release (0.2.0: v2) so players who already have it open get the new build.
+const CACHE = 'salvager-v2';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['./', './manifest.webmanifest', './icon-192.png'])).then(() => self.skipWaiting()));

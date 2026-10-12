@@ -12,6 +12,7 @@ to yard.
 - **Play online:** https://ycgnem.github.io/slipstream-salvager/ (add `?debug` for the tuning panel and flat mode; press ` or F1 in play).
 - **Play locally:** double-click `Play.bat` (or `npm run dev`).
 - **Docs:** `PLAN.md` (the game), `ROADMAP.md` (milestones), `DECISIONS.md` (why), `STYLE.md` (art
-  rules), `PROGRESS.md` (what's built), `HANDOFF.md` (how to run everything; read first).
+  rules), `PROGRESS.md` (what's built), `HANDOFF.md` (how to run everything; read first), `CHANGELOG.md`
+  (patch notes for players).
 
 TypeScript + Vite, one HTML canvas, no engine. Browser and Windows (Electron).

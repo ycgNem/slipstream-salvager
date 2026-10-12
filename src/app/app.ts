@@ -3,6 +3,7 @@
 import { C, PALETTE } from '../data/palette';
 import { GameLoop } from '../engine/loop';
 import { ACTION_LABELS, DEBUG_KEYS, Input, keyLabel, type Action } from '../engine/input';
+import { version } from '../../package.json';
 import { Audio } from '../engine/audio/audio';
 import { drawFit, sprite } from '../render/atlas';
 import { allSpriteNames } from '../render/names';
@@ -169,6 +170,7 @@ export class App {
     const b = loadBest();
     if (b.runs) ui.text(b.wins ? `RUNS ${b.runs}   WINS ${b.wins}   BEST WIN ${Math.floor(b.bestWinTicks / 3600)}:${String(Math.floor((b.bestWinTicks / 60) % 60)).padStart(2, '0')}` : `RUNS ${b.runs}   BEST ${b.bestYards}/5 YARDS`, 320, 304, C.lilac, { align: 'center' });
     ui.text('A SHORT RUN - FIVE YARDS, FOUR PARTS TO RIP OFF', 320, 340, C.slate, { align: 'center' });
+    ui.text(`V${version}`, 4, 350, C.slate);
     if (DEBUG_KEYS) ui.text('` TUNING IN PLAY', 636, 350, C.slate, { align: 'right' });
   }
 
