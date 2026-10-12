@@ -226,8 +226,8 @@ def mount(d, dist, lift, front):
 CW, CH, CAX, CAY = 88, 80, 44, 56   # composite frame and its anchor
 
 
-#: px the renderer lowers the boss's mounts by in a pose that sits low (its mount lift is 7 px)
-MOUNT_DROP = {'windup': 5, 'charge': 6, 'stunned': 4}
+#: px the renderer lowers the boss's mounts by in a pose that sits low (drawEnemy: the mount lift is 7 px, 5 winding up, 6 charging, 4 stunned)
+MOUNT_DROP = {'windup': 2, 'charge': 1, 'stunned': 3}
 
 
 def compose(body, d, parts, plume=None, drop=0):

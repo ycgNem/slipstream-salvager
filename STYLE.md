@@ -104,14 +104,14 @@ Grammar: `group:thing[:state][:dir][:frame]`.
 | `part:jets:<dir>` | 1 | M6. Rear overlay (16 × 16, like the booster): two upright gold jet canisters on a strap; the plume fires under it on a leap |
 | `part:springs:<dir>` | 1 | M6. Sides overlay (32 × 32, like the treads): a gold coil bumper either side |
 | `part:bigsprings:<dir>` | 1 | M6. The Springs on a Rammer (40 × 40, anchor (20, 26)): the pair set wide enough to show past its hull |
-| `bo:compactor:<stalk\|windup\|charge\|stunned\|crouch>:<dir>:<0-1>` | 2 | M8. The Compactor, drawn *without* its parts: a plum hull on heavy treads, a ribbed steel bin on its back, a slate cab with a lit visor (white-hot winding up and charging, dim stunned). `crouch` is its core-open leap: the bin lid thrown open, the pale core glowing |
-| `bo:compactor:<skid\|air\|land>:<dir>` | 1 | M8. Skidding nose up; in the air (lid open); landed and stuck |
+| `bo:compactor:<stalk\|windup\|charge\|stunned\|crouch>:<dir>:<0-1>` | 2 | M8. The Compactor, drawn *without* its parts: a plum hull on heavy treads, a ribbed steel bin on its back with a round core hatch in its lid, a dark cab with a lit visor (white-hot winding up and charging, dim stunned). `crouch` is its core-open leap: the hatch thrown back over its rear, the pale core swelling out of the hole |
+| `bo:compactor:<skid\|air\|land>:<dir>` | 1 | M8. Skidding nose up; in the air (core open); landed and stuck |
 | `bo:part:<booster\|plow>:<dir>` | 1 | M8. Its booster and plow, the small parts' models at 2x (32 × 32, anchor (16, 16)) at its rear and front mounts (20 and 22 px out, 7 px up) |
 | `bo:part:springs:<dir>` | 1 | M8. Its springs at 2x, in the body frame (64 × 64, anchor (32, 44)) |
 | `bo:plume:<dir>:<0-1>` | 2 | M8. Its booster's flame at 2x (32 × 32, anchor (16, 16)) |
 | `fl:boost:<e\|s\|w\|n>:<0-2>` | 3 | M7. A boost strip tile: a dark teal deck, bright teal chevrons pointing its way; the frames scroll them forward (teal: it's speed) |
-| `fl:oil:<mask>` | 1 | M7. Oil, a 4-bit neighbor mask like the walls: near-black with a blue-violet sheen, its open edges rounded off |
-| `fl:ramp:<e\|s\|w\|n>` | 1 | M7. A jump ramp: a steel wedge, darker at its foot, lighter up the slope to its lip, a teal arrow |
+| `fl:oil:<mask>` | 1 | M7. Oil, a 4-bit neighbor mask like the walls: a deep blue-black pool (never the outline's 0 as its base), its upper-left rim lit, its open edges wobbling and rounded off |
+| `fl:ramp:<e\|s\|w\|n>` | 1 | M7. A jump ramp: a steel wedge with grip ridges, darker at its foot, lighter up the slope to its lip, its camera-side face showing; a teal arrow |
 | `fl:crusher:<idle\|warn\|down>` | 1 | M7. A crusher plate: a dark grate with danger-red corner marks; `warn` adds a red border and X (the renderer flashes it); `down` is the crusher's steel head on the plate |
 | `pickup:<booster\|treads\|plow\|jaws\|jets\|springs>` | 1 | the loose part (towed or on the floor); the renderer bobs it |
 | `icon:part:<booster\|treads\|plow\|jaws\|jets\|springs>` | 1 | HUD slots |
@@ -254,8 +254,22 @@ lightest ramp color.
       direction (a lid standing up anywhere hides the core from one side or another).
     - Its parts are the imported small ones at 2x: the plow is `pixel-art/parts/model.py`'s; the
       springs are the parts6 coil, its turns redrawn at 2x (4 px beads lit on the light side, a 2
-      px dark gap down the full height, the outline pinched at each gap, a slight helix lean), set
-      outside the treads, so no direction reads as a gold tread.
+      px dark gap down the full height, the outline pinched at each gap, a slight helix lean, the
+      grey steel end caps), low against the treads' outer faces; the rippled outline is what keeps
+      the near coil from reading as a gold tread facing east or west.
+  - M7: the terrain (`pixel-art/terrain`), hand-drawn per direction for the light, not rotated:
+    - Boost strips: a dark teal deck in a thin steel frame, 3 px chevrons (bright leading edge, a
+      glow trailing behind) that move *forward* 3, 2, 3 px a frame (the placeholder's 5 px a frame
+      on an 8 px period read as moving backward).
+    - Oil: a calm, flat pool in 44 with two faint reflections a tile (staggered, so a lake doesn't
+      grid), a lit rim on its upper-left edges, plum on its lower-right ones, open edges wobbling
+      and its open corners rounded with a 5 px radius. Bodies and their shadows read on it.
+    - Ramps: a cool steel wedge, its slope's tone by the way it faces (east and south ramps lit,
+      west and north in shade), grip ridges, a bright lip, the camera-side cheek (east, west) or
+      lip front (south) showing; a chunky teal arrow outlined in dark teal (the thin one vanished).
+    - Crushers: a bevelled steel frame round a grated pit, dull red corner brackets at rest so the
+      warning's bright red (brackets, inner lip, X) stands out; `down` is a bevelled steel head
+      with its ram's hub.
 - **Still code-drawn, because a redraw didn't clearly beat them at 1x:**
   - The Scrapper, the Rammer, the booster and its pickup, the plume and the slash; so the
     Compactor's booster and plume stay the code ones at 2x too (the same models as the small ones).
