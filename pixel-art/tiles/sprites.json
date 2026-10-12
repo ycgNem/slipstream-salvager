@@ -1,0 +1,30 @@
+{
+ "name": "tiles",
+ "kind": "sprites",
+ "scale": 1,
+ "defaults": {
+  "place": "none"
+ },
+ "sprites": [
+  {"match": "t:floor:0", "file": "out/floor_0.png", "frame": [16, 16], "origin": [0, 0]},
+  {"match": "t:floor:1", "file": "out/floor_1.png", "frame": [16, 16], "origin": [0, 0]},
+  {"match": "t:floor:2", "file": "out/floor_2.png", "frame": [16, 16], "origin": [0, 0]},
+  {"match": "t:floor:3", "file": "out/floor_3.png", "frame": [16, 16], "origin": [0, 0]},
+  {"match": "t:wall:0", "file": "out/wall_0.png", "frame": [16, 16], "origin": [0, 0]},
+  {"match": "t:wall:1", "file": "out/wall_1.png", "frame": [16, 16], "origin": [0, 0]},
+  {"match": "t:wall:2", "file": "out/wall_2.png", "frame": [16, 16], "origin": [0, 0]},
+  {"match": "t:wall:3", "file": "out/wall_3.png", "frame": [16, 16], "origin": [0, 0]},
+  {"match": "t:wall:4", "file": "out/wall_4.png", "frame": [16, 16], "origin": [0, 0]},
+  {"match": "t:wall:5", "file": "out/wall_5.png", "frame": [16, 16], "origin": [0, 0]},
+  {"match": "t:wall:6", "file": "out/wall_6.png", "frame": [16, 16], "origin": [0, 0]},
+  {"match": "t:wall:7", "file": "out/wall_7.png", "frame": [16, 16], "origin": [0, 0]},
+  {"match": "t:wall:8", "file": "out/wall_8.png", "frame": [16, 16], "origin": [0, 0]},
+  {"match": "t:wall:9", "file": "out/wall_9.png", "frame": [16, 16], "origin": [0, 0]},
+  {"match": "t:wall:10", "file": "out/wall_10.png", "frame": [16, 16], "origin": [0, 0]},
+  {"match": "t:wall:11", "file": "out/wall_11.png", "frame": [16, 16], "origin": [0, 0]},
+  {"match": "t:wall:12", "file": "out/wall_12.png", "frame": [16, 16], "origin": [0, 0]},
+  {"match": "t:wall:13", "file": "out/wall_13.png", "frame": [16, 16], "origin": [0, 0]},
+  {"match": "t:wall:14", "file": "out/wall_14.png", "frame": [16, 16], "origin": [0, 0]},
+  {"match": "t:wall:15", "file": "out/wall_15.png", "frame": [16, 16], "origin": [0, 0]}
+ ]
+}

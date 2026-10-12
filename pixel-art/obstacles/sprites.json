@@ -1,0 +1,13 @@
+{
+ "name": "obstacles",
+ "kind": "sprites",
+ "scale": 1,
+ "defaults": {
+  "place": "none"
+ },
+ "sprites": [
+  {"match": "ob:pillar", "file": "out/pillar.png", "frame": [32, 40], "origin": [0, 8]},
+  {"match": "ob:post", "file": "out/post.png", "frame": [16, 24], "origin": [0, 8]},
+  {"match": "ob:tower", "file": "out/tower.png", "frame": [48, 56], "origin": [0, 8]}
+ ]
+}
