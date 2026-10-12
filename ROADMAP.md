@@ -5,8 +5,9 @@ call and why, `PROGRESS.md` what's built, `HANDOFF.md` where the last session st
 
 **Status:** the owner approved every default in section 1 (2026-10-12). M0 and M1 are built. The
 owner said M1 "looks good, continue as planned" (2026-10-12), which lifted the scope fence: M2 took
-the critic's open points as defaults, M3 (the short run, PLAN.md section 8) is built, and M4 (art)
-is under way with the pixel-art-studio skill. M5 (the public build) waits for the owner to push.
+the critic's open points as defaults, M3 (the short run, PLAN.md section 8) and M4 (the
+pixel-art-studio art) are built, and both reviews are fixed. M5: 0.2.0 is built (web and Windows), and
+the push that publishes it waits for the owner.
 
 **How every session runs:** start with *"Read ROADMAP.md and HANDOFF.md"*, then paste the phase's
 prompt. Build the phase, deciding small things alone and logging them in `DECISIONS.md`. Run the

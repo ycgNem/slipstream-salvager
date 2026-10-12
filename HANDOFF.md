@@ -4,11 +4,16 @@ Read this first, every session.
 
 ## Where things stand (2026-10-12)
 
-- **M0-M3 are built; M4 (art) is under way.** The owner said M1 "looks good, continue as planned",
-  so M2 took the critic's open points as defaults and M3 built the short run from PLAN.md section 8.
-  Every call is in DECISIONS.md (#55-#63 are M2, #64-#75 are M3).
+- **M0-M4 are built, and 0.2.0 is ready to publish (M5).** The owner said M1 "looks good, continue
+  as planned". So:
+  - M2 took the critic's open points as defaults.
+  - M3 built the short run from PLAN.md section 8, and both reviewers' findings are fixed.
+  - M4 replaced the arena, the Snapper and the new parts with pixel-art-studio art.
+  - Every call is in DECISIONS.md: #55-#63 are M2, #64-#75 M3, #76-#77 M4, #78-#79 the review
+    fixes.
 - **What the live site shows is still M1.** The site at https://ycgnem.github.io/slipstream-salvager/
-  updates only when `main` is pushed, and **pushing waits for the owner** (see Releasing).
+  updates only when `main` is pushed, and **pushing waits for the owner**. "Releasing" below has
+  the exact steps; the patch notes are in `CHANGELOG.md`.
 - Repo: https://github.com/ycgNem/slipstream-salvager (public; DECISIONS #54). Day-to-day work is on
   `works`.
 
@@ -181,5 +186,13 @@ read-only).
   deploys `dist/` to GitHub Pages (source: GitHub Actions). Check a run with `gh run list`.
 - Day-to-day work happens on `works`. To release, fast-forward `main` to `works` and push both.
   **Push only when the owner says so.**
+- **To publish 0.2.0** (when the owner says so), from `works` with everything committed:
+  1. `git checkout main`
+  2. `git merge --ff-only works`
+  3. `git push origin main works`
+  4. `git checkout works`
+  5. `gh run list` to watch the deploy.
+  - Optionally attach the Windows builds in `release/` to a GitHub release:
+    `gh release create v0.2.0 release/*0.2.0.exe --notes-file CHANGELOG.md`.
 - The service worker caches the game (`public/sw.js`). Bump the cache name when a release must
   reach players who already have it open.

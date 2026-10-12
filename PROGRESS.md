@@ -2,6 +2,44 @@
 
 What's built. Newest first.
 
+## 2026-10-12 — M3 reviews fixed, M4 art, 0.2.0 ready to publish
+
+- **The critic's review of the run** (DECISIONS #79). Every fix was re-checked with its scripts.
+  - Rammers no longer stall at corners: 0 stalls in every layout, against 54-60% of placements in
+    Long Lanes and Jaw Yard before.
+  - Snappers' treads tear from the back too, so the Snapper yards hand out parts: the Kennel gives
+    8-9 tears per clear instead of 0-4.
+  - Charges run 120 px past you (220-340 px), so the counter-pass works from any distance: 210 of
+    210 chases tear.
+  - No loose part lands out of reach.
+  - The Jaws don't bite on a joust and can be hit mid-swing.
+  - The Plow has a slower run-up and a ram cooldown.
+  - Long Lanes has a middle gap.
+  - Exit signs show the part names and the size of the last wave.
+- **Pacing:** the critic's search bot is now `scripts/pacing/`. It clears each yard in 40-50 s with
+  almost no hits, so a person should take about 2-3 min a yard.
+- **Visual QA's 12 findings fixed** (DECISIONS #78):
+  - exit signs on the floor, under bodies;
+  - floating texts stack and stay off the HUD;
+  - crackle by max HP;
+  - the wipe card;
+  - visible cracks and glints;
+  - the near track over the body;
+  - the claw ring past a front part;
+  - scenes don't write your best record.
+- **M4, the art overhaul** (DECISIONS #76-#77). Two art agents drew with the pixel-art-studio skill.
+  - **Environment:** the floor, walls, scrap skips (pillar, post, tower), gates, dust, steam,
+    smoke and sparks.
+  - **Robots and parts:** the Snapper (every state and direction), the treads, plow and jaws, and
+    a matching set of four part icons.
+  - 147 of 365 sprites are imported. The Scrapper, Rammer, booster, plume and slash stay
+    code-drawn: they come from the same sculptor and a redraw didn't clearly beat them.
+  - The bottom wall row now sits on its collision.
+- **0.2.0:** the version shows on the title screen, the service worker cache is v2, and the patch
+  notes are in `CHANGELOG.md`.
+  - The web build is 182 KB.
+  - Pushing waits for the owner (HANDOFF.md "Releasing").
+
 ## 2026-10-12 — M3: a short run
 
 PLAN.md section 8, built in phases 3a-3d (DECISIONS #64-#75).
@@ -149,5 +187,5 @@ The owner said "looks good, continue as planned" with no notes, so M2 took the c
 | M1d — Verify, hand over for playtest | done |
 | M2 — Tune the loop | done (critic's points as defaults) |
 | M3 — A short run | done (5 yards, 4 parts, the Snapper) |
-| M4 — Art overhaul | in progress (pixel-art-studio) |
-| M5 — First public build | waits for the owner's go-ahead to push |
+| M4 — Art overhaul | done (147 imported; robots kept from the sculptor) |
+| M5 — First public build | 0.2.0 built; the push waits for the owner |
