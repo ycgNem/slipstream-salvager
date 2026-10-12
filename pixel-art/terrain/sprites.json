@@ -1,0 +1,641 @@
+{
+ "name": "terrain",
+ "kind": "sprites",
+ "scale": 1,
+ "defaults": {
+  "place": "none",
+  "keepStrays": true
+ },
+ "sprites": [
+  {
+   "match": "fl:boost:e:0",
+   "file": "terrain.png",
+   "rect": [
+    0,
+    0,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:boost:e:1",
+   "file": "terrain.png",
+   "rect": [
+    16,
+    0,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:boost:e:2",
+   "file": "terrain.png",
+   "rect": [
+    32,
+    0,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:boost:s:0",
+   "file": "terrain.png",
+   "rect": [
+    48,
+    0,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:boost:s:1",
+   "file": "terrain.png",
+   "rect": [
+    64,
+    0,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:boost:s:2",
+   "file": "terrain.png",
+   "rect": [
+    80,
+    0,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:boost:w:0",
+   "file": "terrain.png",
+   "rect": [
+    96,
+    0,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:boost:w:1",
+   "file": "terrain.png",
+   "rect": [
+    112,
+    0,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:boost:w:2",
+   "file": "terrain.png",
+   "rect": [
+    128,
+    0,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:boost:n:0",
+   "file": "terrain.png",
+   "rect": [
+    144,
+    0,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:boost:n:1",
+   "file": "terrain.png",
+   "rect": [
+    160,
+    0,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:boost:n:2",
+   "file": "terrain.png",
+   "rect": [
+    176,
+    0,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:oil:0",
+   "file": "terrain.png",
+   "rect": [
+    192,
+    0,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:oil:1",
+   "file": "terrain.png",
+   "rect": [
+    208,
+    0,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:oil:2",
+   "file": "terrain.png",
+   "rect": [
+    224,
+    0,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:oil:3",
+   "file": "terrain.png",
+   "rect": [
+    240,
+    0,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:oil:4",
+   "file": "terrain.png",
+   "rect": [
+    0,
+    16,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:oil:5",
+   "file": "terrain.png",
+   "rect": [
+    16,
+    16,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:oil:6",
+   "file": "terrain.png",
+   "rect": [
+    32,
+    16,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:oil:7",
+   "file": "terrain.png",
+   "rect": [
+    48,
+    16,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:oil:8",
+   "file": "terrain.png",
+   "rect": [
+    64,
+    16,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:oil:9",
+   "file": "terrain.png",
+   "rect": [
+    80,
+    16,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:oil:10",
+   "file": "terrain.png",
+   "rect": [
+    96,
+    16,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:oil:11",
+   "file": "terrain.png",
+   "rect": [
+    112,
+    16,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:oil:12",
+   "file": "terrain.png",
+   "rect": [
+    128,
+    16,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:oil:13",
+   "file": "terrain.png",
+   "rect": [
+    144,
+    16,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:oil:14",
+   "file": "terrain.png",
+   "rect": [
+    160,
+    16,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:oil:15",
+   "file": "terrain.png",
+   "rect": [
+    176,
+    16,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:ramp:e",
+   "file": "terrain.png",
+   "rect": [
+    0,
+    32,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:ramp:s",
+   "file": "terrain.png",
+   "rect": [
+    32,
+    32,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:ramp:w",
+   "file": "terrain.png",
+   "rect": [
+    64,
+    32,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:ramp:n",
+   "file": "terrain.png",
+   "rect": [
+    96,
+    32,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:crusher:idle",
+   "file": "terrain.png",
+   "rect": [
+    128,
+    32,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:crusher:warn",
+   "file": "terrain.png",
+   "rect": [
+    160,
+    32,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  },
+  {
+   "match": "fl:crusher:down",
+   "file": "terrain.png",
+   "rect": [
+    192,
+    32,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    0,
+    0
+   ]
+  }
+ ]
+}

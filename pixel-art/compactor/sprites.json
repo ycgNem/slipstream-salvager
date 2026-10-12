@@ -1,0 +1,2171 @@
+{
+ "name": "compactor",
+ "kind": "sprites",
+ "scale": 1,
+ "defaults": {
+  "place": "none",
+  "keepStrays": true
+ },
+ "sprites": [
+  {
+   "match": "bo:compactor:stalk:e:0",
+   "file": "compactor.png",
+   "rect": [
+    0,
+    0,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stalk:e:1",
+   "file": "compactor.png",
+   "rect": [
+    64,
+    0,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:windup:e:0",
+   "file": "compactor.png",
+   "rect": [
+    128,
+    0,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:windup:e:1",
+   "file": "compactor.png",
+   "rect": [
+    192,
+    0,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:charge:e:0",
+   "file": "compactor.png",
+   "rect": [
+    256,
+    0,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:charge:e:1",
+   "file": "compactor.png",
+   "rect": [
+    320,
+    0,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stunned:e:0",
+   "file": "compactor.png",
+   "rect": [
+    384,
+    0,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stunned:e:1",
+   "file": "compactor.png",
+   "rect": [
+    448,
+    0,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:crouch:e:0",
+   "file": "compactor.png",
+   "rect": [
+    512,
+    0,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:crouch:e:1",
+   "file": "compactor.png",
+   "rect": [
+    576,
+    0,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:skid:e",
+   "file": "compactor.png",
+   "rect": [
+    640,
+    0,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:air:e",
+   "file": "compactor.png",
+   "rect": [
+    704,
+    0,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:land:e",
+   "file": "compactor.png",
+   "rect": [
+    768,
+    0,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stalk:se:0",
+   "file": "compactor.png",
+   "rect": [
+    0,
+    64,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stalk:se:1",
+   "file": "compactor.png",
+   "rect": [
+    64,
+    64,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:windup:se:0",
+   "file": "compactor.png",
+   "rect": [
+    128,
+    64,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:windup:se:1",
+   "file": "compactor.png",
+   "rect": [
+    192,
+    64,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:charge:se:0",
+   "file": "compactor.png",
+   "rect": [
+    256,
+    64,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:charge:se:1",
+   "file": "compactor.png",
+   "rect": [
+    320,
+    64,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stunned:se:0",
+   "file": "compactor.png",
+   "rect": [
+    384,
+    64,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stunned:se:1",
+   "file": "compactor.png",
+   "rect": [
+    448,
+    64,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:crouch:se:0",
+   "file": "compactor.png",
+   "rect": [
+    512,
+    64,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:crouch:se:1",
+   "file": "compactor.png",
+   "rect": [
+    576,
+    64,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:skid:se",
+   "file": "compactor.png",
+   "rect": [
+    640,
+    64,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:air:se",
+   "file": "compactor.png",
+   "rect": [
+    704,
+    64,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:land:se",
+   "file": "compactor.png",
+   "rect": [
+    768,
+    64,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stalk:s:0",
+   "file": "compactor.png",
+   "rect": [
+    0,
+    128,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stalk:s:1",
+   "file": "compactor.png",
+   "rect": [
+    64,
+    128,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:windup:s:0",
+   "file": "compactor.png",
+   "rect": [
+    128,
+    128,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:windup:s:1",
+   "file": "compactor.png",
+   "rect": [
+    192,
+    128,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:charge:s:0",
+   "file": "compactor.png",
+   "rect": [
+    256,
+    128,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:charge:s:1",
+   "file": "compactor.png",
+   "rect": [
+    320,
+    128,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stunned:s:0",
+   "file": "compactor.png",
+   "rect": [
+    384,
+    128,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stunned:s:1",
+   "file": "compactor.png",
+   "rect": [
+    448,
+    128,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:crouch:s:0",
+   "file": "compactor.png",
+   "rect": [
+    512,
+    128,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:crouch:s:1",
+   "file": "compactor.png",
+   "rect": [
+    576,
+    128,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:skid:s",
+   "file": "compactor.png",
+   "rect": [
+    640,
+    128,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:air:s",
+   "file": "compactor.png",
+   "rect": [
+    704,
+    128,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:land:s",
+   "file": "compactor.png",
+   "rect": [
+    768,
+    128,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stalk:sw:0",
+   "file": "compactor.png",
+   "rect": [
+    0,
+    192,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stalk:sw:1",
+   "file": "compactor.png",
+   "rect": [
+    64,
+    192,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:windup:sw:0",
+   "file": "compactor.png",
+   "rect": [
+    128,
+    192,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:windup:sw:1",
+   "file": "compactor.png",
+   "rect": [
+    192,
+    192,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:charge:sw:0",
+   "file": "compactor.png",
+   "rect": [
+    256,
+    192,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:charge:sw:1",
+   "file": "compactor.png",
+   "rect": [
+    320,
+    192,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stunned:sw:0",
+   "file": "compactor.png",
+   "rect": [
+    384,
+    192,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stunned:sw:1",
+   "file": "compactor.png",
+   "rect": [
+    448,
+    192,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:crouch:sw:0",
+   "file": "compactor.png",
+   "rect": [
+    512,
+    192,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:crouch:sw:1",
+   "file": "compactor.png",
+   "rect": [
+    576,
+    192,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:skid:sw",
+   "file": "compactor.png",
+   "rect": [
+    640,
+    192,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:air:sw",
+   "file": "compactor.png",
+   "rect": [
+    704,
+    192,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:land:sw",
+   "file": "compactor.png",
+   "rect": [
+    768,
+    192,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stalk:w:0",
+   "file": "compactor.png",
+   "rect": [
+    0,
+    256,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stalk:w:1",
+   "file": "compactor.png",
+   "rect": [
+    64,
+    256,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:windup:w:0",
+   "file": "compactor.png",
+   "rect": [
+    128,
+    256,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:windup:w:1",
+   "file": "compactor.png",
+   "rect": [
+    192,
+    256,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:charge:w:0",
+   "file": "compactor.png",
+   "rect": [
+    256,
+    256,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:charge:w:1",
+   "file": "compactor.png",
+   "rect": [
+    320,
+    256,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stunned:w:0",
+   "file": "compactor.png",
+   "rect": [
+    384,
+    256,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stunned:w:1",
+   "file": "compactor.png",
+   "rect": [
+    448,
+    256,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:crouch:w:0",
+   "file": "compactor.png",
+   "rect": [
+    512,
+    256,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:crouch:w:1",
+   "file": "compactor.png",
+   "rect": [
+    576,
+    256,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:skid:w",
+   "file": "compactor.png",
+   "rect": [
+    640,
+    256,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:air:w",
+   "file": "compactor.png",
+   "rect": [
+    704,
+    256,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:land:w",
+   "file": "compactor.png",
+   "rect": [
+    768,
+    256,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stalk:nw:0",
+   "file": "compactor.png",
+   "rect": [
+    0,
+    320,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stalk:nw:1",
+   "file": "compactor.png",
+   "rect": [
+    64,
+    320,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:windup:nw:0",
+   "file": "compactor.png",
+   "rect": [
+    128,
+    320,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:windup:nw:1",
+   "file": "compactor.png",
+   "rect": [
+    192,
+    320,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:charge:nw:0",
+   "file": "compactor.png",
+   "rect": [
+    256,
+    320,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:charge:nw:1",
+   "file": "compactor.png",
+   "rect": [
+    320,
+    320,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stunned:nw:0",
+   "file": "compactor.png",
+   "rect": [
+    384,
+    320,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stunned:nw:1",
+   "file": "compactor.png",
+   "rect": [
+    448,
+    320,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:crouch:nw:0",
+   "file": "compactor.png",
+   "rect": [
+    512,
+    320,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:crouch:nw:1",
+   "file": "compactor.png",
+   "rect": [
+    576,
+    320,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:skid:nw",
+   "file": "compactor.png",
+   "rect": [
+    640,
+    320,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:air:nw",
+   "file": "compactor.png",
+   "rect": [
+    704,
+    320,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:land:nw",
+   "file": "compactor.png",
+   "rect": [
+    768,
+    320,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stalk:n:0",
+   "file": "compactor.png",
+   "rect": [
+    0,
+    384,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stalk:n:1",
+   "file": "compactor.png",
+   "rect": [
+    64,
+    384,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:windup:n:0",
+   "file": "compactor.png",
+   "rect": [
+    128,
+    384,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:windup:n:1",
+   "file": "compactor.png",
+   "rect": [
+    192,
+    384,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:charge:n:0",
+   "file": "compactor.png",
+   "rect": [
+    256,
+    384,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:charge:n:1",
+   "file": "compactor.png",
+   "rect": [
+    320,
+    384,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stunned:n:0",
+   "file": "compactor.png",
+   "rect": [
+    384,
+    384,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stunned:n:1",
+   "file": "compactor.png",
+   "rect": [
+    448,
+    384,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:crouch:n:0",
+   "file": "compactor.png",
+   "rect": [
+    512,
+    384,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:crouch:n:1",
+   "file": "compactor.png",
+   "rect": [
+    576,
+    384,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:skid:n",
+   "file": "compactor.png",
+   "rect": [
+    640,
+    384,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:air:n",
+   "file": "compactor.png",
+   "rect": [
+    704,
+    384,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:land:n",
+   "file": "compactor.png",
+   "rect": [
+    768,
+    384,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stalk:ne:0",
+   "file": "compactor.png",
+   "rect": [
+    0,
+    448,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stalk:ne:1",
+   "file": "compactor.png",
+   "rect": [
+    64,
+    448,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:windup:ne:0",
+   "file": "compactor.png",
+   "rect": [
+    128,
+    448,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:windup:ne:1",
+   "file": "compactor.png",
+   "rect": [
+    192,
+    448,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:charge:ne:0",
+   "file": "compactor.png",
+   "rect": [
+    256,
+    448,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:charge:ne:1",
+   "file": "compactor.png",
+   "rect": [
+    320,
+    448,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stunned:ne:0",
+   "file": "compactor.png",
+   "rect": [
+    384,
+    448,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:stunned:ne:1",
+   "file": "compactor.png",
+   "rect": [
+    448,
+    448,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:crouch:ne:0",
+   "file": "compactor.png",
+   "rect": [
+    512,
+    448,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:crouch:ne:1",
+   "file": "compactor.png",
+   "rect": [
+    576,
+    448,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:skid:ne",
+   "file": "compactor.png",
+   "rect": [
+    640,
+    448,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:air:ne",
+   "file": "compactor.png",
+   "rect": [
+    704,
+    448,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:compactor:land:ne",
+   "file": "compactor.png",
+   "rect": [
+    768,
+    448,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:part:springs:e",
+   "file": "compactor.png",
+   "rect": [
+    0,
+    512,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:part:springs:se",
+   "file": "compactor.png",
+   "rect": [
+    64,
+    512,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:part:springs:s",
+   "file": "compactor.png",
+   "rect": [
+    128,
+    512,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:part:springs:sw",
+   "file": "compactor.png",
+   "rect": [
+    192,
+    512,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:part:springs:w",
+   "file": "compactor.png",
+   "rect": [
+    256,
+    512,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:part:springs:nw",
+   "file": "compactor.png",
+   "rect": [
+    320,
+    512,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:part:springs:n",
+   "file": "compactor.png",
+   "rect": [
+    384,
+    512,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:part:springs:ne",
+   "file": "compactor.png",
+   "rect": [
+    448,
+    512,
+    64,
+    64
+   ],
+   "frame": [
+    64,
+    64
+   ],
+   "origin": [
+    32,
+    44
+   ]
+  },
+  {
+   "match": "bo:part:plow:e",
+   "file": "compactor.png",
+   "rect": [
+    0,
+    576,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    16,
+    16
+   ]
+  },
+  {
+   "match": "bo:part:plow:se",
+   "file": "compactor.png",
+   "rect": [
+    32,
+    576,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    16,
+    16
+   ]
+  },
+  {
+   "match": "bo:part:plow:s",
+   "file": "compactor.png",
+   "rect": [
+    64,
+    576,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    16,
+    16
+   ]
+  },
+  {
+   "match": "bo:part:plow:sw",
+   "file": "compactor.png",
+   "rect": [
+    96,
+    576,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    16,
+    16
+   ]
+  },
+  {
+   "match": "bo:part:plow:w",
+   "file": "compactor.png",
+   "rect": [
+    128,
+    576,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    16,
+    16
+   ]
+  },
+  {
+   "match": "bo:part:plow:nw",
+   "file": "compactor.png",
+   "rect": [
+    160,
+    576,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    16,
+    16
+   ]
+  },
+  {
+   "match": "bo:part:plow:n",
+   "file": "compactor.png",
+   "rect": [
+    192,
+    576,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    16,
+    16
+   ]
+  },
+  {
+   "match": "bo:part:plow:ne",
+   "file": "compactor.png",
+   "rect": [
+    224,
+    576,
+    32,
+    32
+   ],
+   "frame": [
+    32,
+    32
+   ],
+   "origin": [
+    16,
+    16
+   ]
+  }
+ ]
+}
