@@ -658,7 +658,9 @@ a number in the tuning panel, and the M1 rule is one setting away (given with ea
       strips were redundant on open floor).
     - **No more walls in your face at the door:** the Pinball's facing walls part at the side gates'
       line, and the Foundry's pillars moved off it (to (224, 148) and (416, 212), diagonal banks).
-    - One slam per collision (a body already knocked back doesn't recoil again); a stunned body's
+    - One slam event per collision (not one a tick). The recoil itself still applies every tick of
+      overlap: dropping it shortened pile-up skids and the hit-and-run bot's full Ring slice went
+      from 3 clears in 8 to 0, so the Ring's balance depends on it. A stunned body's
       facing snaps to its sprite's direction, like a skid; the rev guard test now tests at Cruise,
       where the bug was (it passed on the old code at a crawl).
     - Not taken: the critic's other boost-strip idea (move one into the Kennel).
