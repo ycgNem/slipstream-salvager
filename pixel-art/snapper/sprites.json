@@ -1,0 +1,739 @@
+{
+ "name": "snapper",
+ "kind": "sprites",
+ "scale": 1,
+ "defaults": {
+  "frame": [
+   32,
+   32
+  ],
+  "origin": [
+   16,
+   20
+  ],
+  "place": "none",
+  "keepStrays": true
+ },
+ "sprites": [
+  {
+   "match": "en:snapper:hunt:e:0",
+   "file": "snapper.png",
+   "rect": [
+    0,
+    0,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:hunt:e:1",
+   "file": "snapper.png",
+   "rect": [
+    32,
+    0,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:windup:e:0",
+   "file": "snapper.png",
+   "rect": [
+    64,
+    0,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:windup:e:1",
+   "file": "snapper.png",
+   "rect": [
+    96,
+    0,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:snap:e:0",
+   "file": "snapper.png",
+   "rect": [
+    128,
+    0,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:snap:e:1",
+   "file": "snapper.png",
+   "rect": [
+    160,
+    0,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:slide:e",
+   "file": "snapper.png",
+   "rect": [
+    192,
+    0,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:stunned:e:0",
+   "file": "snapper.png",
+   "rect": [
+    224,
+    0,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:stunned:e:1",
+   "file": "snapper.png",
+   "rect": [
+    256,
+    0,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:hunt:se:0",
+   "file": "snapper.png",
+   "rect": [
+    0,
+    32,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:hunt:se:1",
+   "file": "snapper.png",
+   "rect": [
+    32,
+    32,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:windup:se:0",
+   "file": "snapper.png",
+   "rect": [
+    64,
+    32,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:windup:se:1",
+   "file": "snapper.png",
+   "rect": [
+    96,
+    32,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:snap:se:0",
+   "file": "snapper.png",
+   "rect": [
+    128,
+    32,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:snap:se:1",
+   "file": "snapper.png",
+   "rect": [
+    160,
+    32,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:slide:se",
+   "file": "snapper.png",
+   "rect": [
+    192,
+    32,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:stunned:se:0",
+   "file": "snapper.png",
+   "rect": [
+    224,
+    32,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:stunned:se:1",
+   "file": "snapper.png",
+   "rect": [
+    256,
+    32,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:hunt:s:0",
+   "file": "snapper.png",
+   "rect": [
+    0,
+    64,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:hunt:s:1",
+   "file": "snapper.png",
+   "rect": [
+    32,
+    64,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:windup:s:0",
+   "file": "snapper.png",
+   "rect": [
+    64,
+    64,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:windup:s:1",
+   "file": "snapper.png",
+   "rect": [
+    96,
+    64,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:snap:s:0",
+   "file": "snapper.png",
+   "rect": [
+    128,
+    64,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:snap:s:1",
+   "file": "snapper.png",
+   "rect": [
+    160,
+    64,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:slide:s",
+   "file": "snapper.png",
+   "rect": [
+    192,
+    64,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:stunned:s:0",
+   "file": "snapper.png",
+   "rect": [
+    224,
+    64,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:stunned:s:1",
+   "file": "snapper.png",
+   "rect": [
+    256,
+    64,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:hunt:sw:0",
+   "file": "snapper.png",
+   "rect": [
+    0,
+    96,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:hunt:sw:1",
+   "file": "snapper.png",
+   "rect": [
+    32,
+    96,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:windup:sw:0",
+   "file": "snapper.png",
+   "rect": [
+    64,
+    96,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:windup:sw:1",
+   "file": "snapper.png",
+   "rect": [
+    96,
+    96,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:snap:sw:0",
+   "file": "snapper.png",
+   "rect": [
+    128,
+    96,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:snap:sw:1",
+   "file": "snapper.png",
+   "rect": [
+    160,
+    96,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:slide:sw",
+   "file": "snapper.png",
+   "rect": [
+    192,
+    96,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:stunned:sw:0",
+   "file": "snapper.png",
+   "rect": [
+    224,
+    96,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:stunned:sw:1",
+   "file": "snapper.png",
+   "rect": [
+    256,
+    96,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:hunt:w:0",
+   "file": "snapper.png",
+   "rect": [
+    0,
+    128,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:hunt:w:1",
+   "file": "snapper.png",
+   "rect": [
+    32,
+    128,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:windup:w:0",
+   "file": "snapper.png",
+   "rect": [
+    64,
+    128,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:windup:w:1",
+   "file": "snapper.png",
+   "rect": [
+    96,
+    128,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:snap:w:0",
+   "file": "snapper.png",
+   "rect": [
+    128,
+    128,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:snap:w:1",
+   "file": "snapper.png",
+   "rect": [
+    160,
+    128,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:slide:w",
+   "file": "snapper.png",
+   "rect": [
+    192,
+    128,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:stunned:w:0",
+   "file": "snapper.png",
+   "rect": [
+    224,
+    128,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:stunned:w:1",
+   "file": "snapper.png",
+   "rect": [
+    256,
+    128,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:hunt:nw:0",
+   "file": "snapper.png",
+   "rect": [
+    0,
+    160,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:hunt:nw:1",
+   "file": "snapper.png",
+   "rect": [
+    32,
+    160,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:windup:nw:0",
+   "file": "snapper.png",
+   "rect": [
+    64,
+    160,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:windup:nw:1",
+   "file": "snapper.png",
+   "rect": [
+    96,
+    160,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:snap:nw:0",
+   "file": "snapper.png",
+   "rect": [
+    128,
+    160,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:snap:nw:1",
+   "file": "snapper.png",
+   "rect": [
+    160,
+    160,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:slide:nw",
+   "file": "snapper.png",
+   "rect": [
+    192,
+    160,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:stunned:nw:0",
+   "file": "snapper.png",
+   "rect": [
+    224,
+    160,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:stunned:nw:1",
+   "file": "snapper.png",
+   "rect": [
+    256,
+    160,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:hunt:n:0",
+   "file": "snapper.png",
+   "rect": [
+    0,
+    192,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:hunt:n:1",
+   "file": "snapper.png",
+   "rect": [
+    32,
+    192,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:windup:n:0",
+   "file": "snapper.png",
+   "rect": [
+    64,
+    192,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:windup:n:1",
+   "file": "snapper.png",
+   "rect": [
+    96,
+    192,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:snap:n:0",
+   "file": "snapper.png",
+   "rect": [
+    128,
+    192,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:snap:n:1",
+   "file": "snapper.png",
+   "rect": [
+    160,
+    192,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:slide:n",
+   "file": "snapper.png",
+   "rect": [
+    192,
+    192,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:stunned:n:0",
+   "file": "snapper.png",
+   "rect": [
+    224,
+    192,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:stunned:n:1",
+   "file": "snapper.png",
+   "rect": [
+    256,
+    192,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:hunt:ne:0",
+   "file": "snapper.png",
+   "rect": [
+    0,
+    224,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:hunt:ne:1",
+   "file": "snapper.png",
+   "rect": [
+    32,
+    224,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:windup:ne:0",
+   "file": "snapper.png",
+   "rect": [
+    64,
+    224,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:windup:ne:1",
+   "file": "snapper.png",
+   "rect": [
+    96,
+    224,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:snap:ne:0",
+   "file": "snapper.png",
+   "rect": [
+    128,
+    224,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:snap:ne:1",
+   "file": "snapper.png",
+   "rect": [
+    160,
+    224,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:slide:ne",
+   "file": "snapper.png",
+   "rect": [
+    192,
+    224,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:stunned:ne:0",
+   "file": "snapper.png",
+   "rect": [
+    224,
+    224,
+    32,
+    32
+   ]
+  },
+  {
+   "match": "en:snapper:stunned:ne:1",
+   "file": "snapper.png",
+   "rect": [
+    256,
+    224,
+    32,
+    32
+   ]
+  }
+ ]
+}
