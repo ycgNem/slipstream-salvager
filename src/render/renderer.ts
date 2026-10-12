@@ -15,7 +15,7 @@ import type { Fx } from './fx';
 import { chargeLenOf, laneOf } from '../sim/enemies';
 import { crouched, landingPoint, revving } from '../sim/rip';
 import { hopProgress, leapSpec, slamRadius } from '../sim/hopper';
-import { FLOOR_ANGLE, laneLength, reflectAt } from '../sim/arena';
+import { FLOOR_ANGLE, floorAt, laneLength, reflectAt } from '../sim/arena';
 import { crusherState } from '../sim/terrain';
 import { airborne, type Enemy, type World } from '../sim/world';
 import { drawText, FONT_H, textWidth } from '../ui/font';
@@ -243,17 +243,22 @@ export function drawWorld(ctx: Ctx, w: World, fx: Fx, o: DrawOpts) {
     }
   }
   const p = w.player;
+  // on a boost strip (teal on teal) your own cues get an ink edge, so they don't melt into it
+  const onStrip = !!w.arena.floor?.length && !!floorAt(w.arena, p.x, p.y, 'boost');
   if (crouched(w)) {
     // crouched on the Jump Jets: where you'll come down
     const L = landingPoint(w);
+    if (onStrip) ring(ctx, L.x, L.y, w.t.leapSlamR + 1, C.ink);
     floorRing(ctx, L.x, L.y, w.t.leapSlamR, C.speed2, C.speed0, { dash: 3, phase: -Math.floor(o.time * 40), density: 6 });
   } else if (revving(w)) {
     const len = laneLength(w.arena, p.x, p.y, p.heading, 420, w.t.playerRadius);
+    if (onStrip) lane(ctx, p.x, p.y, p.heading, len, w.t.playerRadius * 2 + 2, C.ink, C.ink, { density: 1e6 });
     lane(ctx, p.x, p.y, p.heading, len, w.t.playerRadius * 2, C.speed2, C.speed0, { dash: 3, phase: -Math.floor(o.time * 40), density: 3 });
   }
   if (p.air) {
     // in the air: where you'll land
     const L = landingPoint(w);
+    if (onStrip) ring(ctx, L.x, L.y, w.t.leapSlamR + 1, C.ink);
     floorRing(ctx, L.x, L.y, w.t.leapSlamR, C.speed1, C.speed0, { dash: 2 });
   }
 
