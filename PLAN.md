@@ -188,7 +188,9 @@ A heavy scrap bot with a **booster bolted to its back**. It is the slice's whole
   the window to get behind it. (While it recovers or is stunned, its facing snaps to its sprite's
   direction, so the rear you see is the rear the game uses.)
 - **Wave 1 safety net:** the first Rammer can't be wrecked while it still has its booster (it stops
-  at 1 HP), so every new player gets to see a tear-off.
+  at 1 HP), so every new player gets to see a tear-off. If you keep hitting its front instead, the
+  third Slipstream hit at 1 HP shakes the booster loose onto the floor, so nobody is stuck in wave 1
+  (DECISIONS #33).
 - **Grabbing it:** your claw keeps hold of what it tears off. The part is **towed behind you on a
   short cable** (a trailing point on a spring), swinging with your momentum.
 - **Bolting it on:** tap *Bolt on*, and bolting takes 0.7 s (ratchet clicks, wrench sparks). It works
@@ -202,8 +204,9 @@ A heavy scrap bot with a **booster bolted to its back**. It is the slice's whole
     everything in the lane. Touching an enemy while revving releases it automatically. **Revving into
     a wall stuns you for 0.6 s**, just like a Rammer. Tuned so a burn from rest reaches Slipstream in
     ~0.6 s: faster than driving there, but in a straight line you can't change.
-  - Movement: top speed 240 → 270, turning at top speed 4 → 3 rad/s (turning circle ~90 px, which
-    still fits the arena).
+  - Movement: top speed 240 → 270, and the turn rate drops by a third at every speed (14 → 9.1 rad/s
+    at rest, 4 → 2.6 at top; the turning circle at top speed is ~105 px, which still fits the
+    arena). Tight pillar loops no longer hold Slipstream (DECISIONS #39).
   - The result: the base Scrapper gets its speed from loops around pillars; the Booster gets it from
     straight committed lanes. Different lines, not bigger numbers.
   - Look: the booster sits on your back and fires a plume when you thrust; brighter while revving.

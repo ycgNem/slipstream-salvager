@@ -30,6 +30,8 @@ export class GameLoop {
       let realDt = (now - this.last) / 1000;
       this.last = now;
       if (realDt > 0.25) realDt = 0.25;
+      // the first rAF timestamp can be a hair earlier than performance.now() at start
+      if (realDt < 0) realDt = 0;
       this.fps = this.fps * 0.95 + (1 / Math.max(realDt, 0.001)) * 0.05;
       const t0 = performance.now();
       if (this.fastForward) {

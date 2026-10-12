@@ -5,11 +5,13 @@ import { GameLoop } from '../engine/loop';
 import { ACTION_LABELS, DEBUG_KEYS, Input, keyLabel, type Action } from '../engine/input';
 import { Audio } from '../engine/audio/audio';
 import { drawFit, sprite } from '../render/atlas';
+import { allSpriteNames } from '../render/names';
 import { makeCanvas, ctx2d } from '../render/art/pixel';
 import { registerCodeArt } from '../render/art/code/index';
 import { UI } from '../ui/ui';
 import { Play } from './play';
 import { loadBest, loadSettings, saveSettings, type Settings } from './settings';
+import { scene, SCENES, type SceneName } from './debug';
 
 export const VIEW_W = 640;
 export const VIEW_H = 360;
@@ -61,12 +63,20 @@ export class App {
     this.oy = Math.floor((ch - VIEW_H * this.zoom) / 2);
   }
 
+  /** Sprites not yet generated; a few are made each frame so play never hitches on a first use. */
+  private warm = allSpriteNames();
+
   private tick() {
     if (this.screen === 'play' && this.play) this.play.tick();
   }
 
   private frame(dt: number) {
     this.time += dt;
+    // code-drawn sprites take ~1 s in all to generate: spread it over the first frames
+    if (this.warm.length) {
+      const t0 = performance.now();
+      while (this.warm.length && performance.now() - t0 < 6) sprite(this.warm.pop()!);
+    }
     this.input.pollPad();
     if (this.input.wasPressed('music')) this.toggleMusic();
     const mx = Math.floor((this.input.mouse.x * this.dpr - this.ox) / this.zoom);
@@ -93,6 +103,15 @@ export class App {
     c.fillRect(0, 0, this.canvas.width, this.canvas.height);
     c.drawImage(this.buf, 0, 0, VIEW_W, VIEW_H, this.ox, this.oy, VIEW_W * this.zoom, VIEW_H * this.zoom);
     this.input.endFrame();
+  }
+
+  /** Put the game in a scripted state and freeze it (e2e/screens.mjs). */
+  scene(name: SceneName) {
+    scene(this, name);
+  }
+
+  get scenes() {
+    return SCENES;
   }
 
   startPlay(seed?: number) {

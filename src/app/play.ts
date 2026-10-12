@@ -39,6 +39,8 @@ export class Play {
   frozen = false;
   /** events from the last ticks (e2e inspection) */
   recent: SimEvent[] = [];
+  /** a scripted player (src/sim/bots.ts) drives instead of the input, for e2e and the critic */
+  autopilot: ((w: World) => InputFrame) | null = null;
 
   constructor(private host: PlayHost, seed = (Math.random() * 1e9) | 0) {
     this.world = createWorld({ seed, tuning: LIVE.t, flat: LIVE.flat });
@@ -56,7 +58,7 @@ export class Play {
     if (this.paused || this.frozen) return;
     const input = this.host.input;
     const s = input.steer();
-    const frame: InputFrame = {
+    const frame: InputFrame = this.autopilot ? this.autopilot(this.world) : {
       x: s.x,
       y: s.y,
       rip: input.isDown('rip') || this.ripLatch,
@@ -76,10 +78,10 @@ export class Play {
   }
 
   /** Per-tick presentation that follows the sim: trails, dust, skid marks. */
-  private ticked() {
+  ticked() {
     const w = this.world, p = w.player, fx = this.fx;
     const ang = p.heading;
-    if (p.tier === 'slip' && this.afterTick % 3 === 0) fx.after.push({ name: playerSprite(w, this.time), x: p.x, y: p.y, age: 0 });
+    if (p.tier === 'slip' && this.afterTick % 4 === 0) fx.after.push({ name: playerSprite(w, this.time), x: p.x, y: p.y, age: 0 });
     if (p.tier === 'slip' && this.afterTick % 2 === 0) fx.wind(p.x - Math.cos(ang) * 10, p.y - Math.sin(ang) * 10, ang);
     if (p.tier !== 'crawl' && this.afterTick % 4 === 0) fx.puff('dust', p.x - Math.cos(ang) * 8, p.y + 3 - Math.sin(ang) * 6, -Math.cos(ang) * 20, -Math.sin(ang) * 20, 0.35);
     if (p.brake && p.speed > 30) {
@@ -227,7 +229,7 @@ export class Play {
     if (!w.result) this.hints.draw(ui, w, this.keys);
     drawHud(ui, w, this.keys);
     if (DEBUG_KEYS) this.tuning.draw(ui, w.t, (on) => (w.flat = on), dt);
-    if (LIVE.flat) ui.text('FLAT MODE', 8, 22, C.danger2, { shadow: C.ink });
+    if (w.flat) ui.text('FLAT MODE', 8, 22, C.danger2, { shadow: C.ink });
     if (this.paused) this.drawPause(ui);
     else if (w.result && this.endT > 1.2) this.drawResults(ui);
   }

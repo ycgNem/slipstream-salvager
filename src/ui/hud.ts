@@ -18,9 +18,9 @@ export function drawHud(ui: UI, w: World, keys: { bolt: string }) {
   ui.fill(4, 4, 6 + t.hull * 10, 14, C.ink);
   for (let i = 0; i < t.hull; i++) drawSprite(ui.ctx, sprite(i < p.hull ? 'ui:hull:full' : 'ui:hull:empty'), 8 + i * 10, 7);
 
-  // wave, top center
+  // wave, top left beside the hull (the top center is a gate)
   const wn = Math.min(WAVES.length, w.wave.index + 1);
-  ui.text(`WAVE ${wn}/${WAVES.length}`, 320, 5, C.mist, { align: 'center', shadow: C.ink });
+  ui.text(`WAVE ${wn}/${WAVES.length}`, 14 + t.hull * 10, 7, C.mist, { shadow: C.ink });
 
   // part slot, top right
   const sx = 640 - 24, sy = 4;
@@ -36,8 +36,8 @@ export function drawHud(ui: UI, w: World, keys: { bolt: string }) {
     }
   }
 
-  // speed gauge, bottom center
-  const gw = 168, gx = 320 - gw / 2, gy = 348;
+  // speed gauge, bottom left on the wall (the bottom center is a gate)
+  const gw = 168, gx = 58, gy = 349;
   const at = (v: number) => gx + 1 + Math.round(((gw - 2) * Math.min(v, GAUGE_MAX)) / GAUGE_MAX);
   ui.fill(gx, gy, gw, 6, C.ink);
   const sp = p.speed;

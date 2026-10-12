@@ -2,7 +2,7 @@
 // telegraph lanes, shadows, y-sorted bodies with their parts, the cable, the claw glow and heading
 // tick, effects and the wave banner. Every sprite is asked for by name (STYLE.md).
 import { C, PALETTE } from '../data/palette';
-import { DIRS, dirAngle } from '../data/dirs';
+import { DIRS } from '../data/dirs';
 import { MOUNT_DIST, clawTip, rearMount } from '../data/mounts';
 import type { Gate } from '../data/arena';
 import { hash2 } from '../engine/rng';
@@ -135,8 +135,9 @@ function drawRammer(ctx: Ctx, r: Rammer, fx: Fx, time: number) {
   const m = rearMount(d, MOUNT_DIST.rammer);
   const part = () => {
     if (!r.booster) return;
+    // the flame shares the booster's anchor and goes under it (it starts at the nozzle)
+    if (r.state === 'charge') drawSprite(ctx, sprite(`fx:plume:${DIRS[d]}:${Math.floor(time * 20) % 2}`), x + m.dx, y + m.dy);
     drawSprite(ctx, sprite(`part:booster:${DIRS[d]}`), x + m.dx, y + m.dy);
-    if (r.state === 'charge') drawSprite(ctx, sprite(`fx:plume:${DIRS[d]}:${Math.floor(time * 20) % 2}`), x + m.dx + Math.round(-Math.cos(dirAngle(d)) * 6), y + m.dy + Math.round(-Math.sin(dirAngle(d)) * 4));
   };
   if (m.behind) part();
   const s = sprite(name);
@@ -152,8 +153,9 @@ function drawPlayer(ctx: Ctx, w: World, fx: Fx, time: number) {
   // afterimages at Slipstream: teal silhouettes, thinning out
   for (const a of fx.after) {
     const s = sprite(a.name);
-    const k = a.age < 0.06 ? 0 : a.age < 0.12 ? 1 : 2;
-    ctx.drawImage(silhouette(s, a.name, k === 0 ? C.speed3 : k === 1 ? C.speed2 : C.speed1, k), Math.round(a.x) - s.ox, Math.round(a.y) - s.oy);
+    // ghosts, not a smear: checker-dithered, thinning as they age
+    const young = a.age < 0.08;
+    ctx.drawImage(silhouette(s, a.name, young ? C.speed3 : C.speed1, young ? 1 : 2), Math.round(a.x) - s.ox, Math.round(a.y) - s.oy);
   }
   // the tow cable, drawn as pixel geometry from the rear mount
   const m = rearMount(d, MOUNT_DIST.scrapper);
@@ -164,8 +166,8 @@ function drawPlayer(ctx: Ctx, w: World, fx: Fx, time: number) {
   const thrust = p.part === 'booster' && (p.rev !== null || p.rip?.burn || p.speed > 60);
   const part = () => {
     if (p.part !== 'booster') return;
+    if (thrust) drawSprite(ctx, sprite(`fx:plume:${dn}:${Math.floor(time * 24) % 2}`), x + m.dx, y + m.dy);
     drawSprite(ctx, sprite(`part:booster:${dn}`), x + m.dx, y + m.dy);
-    if (thrust) drawSprite(ctx, sprite(`fx:plume:${dn}:${Math.floor(time * 24) % 2}`), x + m.dx + Math.round(-Math.cos(dirAngle(d)) * 6), y + m.dy + Math.round(-Math.sin(dirAngle(d)) * 4));
   };
   if (m.behind) part();
   const s = sprite(name);

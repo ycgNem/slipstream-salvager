@@ -3,7 +3,7 @@
 Written 2026-10-12. `PLAN.md` is what the game is, `STYLE.md` the art rules, `DECISIONS.md` every
 call and why, `PROGRESS.md` what's built, `HANDOFF.md` where the last session stopped.
 
-**Status:** the owner approved every default in section 1 (2026-10-12). Building M0 and M1.
+**Status:** the owner approved every default in section 1 (2026-10-12). M0 and M1 are built; stopped for the owner's playtest (HANDOFF.md has how to play).
 
 **How every session runs:** start with *"Read ROADMAP.md and HANDOFF.md"*, then paste the phase's
 prompt. Build the phase, deciding small things alone and logging them in `DECISIONS.md`. Run the

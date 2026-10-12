@@ -70,8 +70,8 @@ export class TuningPanel {
           const changed = LIVE.t[k] !== DEFAULT_TUNING[k];
           ui.text(k, lx + 2, cy + 1, changed ? C.white : C.mist);
           ui.text(String(round(LIVE.t[k])), lx + w - 40, cy + 1, changed ? C.cruiseHi : C.frost, { align: 'right' });
-          if (ui.button('t-' + k + '-', lx + w - 36, cy, 12, 9, '-')) set(k, LIVE.t[k] - step);
-          if (ui.button('t-' + k + '+', lx + w - 22, cy, 12, 9, '+')) set(k, LIVE.t[k] + step);
+          if (ui.button('t-' + k + '-', lx + w - 36, cy, 12, 10, '-')) set(k, LIVE.t[k] - step);
+          if (ui.button('t-' + k + '+', lx + w - 22, cy, 12, 10, '+')) set(k, LIVE.t[k] + step);
         }
         cy += 11;
       }

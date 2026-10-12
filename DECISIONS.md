@@ -99,3 +99,36 @@ them. **"Pending Qn"** means a default waiting on the owner's answer to that que
 32. **Every new player sees a tear-off.** Wave 1's Rammer can't be wrecked while it still has its
     booster (it stops at 1 HP), and a tearing hit does no damage, so tearing and wrecking are always
     separate passes.
+33. **The wave 1 safety net has a way out.** If you keep hitting the first Rammer's front instead of
+    its back, the third Slipstream hit at 1 HP shakes its booster loose onto the floor (not grabbed:
+    you drive over it). *Why:* the hit-and-run bot got stuck in wave 1 forever on half the seeds; a
+    player who hasn't learned the rear hit yet would too.
+34. **The hit-and-run guard is 6 of 8 seeds.** The bot clears wave 1 within 90 s on at least 6 of 8
+    seeds, takes at most one hit on average and is never scrapped; the other guards are as planned.
+    *Why:* the bot is a simple script that sometimes fails to get behind the wave 1 Rammer in time;
+    the guard is about the strategy winning, not the bot being perfect.
+35. **HUD layout.** Hull and wave top left, the part slot top right, the speed gauge bottom left on
+    the wall. *Why:* the top and bottom centers are gates, and the HUD covered them.
+36. **Rammers walk round pillars.** When a pillar blocks its view of you, a Rammer heads for the
+    pillar corner that makes the shorter trip. *Why:* they got stuck behind pillars, never saw you
+    and never charged.
+37. **Afterimages are dithered ghosts**, one every 4 ticks at Slipstream. *Why:* solid ones 12 px
+    apart overlapped into one teal smear.
+38. **Gates have an orientation** (`ob:gate:<h|v>:<state>`): the side walls need 16x32 openings.
+    STYLE.md updated.
+39. **The route flip is measured as share of time at Slipstream** over 40 s on two routes: tight loops
+    44 px round a pillar, and the long middle corridor (with Burns when the Booster is on). Base: loops
+    98%, lanes 68%. Booster: loops 68%, lanes 73%. The Booster cuts turning by a third at every speed
+    (0.65x), not only at the top. **Found on the way:** grazing a pillar turns you without scrubbing
+    speed (a "rail"); left in for the playtest, since it may be fun rather than a problem.
+40. **Input forgiveness.** A Rip pressed up to 0.12 s early fires when it can, and presses during
+    hit-stop are kept until the sim runs again. *Why:* Dead Cells-style responsiveness; lost presses
+    feel like the game ignoring you.
+41. **A tapped Rip with the Booster is an instant Burn** at your current tier (it revs and releases at
+    once). Holding is still how you build a Burn.
+42. **Rendering.** Everything is drawn into one 640x360 buffer and blitted at the largest whole-number
+    scale that fits, letterboxed; the mouse is mapped back to logical pixels. *Why:* the pixel rules
+    hold everywhere for free, UI included.
+43. **The autopilot hook.** `Play.autopilot` lets a bot from `src/sim/bots.ts` drive the real game, so
+    e2e scripts and the critic can watch the loop with all its feedback, not only the sim.
+

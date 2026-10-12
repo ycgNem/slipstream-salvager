@@ -4,6 +4,7 @@ import { C } from '../data/palette';
 import type { World } from '../sim/world';
 import type { SimEvent } from '../sim/events';
 import type { UI } from './ui';
+import { textWidth } from './font';
 
 export type HintId = 'speed' | 'tear' | 'bolt';
 
@@ -53,11 +54,12 @@ export class Hints {
   draw(ui: UI, w: World, keys: { rip: string; bolt: string }) {
     if (!this.current) return;
     const text = this.current === 'speed' ? 'BUILD SPEED - THE CLAW TURNS TEAL'
-      : this.current === 'tear' ? `HIT ITS BACK AT TEAL (${keys.rip}) TO TEAR THE BOOSTER OFF`
+      : this.current === 'tear' ? `HIT ITS BACK AT TEAL (${keys.rip}) TO TEAR OFF ITS BOOSTER`
       : `TAP ${keys.bolt} TO BOLT IT ON`;
     const p = w.player;
     const y = p.y < 60 ? Math.round(p.y) + 18 : Math.round(p.y) - 34;
-    const x = Math.max(110, Math.min(530, Math.round(p.x)));
+    const half = Math.ceil(textWidth(text) / 2) + 4;
+    const x = Math.max(half, Math.min(640 - half, Math.round(p.x)));
     const blink = this.shownFor < 0.6 && Math.floor(this.shownFor * 10) % 2 === 1;
     ui.text(text, x, y, blink ? C.white : this.current === 'speed' ? C.speed4 : C.gold3, { align: 'center', shadow: C.ink });
   }
