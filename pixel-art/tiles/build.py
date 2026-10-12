@@ -244,6 +244,29 @@ def main():
         for i in range(8):
             seam.alpha_composite(to_image(floors[(i * 7 + j * 5 + i * j) % 4]), (i * 16, j * 16))
     seam.resize((seam.width * 4, seam.height * 4), Image.NEAREST).save(HERE / "seams.png")
+    # every mask in a configuration the M3 yards may use (a 2x2 block reads as four bolted posts,
+    # a thick block as barriers laid side by side: the ring is built from barriers and posts): a free-standing horizontal wall (Long
+    # Lanes), a vertical one, a 2x2 and a 3x3 block (Jaw Yard), a single post, on floor at 4x
+    layout = [
+        "..............",
+        ".#######......",
+        "...........#..",
+        ".##..###...#..",
+        ".##..###...#..",
+        ".....###...#..",
+        "..#........#..",
+        "..............",
+    ]
+    is_w = lambda x, y: 0 <= y < len(layout) and 0 <= x < len(layout[0]) and layout[y][x] == "#"  # noqa: E731
+    mk = Image.new("RGBA", (16 * len(layout[0]), 16 * len(layout)))
+    for y, row in enumerate(layout):
+        for x, ch in enumerate(row):
+            if ch == "#":
+                m = (1 if is_w(x, y - 1) else 0) | (2 if is_w(x + 1, y) else 0) | (4 if is_w(x, y + 1) else 0) | (8 if is_w(x - 1, y) else 0)
+                mk.alpha_composite(to_image(walls[m]), (x * 16, y * 16))
+            else:
+                mk.alpha_composite(to_image(floors[(x * 3 + y * 5 + x * y) % 4]), (x * 16, y * 16))
+    mk.resize((mk.width * 4, mk.height * 4), Image.NEAREST).save(HERE / "masks_in_yards_4x.png")
     import mock_arena
 
     mock_arena.build()

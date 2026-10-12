@@ -92,10 +92,13 @@ def gate_h(state):
         g.rect(5, 5, 26, 15, OUTL)
         g.hline(5, 26, 5, DOOR_DK)
         g.hline(5, 26, 6, OUTL)
-        for y in range(11, 16):
-            for x in range(5, 27):
-                if (x + y) % 2 == 0 and y >= 13 or (x + y) % 4 == 0 and y >= 11:
-                    g.set(x, y, 1)
+        # the ground running out through the gap: the floor's own plum and dirt clods near the
+        # arena, sinking into shadow further in (no dither: it would read as a grate)
+        g.rect(5, 12, 26, 15, 1)
+        for x, y in ((7, 12), (8, 12), (13, 13), (19, 12), (23, 14), (24, 14), (10, 15), (17, 15), (21, 13)):
+            g.set(x, y, 24)
+        for x, y in ((6, 11), (11, 11), (12, 11), (18, 11), (25, 11), (15, 10), (22, 10)):
+            g.set(x, y, 1)
         g.hline(5, 26, 15, 1)
     else:
         # slatted door: 2 px slats, lit top row, dark groove; bottom bar lit, outline below

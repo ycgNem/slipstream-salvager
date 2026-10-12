@@ -46,8 +46,16 @@ def ell(g, cx, cy, rx, ry, fn):
 
 
 def tyre(g, cx, cy, rx=4.6, ry=3.8):
-    """A tyre lying in the heap: a dark ring lit on its upper left, a deep hole."""
-    ell(g, cx, cy, rx, ry, lambda d, l: OUTL if d < 0.45 else (2 if l > 0.4 else (OUTL if l < -0.6 else 1)))
+    """A tyre lying in the heap: the rolled tread edge (lit shoulder on the upper left, ink on
+    the lower right), the sidewall a step lighter, the hole dark with its far wall catching light."""
+    def c(d, l):
+        if d > 0.78:
+            return 3 if l > 0.35 else (OUTL if l < -0.45 else 1)
+        if d > 0.46:
+            return 3 if l > 0.7 else 2
+        return 2 if l < -0.5 and d > 0.3 else OUTL
+
+    ell(g, cx, cy, rx, ry, c)
 
 
 def rim(g, cx, cy, rx=3.6, ry=3.0):
@@ -91,8 +99,9 @@ def rubble(g, x0, y0, x1, y1, seed):
     shaded on its bottom-right, packed over a dark base."""
     r = rng(seed)
     g.rect(x0, y0, x1, y1, 1)
-    mats = ((1, 5, 3), (1, 2, 3), (5, 3, 4), (1, 5, 2))
-    for _ in range((x1 - x0) * (y1 - y0) // 5):
+    # no taupe (4) highlights in the bed: it stays quieter than the named junk and the robots
+    mats = ((1, 5, 3), (1, 2, 3), (5, 3, 3), (1, 5, 2))
+    for _ in range((x1 - x0) * (y1 - y0) // 6):
         cx, cy = r.randint(x0, x1 - 1), r.randint(y0, y1 - 1)
         cw, ch = r.choice((2, 3, 3, 4)), r.choice((2, 2, 3))
         m = r.choice(mats)
