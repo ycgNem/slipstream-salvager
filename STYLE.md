@@ -36,8 +36,11 @@ The game draws on a **640 × 360** logical canvas, scaled by whole numbers only.
 | **Player body** ("Scrapper") | **32 × 32** | (16, 20) | 18–20 wide, 16–20 tall | circle r = 8 at the anchor |
 | **Rammer** | **40 × 40** | (20, 26) | 26–30 wide, 22–26 tall | circle r = 11 at the anchor |
 | **Snapper** (M3) | **32 × 32** | (16, 20) | 16–20 wide, 12–16 tall, low and wide | circle r = 8 at the anchor |
+| **Hopper** (M6) | **40 × 40** | (20, 26) | 22–26 wide, 16–20 tall: a squat frog, big haunches | circle r = 10 at the anchor |
+| **Bouncer** (M6) | **32 × 32** | (16, 20) | 15–17 across, round, 16–18 tall | circle r = 9 at the anchor |
 | Mounted part overlay (rear and front mounts) | 16 × 16 | (8, 8) | ≤ 14 × 14 | none (part of the body) |
 | Treads overlay (sides mount, M3) | 32 × 32 | (16, 20) | the two tread guards either side of the body's footprint | none |
+| Springs overlay (sides mount, M6) | 32 × 32 | (16, 20) | a gold coil bumper either side of the body's footprint | none |
 | Loose part (pickup) | 16 × 16 | (8, 12) | ≤ 14 × 12 | circle r = 7 |
 | Part icon (HUD) | 16 × 16 | (0, 0) | 14 × 14 | — |
 | Pillar | 32 × 40 | (0, 8) | footprint 32 × 32; rises 8 px above it (top face ~ the footprint, 12 px front face narrowing to the foot) | square 32 × 32 |
@@ -84,10 +87,20 @@ Grammar: `group:thing[:state][:dir][:frame]`.
 | `en:snapper:snap:<dir>:<0-1>` | 2 | stretched forward, lunging |
 | `en:snapper:slide:<dir>` | 1 | sliding sideways, leaning |
 | `en:snapper:stunned:<dir>:<0-1>` | 2 | |
+| `en:hopper:stalk:<dir>:<0-1>` | 2 | M6. A squat sage-green scrap frog, big haunches either side, pale eye domes; drawn *without* its jets (the `part:jets` overlay on its back) |
+| `en:hopper:crouch:<dir>:<0-1>` | 2 | haunches folded, body low, about to spring; the renderer adds a ±1 px shake once its ring locks |
+| `en:hopper:air:<dir>` | 1 | legs stretched out behind; the renderer lifts it up to 24 px off its shadow |
+| `en:hopper:land:<dir>` | 1 | stuck: low, feet splayed, legs buried (also its stunned frame) |
+| `en:bouncer:idle:<dir>:<0-1>` | 2 | M6. A round chrome pinball with a dark visor slit and a cap; drawn *without* its springs (the `part:springs` overlay round its middle) |
+| `en:bouncer:windup:<dir>:<0-1>` | 2 | squashed down, about to roll |
+| `en:bouncer:roll:<dir>:<0-1>` | 2 | rolling: a band round the ball moves between the frames (the renderer cycles faster at speed) |
+| `en:bouncer:stunned:<dir>:<0-1>` | 2 | dizzy, wobbling side to side |
 | `part:<booster\|plow\|jaws>:<dir>` | 1 | mounted overlay (16 × 16), used on every body that carries it: the booster on the rear mount, the plow and the jaws on the front mount |
 | `part:treads:<dir>` | 1 | sides overlay (32 × 32, the body's anchor), drawn *under* the body so the guards stick out either side |
-| `pickup:<booster\|treads\|plow\|jaws>` | 1 | the loose part (towed or on the floor); the renderer bobs it |
-| `icon:part:<booster\|treads\|plow\|jaws>` | 1 | HUD slots |
+| `part:jets:<dir>` | 1 | M6. Rear overlay (16 × 16, like the booster): two upright gold jet canisters on a strap; the plume fires under it on a leap |
+| `part:springs:<dir>` | 1 | M6. Sides overlay (32 × 32, like the treads): a gold coil bumper either side |
+| `pickup:<booster\|treads\|plow\|jaws\|jets\|springs>` | 1 | the loose part (towed or on the floor); the renderer bobs it |
+| `icon:part:<booster\|treads\|plow\|jaws\|jets\|springs>` | 1 | HUD slots |
 | `fx:plume:<dir>:<0-1>` | 2 | booster flame |
 | `fx:slash:<tier>:<dir>:<0-2>` | 3 | tier = `crawl`, `cruise`, `slip` |
 | `fx:spark:<0-2>`, `fx:dust:<0-3>`, `fx:steam:<0-3>`, `fx:smoke:<0-3>` | — | |
