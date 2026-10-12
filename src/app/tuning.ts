@@ -6,7 +6,7 @@ import { DEFAULT_TUNING, TUNING_GROUPS, defaultTuning, type Tuning, type TuningK
 import type { UI } from '../ui/ui';
 
 /** The numbers new encounters start with (edits here carry over to Again). */
-export const LIVE: { t: Tuning; flat: boolean } = { t: defaultTuning(), flat: false };
+export const LIVE: { t: Tuning; flat: boolean; booster: boolean } = { t: defaultTuning(), flat: false, booster: false };
 
 const round = (v: number) => Math.round(v * 1000) / 1000;
 
@@ -23,7 +23,8 @@ export class TuningPanel {
     return lines.length ? lines.join('\n') : '// no changes from the defaults';
   }
 
-  draw(ui: UI, worldT: Tuning, setFlat: (on: boolean) => void, dt: number) {
+  /** setBooster: bolt the Booster on now (or take it off), so a whole run can be played with it */
+  draw(ui: UI, worldT: Tuning, setFlat: (on: boolean) => void, setBooster: (on: boolean) => void, dt: number) {
     if (!this.open) return;
     this.noteT = Math.max(0, this.noteT - dt);
     const x = 446, y = 28, w = 190, h = 316;
@@ -35,7 +36,12 @@ export class TuningPanel {
       LIVE.flat = flat;
       setFlat(flat);
     }
-    if (ui.button('t-copy', x + 6, y + 30, 56, 12, 'COPY')) {
+    const booster = ui.toggle('t-booster', x + 6, y + 30, w - 12, 'START WITH THE BOOSTER', LIVE.booster);
+    if (booster !== LIVE.booster) {
+      LIVE.booster = booster;
+      setBooster(booster);
+    }
+    if (ui.button('t-copy', x + 6, y + 42, 56, 12, 'COPY')) {
       const text = this.diff();
       try {
         navigator.clipboard?.writeText(text);
@@ -46,14 +52,14 @@ export class TuningPanel {
       console.log(text);
       this.noteT = 1.5;
     }
-    if (ui.button('t-reset', x + 68, y + 30, 56, 12, 'RESET')) {
+    if (ui.button('t-reset', x + 68, y + 42, 56, 12, 'RESET')) {
       Object.assign(LIVE.t, defaultTuning());
       Object.assign(worldT, defaultTuning());
     }
-    if (this.noteT > 0) ui.text(this.note, x + w - 6, y + 32, C.gold3, { align: 'right' });
+    if (this.noteT > 0) ui.text(this.note, x + w - 6, y + 44, C.white, { align: 'right' });
 
     // the list, clipped and scrolled with the wheel
-    const lx = x + 4, ly = y + 48, lh = h - 52;
+    const lx = x + 4, ly = y + 60, lh = h - 64;
     if (ui.hover(x, y, w, h)) this.scroll = Math.max(0, this.scroll + ui.input.mouse.wheel * 20);
     const ctx = ui.ctx;
     ctx.save();

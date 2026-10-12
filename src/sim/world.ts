@@ -60,6 +60,9 @@ export interface Player {
   prevRip: boolean;
   prevBolt: boolean;
   tier: Tier;
+  /** how fast you've been turning lately (rad/s, signed, smoothed), so a Rammer can read a curve */
+  omega: number;
+  lastHeading: number;
 }
 
 export type RammerState = 'enter' | 'stalk' | 'windup' | 'charge' | 'skid';
@@ -125,7 +128,7 @@ export interface Stats {
 
 export interface World {
   t: Tuning;
-  /** flat mode: speed doesn't change damage and parts give only stats (the removal test A/B) */
+  /** flat mode, the removal test A/B: speed doesn't change damage, and parts add damage instead of changing how you move */
   flat: boolean;
   rng: Rng;
   seed: number;
@@ -169,7 +172,7 @@ export function createWorld(opts: WorldOpts = {}): World {
       x: s.x, y: s.y, heading: s.heading, speed: 0, face: 0,
       hull: t.hull, invuln: 0, knock: 0, stun: 0, brake: false,
       rip: null, ripCd: 0, ripBuf: 0, rev: null, pass: 0,
-      part: null, tow: null, bolt: null, prevRip: false, prevBolt: false, tier: 'crawl',
+      part: null, tow: null, bolt: null, prevRip: false, prevBolt: false, tier: 'crawl', omega: 0, lastHeading: s.heading,
     },
     rammers: [],
     pickups: [],

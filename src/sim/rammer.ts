@@ -3,7 +3,7 @@
 // afterwards (the opening), rebounds off walls and pillars, and once stripped of its booster only
 // does a short shove. At most maxWindups wind up at once.
 import { dirAngle, dirOf, wrapAngle } from '../data/dirs';
-import { contacts, laneLength, lineOfSight } from './arena';
+import { contacts, laneLength, lineOfSight, pushOut } from './arena';
 import { hitPlayer } from './salvage';
 import { DT, type Rammer, type World } from './world';
 
@@ -30,14 +30,35 @@ export function beginWindup(w: World, r: Rammer, near: boolean) {
   w.events.push({ k: 'windup', id: r.id, near, shove: r.shove });
 }
 
-/** The point it aims at: where you'll be, led by leadFrac of your velocity over the time to impact. */
+/** Where you'd be after T seconds if you held your speed and your current turn (an arc or a line). */
+function ahead(w: World, T: number): { x: number; y: number } {
+  const p = w.player, h = p.heading, om = p.omega, v = p.speed;
+  if (Math.abs(om) < 0.05) return { x: p.x + Math.cos(h) * v * T, y: p.y + Math.sin(h) * v * T };
+  const R = v / om;
+  return { x: p.x + R * (Math.sin(h + om * T) - Math.sin(h)), y: p.y - R * (Math.cos(h + om * T) - Math.cos(h)) };
+}
+
+/**
+ * The point it aims at: leadFrac of the way to where you'll be when the charge gets there, if you
+ * keep your speed and your turn, so a steady line *or* a steady loop gets clipped and a juke clears
+ * it. The time to impact is the rest of the windup plus the charge's flight to the led point
+ * (solved by iteration; dividing the distance to where you are now undershot, so a straight line
+ * was never caught; DECISIONS #48).
+ */
 export function aimPoint(w: World, r: Rammer): { x: number; y: number } {
   const p = w.player, t = w.t;
-  const dist = Math.hypot(p.x - r.x, p.y - r.y);
   const speed = r.shove ? t.shoveSpeed : t.chargeSpeed;
-  const T = Math.max(0, r.windup - r.t) + dist / speed;
-  const vx = Math.cos(p.heading) * p.speed, vy = Math.sin(p.heading) * p.speed;
-  return { x: p.x + vx * T * t.leadFrac, y: p.y + vy * T * t.leadFrac };
+  const wait = Math.max(0, r.windup - r.t);
+  const led = (T: number) => {
+    const a = ahead(w, T);
+    return { x: p.x + (a.x - p.x) * t.leadFrac, y: p.y + (a.y - p.y) * t.leadFrac };
+  };
+  let T = wait + Math.hypot(p.x - r.x, p.y - r.y) / speed;
+  for (let i = 0; i < 8; i++) {
+    const a = led(T);
+    T = wait + Math.hypot(a.x - r.x, a.y - r.y) / speed;
+  }
+  return led(T);
 }
 
 function toSkid(w: World, r: Rammer, slammed: boolean) {
@@ -155,6 +176,7 @@ export function updateRammers(w: World) {
       const nx = dx / d, ny = dy / d, o = (min - d) / 2;
       a.x -= nx * o; a.y -= ny * o;
       b.x += nx * o; b.y += ny * o;
+      for (const r of [a, b]) Object.assign(r, pushOut(w.arena, r.x, r.y, t.rammerRadius));
       if (a.state === 'charge' || b.state === 'charge') {
         w.events.push({ k: 'slam', id: a.id, x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
         toSkid(w, a, a.state === 'charge');
@@ -187,8 +209,17 @@ export function resolveContacts(w: World) {
     }
     if (p.pass > 0) continue;
     const nx = dx / d, ny = dy / d;
-    p.x = r.x + nx * min;
-    p.y = r.y + ny * min;
+    // push the player clear, but never into a solid: if a wall or pillar is in the way, the
+    // Rammer gives instead
+    const to = pushOut(w.arena, r.x + nx * min, r.y + ny * min, t.playerRadius);
+    p.x = to.x;
+    p.y = to.y;
+    const gap = min - Math.hypot(p.x - r.x, p.y - r.y);
+    if (gap > 0) {
+      const back = pushOut(w.arena, r.x - nx * gap, r.y - ny * gap, t.rammerRadius);
+      r.x = back.x;
+      r.y = back.y;
+    }
     let vx = Math.cos(p.heading) * p.speed, vy = Math.sin(p.heading) * p.speed;
     const vn = vx * nx + vy * ny;
     if (vn < 0) {

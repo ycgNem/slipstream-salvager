@@ -4,7 +4,7 @@
 // (tight pillar loops vs long straight lanes) for the Booster's route-flip check.
 import { wrapAngle } from '../data/dirs';
 import { laneOf } from './rammer';
-import { lineOfSight } from './arena';
+import { laneLength, lineOfSight } from './arena';
 import type { InputFrame, Rammer, World } from './world';
 
 export type Bot = (w: World) => InputFrame;
@@ -35,7 +35,13 @@ function dodge(w: World, margin = 10): { x: number; y: number } | null {
     if (u < -10 || u > l.len + 20) continue;
     if (Math.abs(v) > l.width / 2 + w.t.playerRadius + margin) continue;
     const side = v >= 0 ? 1 : -1;
-    return { x: -cy * side, y: cx * side };
+    const ex = -cy * side, ey = cx * side;
+    if (p.speed < 120) return { x: ex, y: ey };
+    // at speed, swerve (at most ~45° off your line) instead of turning square to the lane: a
+    // full-lock turn scrubs Slipstream away (DECISIONS #47), and a swerve clears the lane anyway
+    const off = wrapAngle(Math.atan2(ey, ex) - p.heading);
+    const a = p.heading + Math.max(-0.8, Math.min(0.8, off));
+    return { x: Math.cos(a), y: Math.sin(a) };
   }
   return null;
 }
@@ -81,73 +87,107 @@ function open(w: World, x: number, y: number, m = 24): boolean {
 }
 
 /**
- * Hit-and-run: always moving. Retreats to a run-up point well away from the target, turns, and
- * attacks in a straight line, ripping when fast, close and lined up (from behind when the target
- * still has its booster and is committed); dodges lanes; bolts on what it tears off when clear.
+ * Hit-and-run: always moving, never parked. Circles the nearest Rammer about 140 px out at speed (a
+ * wide arc costs no speed; a hairpin would), swerves past its charges, and cuts in for one pass
+ * when it's open: at its back while it skids (that's where the booster comes off), or head-on into
+ * a stalking one when it has HP to lose. Rips only when fast, close and lined up, carries straight
+ * on through, and bolts on what it tore off when clear.
  */
 export function hitAndRunBot(): Bot {
-  let mode: 'retreat' | 'attack' = 'retreat';
-  let goal: { x: number; y: number } | null = null;
+  let dir = 1;
+  let flipCd = 0;
   let passT = 0;
+  let striking = false;
   return (w) => {
     const p = w.player, t = w.t;
+    flipCd = Math.max(0, flipCd - 1);
     if (passT > 0) {
       passT--;
       return { x: Math.cos(p.heading), y: Math.sin(p.heading), rip: false, bolt: false };
     }
     const dg = dodge(w);
-    if (dg) return { ...dg, rip: false, bolt: false };
+    if (dg) {
+      striking = false;
+      return { ...dg, rip: false, bolt: false };
+    }
     const r = nearest(w);
     const center = { x: w.arena.w / 2, y: w.arena.h / 2 };
     if (!r) return { ...toward(w, center.x + Math.cos(w.tick / 40) * 120, center.y + Math.sin(w.tick / 40) * 90), rip: false, bolt: !!p.tow && w.tick % 20 === 0 };
     const dx = r.x - p.x, dy = r.y - p.y, d = Math.hypot(dx, dy);
-    const committed = r.state === 'skid' || r.state === 'charge' || (r.state === 'windup' && r.locked);
+    const los = lineOfSight(w.arena, p.x, p.y, r.x, r.y);
     const bolt = !!p.tow && p.bolt === null && (d > 90 || r.state === 'skid') && w.tick % 10 === 0;
-    // a Rammer that just charged past is skidding with its back to us: punish it now, no run-up
-    if (mode === 'retreat' && r.state === 'skid' && r.t < 0.5 && d < 230 && lineOfSight(w.arena, p.x, p.y, r.x, r.y)) {
-      mode = 'attack';
-      goal = null;
-    }
-    // under the wave 1 safety net only a tear helps: wait for it to commit, then go for its back
-    if (mode === 'attack' && r.booster && r.safety && r.hp <= 1 && !committed && d < 140) {
-      mode = 'retreat';
-      goal = null;
-    }
-    if (mode === 'attack') {
+    const committed = r.state === 'skid' || r.state === 'charge' || (r.state === 'windup' && r.locked);
+    // under the wave 1 safety net only a tear helps, so only its back is worth a pass
+    const capped = r.booster && r.safety && r.hp <= 1;
+    const skidOpen = r.state === 'skid' && r.t < 0.55 && d < 230;
+    const headOn = r.state === 'stalk' && !capped && d > 90 && d < 200;
+    if (!striking && los && p.speed >= t.slipAt - 15 && (skidOpen || headOn)) striking = true;
+    if (striking) {
       let tx = r.x, ty = r.y;
       if (r.booster && committed) {
         tx = r.x - Math.cos(r.face) * 20;
         ty = r.y - Math.sin(r.face) * 20;
       }
       const off = Math.abs(wrapAngle(Math.atan2(ty - p.y, tx - p.x) - p.heading));
-      if (p.speed >= t.slipAt && d < 46 && off < 0.6) {
+      if (p.part && !w.flat) {
+        // with the Booster the button is the Burn: rev in a straight line at it, and let go just
+        // before (or let the touch release it); never rev at a wall behind it
+        if (p.rev !== null) {
+          if (d > 28 && off < 0.5) return { x: Math.cos(p.heading), y: Math.sin(p.heading), rip: true, bolt: false };
+          passT = 24;
+          striking = false;
+          return { x: Math.cos(p.heading), y: Math.sin(p.heading), rip: false, bolt: false };
+        }
+        const room = laneLength(w.arena, p.x, p.y, p.heading, 400, t.playerRadius);
+        if (p.ripCd <= 0 && off < 0.3 && d > 40 && d < 200 && room > d + 50)
+          return { x: Math.cos(p.heading), y: Math.sin(p.heading), rip: true, bolt: false };
+        // the Booster can't turn in at full speed: ease off to tighten the turn, then rev
+        if (off > 0.35) return { ...toward(w, tx, ty, 0.45), rip: false, bolt };
+      } else if (p.speed >= t.slipAt && d < 46 && off < 0.6) {
         passT = 16;
-        mode = 'retreat';
-        goal = null;
+        striking = false;
         return { x: Math.cos(p.heading), y: Math.sin(p.heading), rip: true, bolt: false };
       }
-      // too close without the speed, badly lined up, or a pillar in the way: run up again
-      if ((d < 70 && p.speed < t.slipAt) || off > 1.3 || !lineOfSight(w.arena, p.x, p.y, r.x, r.y)) {
-        mode = 'retreat';
-        goal = null;
-      } else return { ...toward(w, tx, ty), rip: false, bolt };
+      const stale = capped && r.state !== 'skid';
+      // (turning in from the circle starts ~90° off, so only give up past ~115°)
+      if ((d < 70 && p.speed < t.slipAt) || off > 2.0 || !los || stale) striking = false;
+      else return { ...toward(w, tx, ty), rip: false, bolt };
     }
-    // retreat: pick an open run-up point ~170 px from the target, away from us
-    if (!goal || Math.hypot(goal.x - p.x, goal.y - p.y) < 30) {
-      if (goal && Math.hypot(goal.x - p.x, goal.y - p.y) < 30 && d > 120 && lineOfSight(w.arena, p.x, p.y, r.x, r.y)) {
-        mode = 'attack';
-        goal = null;
-        return { ...toward(w, r.x, r.y), rip: false, bolt };
+    // circle it ~140 px out, a little ahead on the circle (pure pursuit); go the other way round,
+    // or wider or tighter, when a wall or pillar is in the way
+    const a = Math.atan2(p.y - r.y, p.x - r.x);
+    for (const flip of [1, -1])
+      for (const R of [140, 110, 170]) {
+        const g = a + dir * flip * 0.6;
+        const gx = r.x + Math.cos(g) * R, gy = r.y + Math.sin(g) * R;
+        if (!open(w, gx, gy)) continue;
+        if (flip < 0) {
+          if (flipCd > 0) continue;
+          dir = -dir;
+          flipCd = 45;
+        }
+        return { ...toward(w, gx, gy), rip: false, bolt };
       }
-      const base = Math.atan2(p.y - r.y, p.x - r.x);
-      for (let k = 0; k < 16; k++) {
-        const a = base + (k % 2 ? 1 : -1) * Math.ceil(k / 2) * 0.4;
-        const gx = r.x + Math.cos(a) * 170, gy = r.y + Math.sin(a) * 170;
-        if (open(w, gx, gy) && lineOfSight(w.arena, gx, gy, r.x, r.y)) { goal = { x: gx, y: gy }; break; }
-      }
-      goal ??= { ...center };
+    return { ...toward(w, center.x, center.y), rip: false, bolt };
+  };
+}
+
+/**
+ * The degenerate "camper" the critic found: circles one pillar forever and rips whatever wanders
+ * into the claw. Must lose to hit-and-run (the Rammer reads a steady loop; DECISIONS #49).
+ */
+export function camperBot(pillar = 0, radius = 44): Bot {
+  return (w) => {
+    const p = w.player, pr = w.arena.pillars[pillar];
+    const cx = pr.x + pr.w / 2, cy = pr.y + pr.h / 2;
+    const ahead = Math.atan2(p.y - cy, p.x - cx) + 0.55;
+    let rip = false;
+    for (const r of w.rammers) {
+      const d = Math.hypot(r.x - p.x, r.y - p.y);
+      const off = Math.abs(wrapAngle(Math.atan2(r.y - p.y, r.x - p.x) - p.heading));
+      if (p.speed >= w.t.slipAt && d < 50 && off < 0.6 && p.ripCd <= 0) rip = true;
     }
-    return { ...toward(w, goal.x, goal.y), rip: false, bolt };
+    return { ...toward(w, cx + Math.cos(ahead) * radius, cy + Math.sin(ahead) * radius), rip, bolt: !!p.tow };
   };
 }
 

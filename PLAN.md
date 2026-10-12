@@ -49,8 +49,9 @@ behind. So:
 It is checked three ways:
 
 1. **Flat mode: the removal test, playable.** A switch in the dev tuning panel removes the one
-   thing: damage stops depending on speed (every rip hits as hard), and the Booster gives only its
-   stat changes without its Burn. The owner plays the same three waves both ways. If flat mode is
+   thing: damage stops depending on speed (every rip hits as hard), and the Booster stops changing
+   how you move (no Burn, no speed or turning changes) and becomes a plain +1 damage part
+   (DECISIONS #50). The owner plays the same three waves both ways. If flat mode is
    about as much fun, the identity isn't carrying the game yet.
 2. **Automated guards (in the test suite, run on every build).** Scripted bots play the slice on 8
    seeds:
@@ -120,7 +121,7 @@ Releasing coasts briefly. Pushing hard against your motion brakes and skids, the
 | Top speed | 240 | about 2.5 s to cross the arena |
 | Acceleration | 900 below 60 px/s, 180 above | instant to get moving; reaching Slipstream takes ~0.8 s and ~90 px of fairly straight driving |
 | Turn rate | 14 rad/s at rest → 4 rad/s at top | tight at low speed; turning circle ~60 px at top speed |
-| **Turn scrub** | turning faster than 5 rad/s bleeds speed | you can't orbit an enemy at full speed; tight turns drop you out of Slipstream |
+| **Turn scrub** | a turn pulling more than 900 px/s² sideways (speed × turn rate) bleeds speed | you can't orbit an enemy at full speed and a full-lock U-turn drops you out of Slipstream, but a pillar loop or a 45° swerve keeps it (DECISIONS #47) |
 | Coast drag | half-life 0.3 s (~100 px of drift from top speed) | responsive, not Asteroids |
 | Brake/skid | 900 px/s² when pushing >150° against motion (with hysteresis) | then pivots to the new direction below 60 px/s |
 
@@ -160,8 +161,9 @@ A heavy scrap bot with a **booster bolted to its back**. It is the slice's whole
 - **Stalks** toward you slowly (45 px/s) but **turns quickly to face you** (6 rad/s), so its back is
   hidden unless it's committed to a charge, recovering or stunned.
 - **Telegraphed charge.** A lane the full width of its body is painted on the floor ahead of it,
-  showing exactly where it will go. It aims where you'll be (it leads your movement by half), so
-  driving in a straight line gets you clipped and a juke clears it.
+  showing exactly where it will go. It aims where you'll be when the charge arrives (80% of the way
+  there, reading your current line *or* curve), so a steady line or a steady loop gets clipped and a
+  juke clears it (DECISIONS #48, #49).
   - **Far** (more than 80 px away): 0.85 s windup. It tracks you for 0.5 s (dashed lane), then the
     lane **locks** for 0.35 s (solid, flashing) and it can't turn.
   - **Close** (80 px or less): a quick 0.45 s windup (0.2 s tracking, 0.25 s locked). Lingering is

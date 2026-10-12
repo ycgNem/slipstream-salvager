@@ -13,9 +13,10 @@ export const DEFAULT_TUNING = {
   /** turn rate at rest and at top speed (rad/s) */
   turnLow: 14,
   turnHigh: 4,
-  /** turning faster than this (rad/s) scrubs speed */
-  scrubFree: 5,
-  scrubK: 0.6,
+  /** a turn pulling more than this sideways (speed × turn rate, px/s²) scrubs speed... */
+  scrubLat: 900,
+  /** ...at this share of the excess (px/s² of speed lost per px/s² over) */
+  scrubK: 1,
   /** speed half-life when you let go (s) */
   coastHalf: 0.3,
   /** push more than brakeDeg against your motion to brake, then pivot below pivotSpeed */
@@ -91,8 +92,8 @@ export const DEFAULT_TUNING = {
   lockNear: 0.25,
   nearDist: 80,
   chargeRange: 230,
-  /** share of your velocity it leads its aim by */
-  leadFrac: 0.5,
+  /** it aims where you'll be if you keep going at this share of your velocity (DECISIONS #48) */
+  leadFrac: 0.8,
   trackTurn: 10,
   chargeSpeed: 330,
   chargeDist: 260,
@@ -113,8 +114,11 @@ export const DEFAULT_TUNING = {
   enterTime: 0.6,
   breather: 2.0,
 
-  // ---- flat mode (the removal test as an A/B; DECISIONS #28) ----
+  // ---- flat mode (the removal test as an A/B; DECISIONS #28, #50) ----
+  /** every rip's damage, at any speed */
   flatDamage: 2,
+  /** what a bolted part adds to every rip instead of changing how you move */
+  flatPartDamage: 1,
 };
 
 export type Tuning = typeof DEFAULT_TUNING;
@@ -126,11 +130,12 @@ export function defaultTuning(): Tuning {
 
 /** Groups for the tuning panel, in display order, with a step for each key. */
 export const TUNING_GROUPS: { title: string; keys: [TuningKey, number][] }[] = [
-  { title: 'Movement', keys: [['topSpeed', 10], ['accLow', 50], ['accHigh', 10], ['accSplit', 5], ['turnLow', 0.5], ['turnHigh', 0.25], ['scrubFree', 0.25], ['scrubK', 0.05], ['coastHalf', 0.05], ['brakeDecel', 50], ['brakeDeg', 5], ['pivotSpeed', 5], ['overspeedHalf', 0.05], ['clankCos', 0.05], ['clankKeep', 0.05]] },
+  { title: 'Movement', keys: [['topSpeed', 10], ['accLow', 50], ['accHigh', 10], ['accSplit', 5], ['turnLow', 0.5], ['turnHigh', 0.25], ['scrubLat', 25], ['scrubK', 0.05], ['coastHalf', 0.05], ['brakeDecel', 50], ['brakeDeg', 5], ['pivotSpeed', 5], ['overspeedHalf', 0.05], ['clankCos', 0.05], ['clankKeep', 0.05]] },
   { title: 'Tiers', keys: [['cruiseAt', 5], ['slipAt', 5]] },
   { title: 'Rip', keys: [['ripTime', 0.02], ['ripImpulse', 10], ['ripCooldown', 0.05], ['aimAssistDeg', 1], ['slipDamage', 1], ['cruiseShove', 2], ['cruiseKeep', 0.05], ['hitstopSlip', 1], ['passThrough', 0.02]] },
   { title: 'Booster', keys: [['boosterTopMul', 0.025], ['boosterTurnLowMul', 0.05], ['boosterTurnHighMul', 0.05], ['burnAccel', 10], ['burnMax', 10], ['burnTime', 0.05], ['burnCooldown', 0.05], ['burnWallStun', 0.05]] },
   { title: 'Salvage', keys: [['boltTime', 0.05], ['boltSteerMul', 0.05], ['rearArcDeg', 5]] },
   { title: 'Hull', keys: [['hull', 1], ['invulnTime', 0.1], ['knockSpeed', 10], ['bumpKeep', 0.05]] },
-  { title: 'Rammer', keys: [['rammerHp', 1], ['stalkSpeed', 5], ['stalkTurn', 0.5], ['windupFar', 0.05], ['lockFar', 0.05], ['windupNear', 0.05], ['lockNear', 0.05], ['nearDist', 5], ['chargeRange', 10], ['leadFrac', 0.1], ['chargeSpeed', 10], ['chargeDist', 10], ['skidTime', 0.05], ['chargeCdMin', 0.1], ['chargeCdMax', 0.1], ['maxWindups', 1]] },
+  { title: 'Flat mode', keys: [['flatDamage', 1], ['flatPartDamage', 1]] },
+  { title: 'Rammer', keys: [['rammerHp', 1], ['stalkSpeed', 5], ['stalkTurn', 0.5], ['windupFar', 0.05], ['lockFar', 0.05], ['windupNear', 0.05], ['lockNear', 0.05], ['nearDist', 5], ['chargeRange', 10], ['leadFrac', 0.05], ['chargeSpeed', 10], ['chargeDist', 10], ['skidTime', 0.05], ['chargeCdMin', 0.1], ['chargeCdMax', 0.1], ['maxWindups', 1]] },
 ];

@@ -2,6 +2,25 @@
 
 What's built. Newest first.
 
+## 2026-10-12 — M1d: the critic's review, bugs and pillar breaks fixed
+
+- **Softlock fixed:** a Rammer could shove you through the wall and the wave never ended. The walls
+  now only push inward (DECISIONS #52).
+- **Turning costs speed, as PLAN said it would:** an enemy orbit sits at Cruise, and a full-lock U-turn
+  drops you out of Slipstream. A pillar loop or a 45° swerve keeps it (#47). Bots spend 20-25% of
+  fight time at Slipstream instead of nearly all of it.
+- **The Rammer's aim catches a steady line or a steady loop** (true intercept at 80%, reading your
+  curve), and a juke clears it (#48, #49). The pillar camper dropped from 21-23 clears in 40 runs to
+  7-11. Hit-and-run clears 14-25 of 40.
+- **Flat mode removes both halves of the removal test:** the Booster becomes a plain +1 damage part
+  there, with no movement change (#50). The turret, brawler and matador deal nothing in normal play
+  but do damage in flat mode.
+- **Hints and feedback:** the tear hint says when the back shows, a Burn hint appears after bolting,
+  capped wave 1 hits read as "no damage", and damaged Rammers crackle (#51).
+- **Dev and tests:** START WITH THE BOOSTER in the tuning panel. The hit-and-run bot was rewritten
+  for the new movement, and there are new guards: no one leaves the arena over 40 full-slice seeds,
+  the camper loses, and the Booster widens the tightest Slipstream circle (#53). 53 tests.
+
 ## 2026-10-12 — Milestone 1: the first playable slice (stopped for the owner's playtest)
 
 - **The sim** (`src/sim/`, pure, deterministic, 60 Hz):
@@ -36,7 +55,7 @@ What's built. Newest first.
   - Procedural SFX for every event, an engine hum that follows speed and whines while revving, a
     small jsfxr bank, and one music loop ("Scrap Ring").
 - **Checks:**
-  - 48 unit tests, including the removal-test guards: the turret deals 0 damage and loses; the
+  - 48 unit tests at first (53 after the critic pass), including the removal-test guards: the turret deals 0 damage and loses; the
     brawler and the matador do worse than hit-and-run; hit-and-run clears wave 1 on ≥ 6/8 seeds with
     ≤ 1 hit on average; the route flip holds.
   - The smoke test passes with zero console errors, and the screenshot sweep has 18 scenes with zero

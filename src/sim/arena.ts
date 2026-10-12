@@ -28,14 +28,36 @@ export function circleRect(x: number, y: number, r: number, rc: Rect): Contact |
   return { nx: 0, ny: 1, depth: bottom + r };
 }
 
-/** Every contact a circle has with the arena's solids. */
+/**
+ * Every contact a circle has with the arena's solids. The four walls are half-planes that only
+ * push inward, so nothing shoved deep into a wall can come out on the far side (the critic's
+ * softlock); pillars are rectangles.
+ */
 export function contacts(a: ArenaDef, x: number, y: number, r: number): Contact[] {
   const out: Contact[] = [];
-  for (const s of a.solids) {
+  const lo = a.wall + r, hx = a.w - a.wall - r, hy = a.h - a.wall - r;
+  if (x < lo) out.push({ nx: 1, ny: 0, depth: lo - x });
+  if (x > hx) out.push({ nx: -1, ny: 0, depth: x - hx });
+  if (y < lo) out.push({ nx: 0, ny: 1, depth: lo - y });
+  if (y > hy) out.push({ nx: 0, ny: -1, depth: y - hy });
+  for (const s of a.pillars) {
     const c = circleRect(x, y, r, s);
     if (c) out.push(c);
   }
   return out;
+}
+
+/** Where a circle ends up once it's pushed out of every solid (position only, no bounce). */
+export function pushOut(a: ArenaDef, x: number, y: number, r: number): { x: number; y: number } {
+  for (let pass = 0; pass < 3; pass++) {
+    const cs = contacts(a, x, y, r);
+    if (!cs.length) break;
+    for (const c of cs) {
+      x += c.nx * c.depth;
+      y += c.ny * c.depth;
+    }
+  }
+  return { x, y };
 }
 
 /** Does a segment pass through a rectangle grown by pad? (slab test) */

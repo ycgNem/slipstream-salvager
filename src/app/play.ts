@@ -44,6 +44,7 @@ export class Play {
 
   constructor(private host: PlayHost, seed = (Math.random() * 1e9) | 0) {
     this.world = createWorld({ seed, tuning: LIVE.t, flat: LIVE.flat });
+    if (LIVE.booster) this.world.player.part = 'booster';
     this.hints = new Hints(loadSeenHints(), host.settings.hints);
     this.hints.onSeen = saveSeenHints;
   }
@@ -97,6 +98,8 @@ export class Play {
       }
       if (r.state === 'charge' && this.afterTick % 2 === 0) fx.puff('dust', r.x - Math.cos(r.face) * 10, r.y + 4, 0, 0, 0.3);
       if (!r.booster && this.afterTick % 9 === 0) fx.puff('smoke', r.x, r.y - 10, 0, -10, 0.6);
+      // badly damaged: it crackles (faster at 1 HP), so "one more pass" reads without an HP bar
+      if (r.hp <= 2 && this.afterTick % (r.hp <= 1 ? 10 : 20) === 0) fx.sparks(r.x + ((this.afterTick * 7) % 11) - 5, r.y - 8, 2, -Math.PI / 2, 1.2, 50);
     }
   }
 
@@ -111,6 +114,14 @@ export class Play {
         break;
       case 'rev': a.sfx('rev'); break;
       case 'hit':
+        if (e.dmg === 0) {
+          // the wave 1 safety net held: a dull clank, no flash, and where to hit instead
+          fx.sparks(e.x, e.y, 4, p.heading, 1.6, 70);
+          fx.text(e.x, e.y - 18, 'HIT ITS BACK!', C.white);
+          fx.addShake(1);
+          a.sfx('clank');
+          break;
+        }
         fx.sparks(e.x, e.y, 12, p.heading, Math.PI, 160);
         fx.dots(e.x, e.y, 6, [C.steel1, C.steel2, C.violet], 110);
         fx.flash.set(e.id, 0.07);
@@ -228,7 +239,7 @@ export class Play {
     drawWorld(ui.ctx, w, this.fx, { time: this.time, shake: this.host.settings.shake });
     if (!w.result) this.hints.draw(ui, this.keys);
     drawHud(ui, w, this.keys);
-    if (DEBUG_KEYS) this.tuning.draw(ui, w.t, (on) => (w.flat = on), dt);
+    if (DEBUG_KEYS) this.tuning.draw(ui, w.t, (on) => (w.flat = on), (on) => (w.player.part = on ? 'booster' : null), dt);
     if (w.flat) ui.text('FLAT MODE', 8, 22, C.white, { shadow: C.ink });
     if (this.paused) this.drawPause(ui);
     else if (w.result && this.endT > 1.2) this.drawResults(ui);

@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import { addRammer, type World } from '../src/sim/world';
 import { hitPlayer } from '../src/sim/salvage';
+import { playerStats } from '../src/sim/body';
 import { IN, openWorld, tick, until } from './helpers';
 
 /** Player moving east at speed toward a Rammer 34 px ahead facing `face` (0 = away from us). */
@@ -157,5 +158,17 @@ describe("the Burn (the Booster turns the Rip into the Rammer's charge)", () => 
     const ev = tick(w, IN(1, 0, true)).map((e) => e.k);
     expect(ev).toContain('rip');
     expect(w.player.rev).toBeNull();
+  });
+
+  it('in flat mode a part never changes how you move; it adds damage (DECISIONS #50)', () => {
+    const w = openWorld({ flat: true });
+    const bare = playerStats(w);
+    w.player.part = 'booster';
+    expect(playerStats(w)).toEqual(bare);
+    const r = addRammer(w, w.player.x + 20, w.player.y, Math.PI);
+    r.cd = 99;
+    tick(w, IN(1, 0, true));
+    for (let i = 0; i < 12 && r.hp === w.t.rammerHp; i++) tick(w, IN(1, 0));
+    expect(w.t.rammerHp - r.hp).toBe(w.t.flatDamage + w.t.flatPartDamage);
   });
 });

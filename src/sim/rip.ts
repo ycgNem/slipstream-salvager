@@ -113,8 +113,9 @@ function hitRammer(w: World, r: Rammer) {
   const hx = (p.x + r.x) / 2, hy = (p.y + r.y) / 2;
 
   if (w.flat) {
+    // the removal test: speed doesn't matter, and a bolted part is just a bigger number
     if (r.booster && inRearArc(w, r)) tear(w, r, hx, hy);
-    else damage(w, r, t.flatDamage, 'slip', hx, hy);
+    else damage(w, r, t.flatDamage + (p.part ? t.flatPartDamage : 0), 'slip', hx, hy);
     w.hitstop = Math.max(w.hitstop, t.hitstopCruise);
     return;
   }
@@ -154,8 +155,9 @@ function hitRammer(w: World, r: Rammer) {
         tear(w, r, hx, hy);
         w.hitstop = Math.max(w.hitstop, t.hitstopTear);
       } else {
-        damage(w, r, t.slipDamage, 'slip', hx, hy);
-        w.hitstop = Math.max(w.hitstop, t.hitstopSlip);
+        // a hit the wave 1 safety net absorbs gets a lighter hit-stop: it shouldn't feel like damage
+        const dealt = damage(w, r, t.slipDamage, 'slip', hx, hy);
+        w.hitstop = Math.max(w.hitstop, dealt > 0 ? t.hitstopSlip : t.hitstopCruise);
       }
       break;
     }
@@ -170,7 +172,8 @@ function tear(w: World, r: Rammer, x: number, y: number) {
   grabPart(w, 'booster', r.x, r.y);
 }
 
-function damage(w: World, r: Rammer, n: number, tier: 'slip', x: number, y: number) {
+/** Returns the damage actually dealt (0 when the wave 1 safety net holds). */
+function damage(w: World, r: Rammer, n: number, tier: 'slip', x: number, y: number): number {
   if (r.safety && r.booster && r.hp <= 1) {
     // the wave 1 safety net's own way out: hit it hard enough times and the booster shakes loose
     // onto the floor (DECISIONS #33), so nobody is stuck in wave 1
@@ -181,7 +184,7 @@ function damage(w: World, r: Rammer, n: number, tier: 'slip', x: number, y: numb
       w.pickups.push({ id: w.nextId++, part: 'booster', x: r.x - Math.cos(r.face) * 14, y: r.y - Math.sin(r.face) * 14, vx: -Math.cos(r.face) * 70, vy: -Math.sin(r.face) * 70, age: 0 });
       w.events.push({ k: 'drop', part: 'booster', x: r.x, y: r.y });
     }
-    return;
+    return 0;
   }
   const before = r.hp;
   r.hp = r.safety && r.booster ? Math.max(1, r.hp - n) : r.hp - n;
@@ -193,4 +196,5 @@ function damage(w: World, r: Rammer, n: number, tier: 'slip', x: number, y: numb
     w.stats.wrecks++;
     w.events.push({ k: 'wreck', id: r.id, x: r.x, y: r.y, lost: r.booster ? 'booster' : null });
   }
+  return dealt;
 }

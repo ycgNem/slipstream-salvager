@@ -6,7 +6,7 @@ Read this first, every session.
 
 - **Milestone 0 and Milestone 1 are built. Stopped for the owner's playtest.** Nothing past M1 gets
   built until the owner says the core loop works (ROADMAP.md "Scope fence").
-- The owner approved every default in ROADMAP.md section 1 (Q1–Q11). DECISIONS.md runs #1–#43.
+- The owner approved every default in ROADMAP.md section 1 (Q1–Q11). DECISIONS.md runs #1–#53 (#47–#53 are the fixes from the critic's review).
 - Branch `works` has everything; `main` is the planning commit. No GitHub remote (DECISIONS #24).
 
 ## How to playtest (for the owner)
@@ -14,7 +14,8 @@ Read this first, every session.
 1. Double-click **`Play.bat`**. It starts the game and opens your browser at `http://localhost:5173`.
    Keep the black window open while you play.
 2. For the **tuning panel and flat mode**, use `http://localhost:5173/?debug` (in the dev server it's
-   always on). Press **`** (backtick) or **F1** in play to open it.
+   always on). Press **`** (backtick) or **F1** in play to open it. It also has **START WITH THE
+   BOOSTER**, so you can play a whole run with the part.
 3. Controls:
 
    | | Keyboard | Gamepad |
@@ -30,9 +31,13 @@ Read this first, every session.
    and feel how the Burn changes your lines. Your bolted part is your armor: a hit shatters it
    instead of costing hull.
 5. **The playtest questions** are in ROADMAP.md section 3. Question 8 asks you to play once with
-   **flat mode** on (it removes the one thing: speed stops mattering for damage and the Booster loses
-   its Burn). If that's about as fun, the identity isn't carrying the game yet.
-6. If movement feels off, change the numbers in the tuning panel while you play, press **COPY** and
+   **flat mode** on. It removes the one thing: speed stops mattering for damage, and the Booster
+   becomes a plain +1 damage part instead of changing how you move. If that's about as fun, the
+   identity isn't carrying the game yet.
+6. **Turning now costs speed** (DECISIONS #47). PLAN always said it should; the first build didn't do
+   it. Hard U-turns and tight circles drop you out of Slipstream, while wide arcs and swerves don't.
+   If it feels sticky, raise `scrubLat` in the tuning panel (900 now; higher is more forgiving).
+7. If movement feels off, change the numbers in the tuning panel while you play, press **COPY** and
    paste what it copies into your notes. Those are the numbers I'll put in `src/data/tuning.ts`.
 
 The Windows app also builds: double-click `Build desktop app.bat`; the installer and portable `.exe`
@@ -45,11 +50,30 @@ one change commit ending "DECISIONS #N". Start the session with: *"Read ROADMAP.
 Here are my playtest notes: …"*.
 
 Open points from building M1 to raise with the owner (also in DECISIONS):
-- **The pillar rail** (#39): grazing a pillar turns you without losing speed. It might be a fun
-  technique or an exploit; the playtest decides.
+- **The pillar rail** (#39): grazing a pillar turns you without losing speed (wall slides skip the
+  turn scrub). It might be a fun technique or an exploit; the playtest decides.
 - **The wave 1 safety net's way out** (#33): three Slipstream hits on the first Rammer's front at
   1 HP shake its booster loose. That's a new rule, added because a bot got stuck.
 - Gamepad support is written against the standard mapping but **untested on hardware**.
+
+The critic's design notes, left for the owner because they change rules, not bugs (from the review
+at the end of M1; its scripts are in `e2e/out/critic/`, mine in `e2e/out/fix/`):
+- **The rear tear is optional.** A bot that ignores backs and only hits fronts clears 34 of 40 runs,
+  against hit-and-run's 17, because front hits do full damage. The critic suggests armoring the front
+  (within ±60° of the front a Slipstream hit does 1, the sides 2, the back tears). Should the tear
+  be the way to win, or a bonus?
+- **The Booster rarely stays on.** A hit shatters it within about 12-18 s, so it's on for 10-27% of
+  fight time. The critic suggests a hit knocks it off as a pickup, and it shatters only if hit again
+  while loose. Use START WITH THE BOOSTER to judge the part itself.
+- **A tapped Burn** (DECISIONS #41): a tap is an instant Burn (locked for 0.43 s over about 106 px),
+  which is worse than a Rip. The critic suggests a short tap stays a plain Rip and only holding revs.
+  The new hint says to hold; the rule is yours.
+- **The joust:** a Slipstream Rip pressed head-on into a charging Rammer 30-90 px away wins outright
+  (about a 6-frame window). Keep it as a skill move with its own feedback, or cut it?
+- **Coasting:** letting go of the stick drops you out of Slipstream in about 7 frames (`coastHalf`
+  0.3 s). The critic suggests about 0.6 s above Cruise. That's a feel call; try it in the panel.
+- **The Rammer's back is hard to read at 1x** (its gold nozzle is about 3 px). It's an art overhaul
+  item, but the tear depends on it.
 
 ## How to run everything (for sessions)
 
@@ -61,7 +85,7 @@ Put the portable Node first in every shell:
 |---|---|---|
 | Play (dev) | `npm run dev` | port 5173; `.claude/launch.json` has a `game` entry on 5190 |
 | Typecheck | `npm run typecheck` | |
-| Unit tests | `npm test` | 48 tests: movement, combat, salvage, data, and the removal-test guards (bots on 8 seeds) |
+| Unit tests | `npm test` | 53 tests: movement, combat, salvage, data, and the removal-test guards (bots on 8 seeds for wave 1, 40 seeds for the full slice) |
 | Strategy bots | `npx vite-node scripts/bots.ts` | prints what each bot achieved; use it when tuning |
 | Smoke test | `npm run e2e` | starts its own server; real key presses; must end with zero console errors |
 | Screenshot sweep | `npm run screens` (or `-- slip burn`) | every scene in `src/app/debug.ts`, PNGs + overlap audit in `e2e/out/screens/` |

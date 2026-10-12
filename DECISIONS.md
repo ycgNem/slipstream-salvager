@@ -143,3 +143,53 @@ them. **"Pending Qn"** means a default waiting on the owner's answer to that que
     checker instead of alpha, the letterbox is palette ink, and the HUD's labels sit in the wall bands
     on ink strips so nothing covers the floor's edge.
 
+*From the critic's review at the end of M1 (bugs and pillar breaks only; the rest went to the owner
+as notes in HANDOFF.md):*
+
+47. **Turn scrub works on lateral acceleration** (speed × turn rate above 900 px/s², at 1 px/s² of
+    speed per px/s² over), replacing "turning faster than 5 rad/s". *Why:* the turn rate falls with
+    speed, so above ~216 px/s nothing ever scrubbed and full-lock turning above ~175 px/s still gained
+    speed. Slipstream was a state you kept forever, the opposite of PLAN 4.2. Now an enemy orbit
+    (r about 30) sits at Cruise, a full-lock U-turn from top speed drops to about 140, and a pillar loop
+    (r about 44) or a keyboard 45° step keeps Slipstream. The Booster's slower turning never pulls 900,
+    so it keeps its speed through wide arcs and can't turn in tight: wide lines, not bigger numbers.
+48. **The Rammer's lead solves the real intercept, at 80%.** *Why:* it divided the distance to where
+    you *are* by the charge speed, which undershoots, so crossing its front in a straight line at
+    60 px/s or more was never hit (PLAN said the reverse). Now a straight line at Crawl or Cruise
+    is clipped near and far, a straight line at Slipstream is clipped up close, and a 45° juke clears
+    most charges. At 100% even far Slipstream lines were caught every time; 80% keeps speed as a
+    defence.
+49. **The Rammer reads a steady curve, not only a straight line.** It extrapolates your recent turn
+    rate (smoothed) along an arc. *Why:* the critic's "camper" circled one pillar and ripped whatever
+    came close, and cleared 21-23 of 40 runs against hit-and-run's 13. A straight-line lead never
+    catches a circle. Now the camper clears 7-11 of 40 and hit-and-run 14-25. Tried first and
+    rejected: sending a blocked Rammer to a clear-view spot instead of the pillar corner (#36). It
+    didn't hurt the camper and made hit-and-run worse.
+50. **Flat mode removes both halves of the removal test.** Speed doesn't change damage (as before),
+    and a bolted part no longer changes how you move (no Burn, no speed or turning changes); it adds
+    +1 damage instead, the "bigger number" a familiar roguelike would give it. Parts are still
+    armor. *Why:* the quote removes "body parts that change how you move", and the old flat mode kept
+    the Booster's turning ×0.65. With #47 in place, the slow strategies that deal nothing in normal
+    play (turret, brawler, matador) deal damage in flat mode, so the A/B can fail.
+51. **Hints and feedback for the tear and the Burn.** The tear hint says when the back shows ("DODGE
+    ITS CHARGE, THEN HIT ITS BACK AT TEAL"). A new teal hint after bolting says "HOLD SPACE TO REV A
+    BURN, LET GO TO LAUNCH" (the Booster's blurb was never shown, and a tapped Burn is a worse Rip). A
+    hit the wave 1 safety net absorbs gets a dull clank, no flash, a lighter hit-stop and "HIT ITS
+    BACK!". A Rammer at 2 HP or less crackles with sparks, faster at 1 HP. *Why:* the critic found
+    the tear couldn't be learned from the old hint, and capped hits looked like real ones ("why
+    won't it die?").
+52. **Nothing can be pushed out of the arena.** The walls are half-planes that only push inward, and
+    every body push (player off a Rammer, Rammer off Rammer) is followed by a push-out. If a wall is
+    behind you, the Rammer gives way instead. *Why:* a skidding Rammer could shove a stunned player
+    8 px into the 16 px wall, and the next push-out exited the far side. The wave never ended (7 of
+    400 critic runs).
+53. **Bots and guards follow the new movement.** Hit-and-run circles the Rammer about 140 px out at
+    speed, swerves past charges (at most ~45° off its line) instead of turning square, and cuts in
+    for one pass. With the Booster it eases off to turn in, then revs a Burn. New guards: on 40
+    full-slice seeds nobody leaves the arena and the camper clears under 60% of what hit-and-run
+    does. In open floor the Booster's tightest Slipstream circle is at least 1.2× the base body's.
+    In The Ring the base pillar loop must be clean (no wall clanks). The tuning panel gets START WITH
+    THE BOOSTER for playtesting the part over a whole run. *Why:* the critic showed the old guards
+    were tuned to their own seeds, nothing covered waves 2-3, and the route flip partly measured
+    the top wall.
+

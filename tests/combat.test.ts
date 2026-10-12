@@ -84,13 +84,15 @@ describe('the Rammer', () => {
     expect(far.windup).toBe(w2.t.windupFar);
   });
 
-  it('leads your movement by half, then locks the lane before charging', () => {
+  it('aims where the charge meets you (led by leadFrac), then locks the lane before charging', () => {
     const w = openWorld();
     Object.assign(w.player, { x: 1000, y: 2000, heading: Math.PI / 2, speed: 200 });
     const r = addRammer(w, 1150, 2000, Math.PI);
     beginWindup(w, r, false);
     const a = aimPoint(w, r);
-    const T = r.windup + 150 / w.t.chargeSpeed;
+    // the time to impact is the windup plus the flight to the led point itself (DECISIONS #48)
+    const T = r.windup + Math.hypot(a.x - r.x, a.y - r.y) / w.t.chargeSpeed;
+    expect(a.x).toBeCloseTo(w.player.x, 3);
     expect(a.y - w.player.y).toBeCloseTo(200 * T * w.t.leadFrac, 0); // ahead of you, down the screen
     let lockedAt = -1;
     for (let i = 0; i < 60; i++) {
@@ -99,6 +101,17 @@ describe('the Rammer', () => {
       if (r.state === 'charge') break;
     }
     expect(lockedAt / 60).toBeCloseTo(w.t.windupFar - w.t.lockFar, 1);
+  });
+
+  it('reads a steady curve as well as a straight line', () => {
+    const w = openWorld();
+    // heading down the screen and curving clockwise on screen (toward the left)
+    Object.assign(w.player, { x: 1000, y: 2000, heading: Math.PI / 2, speed: 200, omega: 1.5 });
+    const r = addRammer(w, 1150, 2000, Math.PI);
+    beginWindup(w, r, false);
+    const a = aimPoint(w, r);
+    expect(a.x).toBeLessThan(w.player.x - 20);
+    expect(a.y).toBeGreaterThan(w.player.y);
   });
 
   it('rebounds off a pillar into the normal recovery (no long stun)', () => {

@@ -13,11 +13,14 @@ export interface BodyStats {
   turnHigh: number;
 }
 
-/** The chassis numbers with the bolted part's multipliers applied (flat mode keeps them). */
+/**
+ * The chassis numbers with the bolted part's multipliers applied. Flat mode ignores them: there a
+ * part never changes how you move (it adds damage instead; DECISIONS #50).
+ */
 export function playerStats(w: World): BodyStats {
   const t = w.t;
   const s: BodyStats = { topSpeed: t.topSpeed, turnLow: t.turnLow, turnHigh: t.turnHigh };
-  const part = w.player.part ? PARTS[w.player.part] : null;
+  const part = w.player.part && !w.flat ? PARTS[w.player.part] : null;
   if (part) for (const [k, key] of Object.entries(part.stats) as [StatKey, keyof typeof t][]) s[k] *= t[key];
   return s;
 }
@@ -77,8 +80,10 @@ export function steer(w: World, input: InputFrame) {
         const rate = turnRate(st, p.speed) * (p.bolt !== null ? t.boltSteerMul : 1);
         const turn = clamp(delta, -rate * DT, rate * DT);
         p.heading = wrapAngle(p.heading + turn);
-        const omega = Math.abs(turn) / DT;
-        if (omega > t.scrubFree) p.speed = Math.max(0, p.speed - t.scrubK * (omega - t.scrubFree) * p.speed * DT);
+        // turn scrub: a turn that pulls harder than scrubLat sideways (speed × turn rate) bleeds
+        // speed, at every speed, so tight turns drop you out of Slipstream (DECISIONS #47)
+        const lateral = p.speed * (Math.abs(turn) / DT);
+        if (lateral > t.scrubLat) p.speed = Math.max(0, p.speed - t.scrubK * (lateral - t.scrubLat) * DT);
       }
       const along = Math.max(0, Math.cos(wrapAngle(target - p.heading))) * m;
       const cap = st.topSpeed * m;
@@ -152,6 +157,10 @@ export function movePlayer(w: World) {
 /** Update the 8-way facing and the speed tier after moving. */
 export function settleFacing(w: World, input: InputFrame) {
   const p = w.player;
+  // smoothed turn rate (half-life ~0.12 s): what a Rammer reads to lead a curve
+  const k = 1 - Math.pow(0.5, DT / 0.12);
+  p.omega += (wrapAngle(p.heading - p.lastHeading) / DT - p.omega) * k;
+  p.lastHeading = p.heading;
   if (p.speed > 5) p.face = dirHyst(p.heading, p.face);
   else if (Math.hypot(input.x, input.y) > 0.3 && p.knock <= 0 && p.stun <= 0) p.face = dirHyst(Math.atan2(input.y, input.x), p.face);
   const tier = tierOf(w.t, p.speed);

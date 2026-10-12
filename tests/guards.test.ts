@@ -4,7 +4,8 @@
 import { describe, expect, it } from 'vitest';
 import { createWorld, type World } from '../src/sim/world';
 import { step } from '../src/sim/tick';
-import { brawlerBot, hitAndRunBot, lanerBot, looperBot, matadorBot, turretBot, type Bot } from '../src/sim/bots';
+import { brawlerBot, camperBot, hitAndRunBot, lanerBot, looperBot, matadorBot, turretBot, type Bot } from '../src/sim/bots';
+import { openArena } from './helpers';
 
 const SEEDS = [1, 2, 3, 4, 5, 6, 7, 8];
 
@@ -59,26 +60,88 @@ describe('removal-test guards', () => {
 });
 
 describe('the Booster changes how you play (route flip)', () => {
-  /** share of 40 s spent at Slipstream driving a route */
+  /** share of 40 s spent at Slipstream driving a route in The Ring, and how often it hit a wall */
   function slipShare(bot: Bot, booster: boolean) {
     const w = createWorld({ seed: 1, sandbox: true });
     if (booster) w.player.part = 'booster';
+    let clanks = 0;
     for (let i = 0; i < 2400; i++) {
       step(w, bot(w));
+      clanks += w.events.filter((e) => e.k === 'clank').length;
       w.events.length = 0;
     }
-    return w.stats.tierTicks.slip / 2400;
+    return { share: w.stats.tierTicks.slip / 2400, clanks };
   }
-  const base = { loop: slipShare(looperBot(), false), lane: slipShare(lanerBot(), false) };
-  const boost = { loop: slipShare(looperBot(), true), lane: slipShare(lanerBot(), true) };
+  const bl = slipShare(looperBot(), false), bn = slipShare(lanerBot(), false);
+  const base = { loop: bl.share, lane: bn.share };
+  const boost = { loop: slipShare(looperBot(), true).share, lane: slipShare(lanerBot(), true).share };
 
   it('on the base body, tight pillar loops beat long lanes', () => {
+    expect(bl.clanks).toBe(0); // a clean loop, not one propped up by the walls
     expect(base.loop).toBeGreaterThan(base.lane + 0.15);
+  });
+
+  /**
+   * The tightest circle a body can hold at Slipstream, in open floor (no walls to blame): drive a
+   * circle of radius r at a steady 200 px/s and see if it holds both the radius and Slipstream.
+   */
+  function tightestSlipCircle(booster: boolean): number {
+    for (let r = 24; r <= 160; r += 2) {
+      const w = createWorld({ sandbox: true, arena: openArena() });
+      if (booster) w.player.part = 'booster';
+      const cx = 2000, cy = 2000;
+      Object.assign(w.player, { x: cx, y: cy + r, heading: 0, speed: 200 });
+      let ok = true;
+      for (let i = 0; i < 300; i++) {
+        const p = w.player, a = Math.atan2(p.y - cy, p.x - cx), d = Math.hypot(p.x - cx, p.y - cy);
+        const want = a - Math.PI / 2 - Math.max(-1, Math.min(1, (d - r) * 0.08));
+        const m = 200 / w.t.topSpeed / (booster ? w.t.boosterTopMul : 1);
+        step(w, { x: Math.cos(want) * m, y: Math.sin(want) * m, rip: false, bolt: false });
+        w.events.length = 0;
+        if (i > 120 && (p.tier !== 'slip' || Math.abs(d - r) > 6)) ok = false;
+      }
+      if (ok) return r;
+    }
+    return Infinity;
+  }
+
+  it('the Booster widens the tightest circle you can hold at Slipstream', () => {
+    const bare = tightestSlipCircle(false), boosted = tightestSlipCircle(true);
+    expect(bare).toBeLessThanOrEqual(48); // round a pillar (DECISIONS #47)
+    expect(boosted).toBeGreaterThanOrEqual(bare * 1.2);
   });
 
   it('with the Booster, long lanes beat tight loops', () => {
     expect(boost.lane).toBeGreaterThan(boost.loop);
     expect(boost.loop).toBeLessThan(base.loop - 0.15);
     expect(boost.lane).toBeGreaterThanOrEqual(base.lane);
+  });
+});
+
+describe('the full slice (40 seeds, all three waves)', () => {
+  function full(bot: Bot, seed: number) {
+    const w = createWorld({ seed });
+    let outside = false;
+    const inside = (x: number, y: number, r: number) =>
+      x >= w.arena.wall + r - 0.5 && y >= w.arena.wall + r - 0.5 && x <= w.arena.w - w.arena.wall - r + 0.5 && y <= w.arena.h - w.arena.wall - r + 0.5;
+    for (let i = 0; i < 300 * 60 && !w.result; i++) {
+      step(w, bot(w));
+      w.events.length = 0;
+      if (!inside(w.player.x, w.player.y, w.t.playerRadius) || w.rammers.some((r) => !inside(r.x, r.y, w.t.rammerRadius))) outside = true;
+    }
+    return { cleared: w.result === 'cleared', outside, wave: w.wave.index };
+  }
+  const seeds = Array.from({ length: 40 }, (_, i) => 300 + i);
+  const hr = seeds.map((s) => full(hitAndRunBot(), s));
+  const camp = seeds.map((s) => full(camperBot(), s));
+
+  it("nobody is ever pushed out of the arena (the critic's softlock)", () => {
+    expect([...hr, ...camp].filter((r) => r.outside).length).toBe(0);
+  });
+
+  it('circling one pillar and ripping whatever comes close does worse than hit-and-run', () => {
+    // (the critic measured the camper clearing 21-23 of 40 against hit-and-run's 13; DECISIONS #49)
+    const cleared = (rs: typeof hr) => rs.filter((r) => r.cleared).length;
+    expect(cleared(camp)).toBeLessThan(cleared(hr) * 0.6);
   });
 });

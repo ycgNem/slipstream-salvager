@@ -1,13 +1,13 @@
-// The three first-time hints (PLAN.md 4.5): shown once each, one at a time, when they're relevant
-// (not as a checklist), and dropped as soon as you've done the thing. They sit on the bottom wall
-// band so they never cover a lane (DECISIONS #44).
+// The first-time hints (PLAN.md 4.5, DECISIONS #51): shown once each, one at a time, when they're
+// relevant (not as a checklist), and dropped as soon as you've done the thing. They sit on the
+// bottom wall band so they never cover a lane (DECISIONS #44).
 import { C } from '../data/palette';
 import type { World } from '../sim/world';
 import type { SimEvent } from '../sim/events';
 import type { UI } from './ui';
 import { textWidth } from './font';
 
-export type HintId = 'speed' | 'tear' | 'bolt';
+export type HintId = 'speed' | 'tear' | 'bolt' | 'burn';
 
 export class Hints {
   seen: Record<string, boolean>;
@@ -33,6 +33,7 @@ export class Hints {
     if (e.k === 'tier' && e.tier === 'slip') this.done('speed');
     if (e.k === 'tear') this.done('tear');
     if (e.k === 'bolted') this.done('bolt');
+    if (e.k === 'rip' && e.burn && e.tier === 'slip') this.done('burn');
   }
 
   update(w: World, dt: number) {
@@ -42,6 +43,7 @@ export class Hints {
     }
     const want: HintId | null =
       !this.seen.bolt && w.player.tow ? 'bolt'
+      : !this.seen.burn && w.player.part === 'booster' && !w.flat ? 'burn'
       : !this.seen.speed && w.wave.phase !== 'banner' ? 'speed'
       : !this.seen.tear && this.seen.speed && w.rammers.length > 0 ? 'tear'
       : null;
@@ -56,11 +58,12 @@ export class Hints {
   draw(ui: UI, keys: { rip: string; bolt: string }) {
     if (!this.current) return;
     const text = this.current === 'speed' ? 'BUILD SPEED - THE CLAW TURNS TEAL'
-      : this.current === 'tear' ? `HIT ITS BACK AT TEAL (${keys.rip}) TO TEAR OFF ITS BOOSTER`
+      : this.current === 'tear' ? `DODGE ITS CHARGE, THEN HIT ITS BACK AT TEAL (${keys.rip})`
+      : this.current === 'burn' ? `HOLD ${keys.rip} TO REV A BURN, LET GO TO LAUNCH`
       : `TAP ${keys.bolt} TO BOLT IT ON`;
     const tw = textWidth(text);
     ui.fill(632 - tw - 4, 345, tw + 8, 14, C.ink);
     const blink = this.shownFor < 0.6 && Math.floor(this.shownFor * 10) % 2 === 1;
-    ui.text(text, 632, 348, blink ? C.white : this.current === 'speed' ? C.speed4 : C.gold3, { align: 'right' });
+    ui.text(text, 632, 348, blink ? C.white : this.current === 'speed' || this.current === 'burn' ? C.speed4 : C.gold3, { align: 'right' });
   }
 }

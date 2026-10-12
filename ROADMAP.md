@@ -184,10 +184,12 @@ stop for the owner's playtest.
 4. Was getting clear after a pass natural, or did you end up stuck next to enemies?
 5. Did the Rammer's telegraph give you enough time? Too much?
 6. After bolting on the Booster, did you take different lines or attack differently? Did you like it,
-   or prefer the base body?
+   or prefer the base body? (The tuning panel's START WITH THE BOOSTER switch gives you a whole run
+   with it; in normal play a hit shatters it within seconds.)
 7. Movement: too floaty, too twitchy, or right? (Use the tuning panel and tell me the numbers.)
-8. **Flat mode:** play the three waves once with flat mode on. Was it noticeably less fun? (If not,
-   the identity isn't carrying the game yet.)
+8. **Flat mode:** play the three waves once with flat mode on (speed stops mattering for damage, and
+   the Booster is a plain +1 damage part). Was it noticeably less fun? (If not, the identity isn't
+   carrying the game yet.)
 9. If you imagine this with ten parts and a run of arenas: is the loop strong enough to carry that?
 
 ---

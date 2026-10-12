@@ -21,6 +21,7 @@ function run(play: Play, n: number, input: InputFrame = NO_INPUT) {
     for (const e of w.events) play.handle(e);
     w.events.length = 0;
     play.fx.update(1 / 60);
+    play.hints.update(w, 1 / 60);
   }
 }
 
