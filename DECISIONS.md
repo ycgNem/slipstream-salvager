@@ -423,4 +423,7 @@ a number in the tuning panel, and the M1 rule is one setting away (given with ea
       build after a reload.
     - The Windows builds stay local in `release/`. Uploading them to a GitHub release is a separate
       call for the owner.
+    - The push didn't start the Pages workflow, so it was started by hand (`gh workflow run
+      deploy.yml --ref main`, run 38282185933, success). The live bundle has "0.2.0" and the
+      service worker is `salvager-v2`.
 

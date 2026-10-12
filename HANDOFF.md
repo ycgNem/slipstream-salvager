@@ -191,8 +191,10 @@ read-only).
 ## Releasing
 
 - Repo: https://github.com/ycgNem/slipstream-salvager (public). Site: https://ycgnem.github.io/slipstream-salvager/.
-- Pushing `main` runs `.github/workflows/deploy.yml`: `npm ci`, `npm test`, `npm run build`, then
-  deploys `dist/` to GitHub Pages (source: GitHub Actions). Check a run with `gh run list`.
+- `.github/workflows/deploy.yml` runs `npm ci`, `npm test`, `npm run build`, then deploys `dist/`
+  to GitHub Pages (source: GitHub Actions). Check a run with `gh run list`.
+- **A push to `main` hasn't started it on its own** (both releases so far). Start it by hand with
+  `gh workflow run deploy.yml --ref main`, then `gh run watch <id>`.
 - Day-to-day work happens on `works`. To release, fast-forward `main` to `works` and push both.
   **Push only when the owner says so.**
 - **To publish a release** (when the owner says so), from `works` with everything committed:
@@ -202,7 +204,9 @@ read-only).
   4. `git merge --ff-only works`
   5. `git push origin main works`
   6. `git checkout works`
-  7. `gh run list` to watch the deploy.
+  7. `gh workflow run deploy.yml --ref main`, then watch it: `gh run list`, `gh run watch <id>`.
+  8. Check the live bundle has the new version, for example by searching the site's `assets/index-*.js` for
+     `"0.2.0"`.
 - **0.2.0 was published this way on 2026-10-12** (DECISIONS #81).
 - **The Windows builds aren't uploaded anywhere.** To attach them to a GitHub release, only with
   the owner's go-ahead:
