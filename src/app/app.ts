@@ -13,6 +13,7 @@ import { UI } from '../ui/ui';
 import { Play } from './play';
 import { loadBest, loadSettings, saveSettings, type Settings } from './settings';
 import { scene, SCENES, type SceneName } from './debug';
+import type { YardId } from '../data/yards';
 
 export const VIEW_W = 640;
 export const VIEW_H = 360;
@@ -116,8 +117,8 @@ export class App {
     return SCENES;
   }
 
-  startPlay(seed?: number) {
-    this.play = new Play(this, seed);
+  startPlay(seed?: number, yard?: YardId) {
+    this.play = new Play(this, seed, yard);
     this.screen = 'play';
   }
 
@@ -166,8 +167,8 @@ export class App {
       : ['WASD / ARROWS  STEER', `${keyLabel(this.input.binds.rip[0]).toUpperCase()} / J  RIP (HOLD WITH A BOOSTER)`, 'E / K  BOLT ON', 'ESC  PAUSE    N  MUSIC'];
     lines.forEach((l, i) => ui.text(l, 320, 254 + i * 11, C.mist, { align: 'center' }));
     const b = loadBest();
-    if (b.clears) ui.text(`CLEARED ${b.clears}x   BEST HULL ${b.bestHull}`, 320, 304, C.lilac, { align: 'center' });
-    ui.text('FIRST SLICE - ONE ARENA, ONE ENEMY, ONE PART', 320, 340, C.slate, { align: 'center' });
+    if (b.runs) ui.text(b.wins ? `RUNS ${b.runs}   WINS ${b.wins}   BEST WIN ${Math.floor(b.bestWinTicks / 3600)}:${String(Math.floor((b.bestWinTicks / 60) % 60)).padStart(2, '0')}` : `RUNS ${b.runs}   BEST ${b.bestYards}/5 YARDS`, 320, 304, C.lilac, { align: 'center' });
+    ui.text('A SHORT RUN - FIVE YARDS, FOUR PARTS TO RIP OFF', 320, 340, C.slate, { align: 'center' });
     if (DEBUG_KEYS) ui.text('` TUNING IN PLAY', 636, 350, C.slate, { align: 'right' });
   }
 

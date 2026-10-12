@@ -49,4 +49,6 @@ export type SimEvent =
   | { k: 'gate'; gate: Gate['id'] }
   | { k: 'enter'; id: number; gate: Gate['id'] }
   | { k: 'cleared' }
+  | { k: 'yard-clear'; patched: boolean }
+  | { k: 'exit'; option: number }
   | { k: 'scrapped' };

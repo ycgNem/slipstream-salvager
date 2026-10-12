@@ -114,7 +114,7 @@ export const DEFAULT_TUNING = {
   bumpKeep: 0.4,
 
   // ---- the Rammer ----
-  rammerHp: 4,
+  rammerHp: 3,
   rammerRadius: 11,
   stalkSpeed: 45,
   stalkTurn: 6,
@@ -134,7 +134,7 @@ export const DEFAULT_TUNING = {
   chargeDist: 260,
   skidTime: 0.9,
   /** a charge that passes within this of you (edge to edge, px) gives you its slipstream... */
-  draftGap: 16,
+  draftGap: 24,
   /** ...lifting you to at least Slipstream + this (DECISIONS #61) */
   draftBoost: 30,
   /** a Slipstream Rip into the front of a charge stops it and stuns it this long (the joust; DECISIONS #56) */
@@ -154,22 +154,24 @@ export const DEFAULT_TUNING = {
   // ---- the Snapper (PLAN.md 8.3) ----
   snapperHp: 2,
   snapperRadius: 8,
-  snapperTop: 175,
+  snapperTop: 170,
   snapperAcc: 420,
   snapperTurn: 9,
   snapperStrippedTop: 110,
   snapperStrippedTurn: 3,
   /** it snaps when you're this close and within snapConeDeg of its nose */
-  snapRange: 70,
+  snapRange: 64,
+  /** between snaps it circles you this far out */
+  snapCircle: 72,
   snapConeDeg: 35,
-  snapWindup: 0.35,
-  snapLock: 0.15,
+  snapWindup: 0.45,
+  snapLock: 0.2,
   snapSpeed: 330,
   snapDist: 80,
   /** after a snap it power-slides round to face you, broadside (s) */
   snapSlide: 0.6,
-  snapCdMin: 1.0,
-  snapCdMax: 1.8,
+  snapCdMin: 1.5,
+  snapCdMax: 2.5,
   maxSnaps: 2,
   /** a Jaw Snapper's bite throws you this much harder */
   jawFling: 1.7,
@@ -203,7 +205,7 @@ export const TUNING_GROUPS: { title: string; keys: [TuningKey, number][] }[] = [
   { title: 'Treads, Plow, Jaws', keys: [['treadsTopMul', 0.02], ['treadsTurnMul', 0.05], ['treadsGripMul', 0.05], ['slideTurn', 0.5], ['slideKeep', 0.02], ['plowAccMul', 0.05], ['plowConeDeg', 5], ['latchTime', 0.02], ['slingBoost', 5]] },
   { title: 'Salvage', keys: [['boltTime', 0.05], ['boltSteerMul', 0.05], ['rearArcDeg', 5], ['partLives', 1]] },
   { title: 'Hull', keys: [['hull', 1], ['invulnTime', 0.1], ['knockSpeed', 10], ['bumpKeep', 0.05]] },
-  { title: 'Snapper', keys: [['snapperHp', 1], ['snapperTop', 5], ['snapperAcc', 20], ['snapperTurn', 0.5], ['snapRange', 5], ['snapConeDeg', 5], ['snapWindup', 0.05], ['snapLock', 0.05], ['snapSpeed', 10], ['snapDist', 5], ['snapSlide', 0.05], ['snapCdMin', 0.1], ['snapCdMax', 0.1], ['maxSnaps', 1], ['jawFling', 0.1]] },
+  { title: 'Snapper', keys: [['snapperHp', 1], ['snapperTop', 5], ['snapperAcc', 20], ['snapperTurn', 0.5], ['snapRange', 5], ['snapCircle', 4], ['snapConeDeg', 5], ['snapWindup', 0.05], ['snapLock', 0.05], ['snapSpeed', 10], ['snapDist', 5], ['snapSlide', 0.05], ['snapCdMin', 0.1], ['snapCdMax', 0.1], ['maxSnaps', 1], ['jawFling', 0.1]] },
   { title: 'Flat mode', keys: [['flatDamage', 1], ['flatPartDamage', 1]] },
   { title: 'Rammer', keys: [['rammerHp', 1], ['stalkSpeed', 5], ['stalkTurn', 0.5], ['strippedTurn', 0.25], ['windupFar', 0.05], ['lockFar', 0.05], ['windupNear', 0.05], ['lockNear', 0.05], ['nearDist', 5], ['chargeRange', 10], ['leadFrac', 0.05], ['chargeSpeed', 10], ['chargeDist', 10], ['skidTime', 0.05], ['joustStun', 0.1], ['joustDeg', 5], ['draftGap', 1], ['draftBoost', 5], ['chargeCdMin', 0.1], ['chargeCdMax', 0.1], ['maxWindups', 1]] },
 ];

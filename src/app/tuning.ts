@@ -4,11 +4,13 @@
 import { C } from '../data/palette';
 import { DEFAULT_TUNING, TUNING_GROUPS, defaultTuning, type Tuning, type TuningKey } from '../data/tuning';
 import type { UI } from '../ui/ui';
+import { PART_IDS, type PartId } from '../data/parts';
 
 /** The numbers new encounters start with (edits here carry over to Again). */
-export const LIVE: { t: Tuning; flat: boolean; booster: boolean } = { t: defaultTuning(), flat: false, booster: false };
+export const LIVE: { t: Tuning; flat: boolean; parts: PartId[] } = { t: defaultTuning(), flat: false, parts: [] };
 
 const round = (v: number) => Math.round(v * 1000) / 1000;
+const PARTS_MOUNT: Record<PartId, string> = { booster: 'rear', treads: 'sides', plow: 'front', jaws: 'front' };
 
 export class TuningPanel {
   open = false;
@@ -23,8 +25,8 @@ export class TuningPanel {
     return lines.length ? lines.join('\n') : '// no changes from the defaults';
   }
 
-  /** setBooster: bolt the Booster on now (or take it off), so a whole run can be played with it */
-  draw(ui: UI, worldT: Tuning, setFlat: (on: boolean) => void, setBooster: (on: boolean) => void, dt: number) {
+  /** setPart: bolt a part on now (or take it off), so a whole run can be played with it */
+  draw(ui: UI, worldT: Tuning, setFlat: (on: boolean) => void, setPart: (id: PartId, on: boolean) => void, dt: number) {
     if (!this.open) return;
     this.noteT = Math.max(0, this.noteT - dt);
     const x = 446, y = 28, w = 190, h = 316;
@@ -36,11 +38,15 @@ export class TuningPanel {
       LIVE.flat = flat;
       setFlat(flat);
     }
-    const booster = ui.toggle('t-booster', x + 6, y + 30, w - 12, 'START WITH THE BOOSTER', LIVE.booster);
-    if (booster !== LIVE.booster) {
-      LIVE.booster = booster;
-      setBooster(booster);
-    }
+    // start with a part: one small toggle per part
+    ui.text('START WITH', x + 6, y + 31, C.mist);
+    PART_IDS.forEach((id, i) => {
+      const on = LIVE.parts.includes(id);
+      if (ui.button(`t-part-${id}`, x + 64 + i * 31, y + 29, 29, 11, id.slice(0, 4).toUpperCase(), { active: on })) {
+        LIVE.parts = on ? LIVE.parts.filter((q) => q !== id) : [...LIVE.parts.filter((q) => PARTS_MOUNT[q] !== PARTS_MOUNT[id]), id];
+        setPart(id, !on);
+      }
+    });
     if (ui.button('t-copy', x + 6, y + 42, 56, 12, 'COPY')) {
       const text = this.diff();
       try {

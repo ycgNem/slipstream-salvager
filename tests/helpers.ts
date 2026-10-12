@@ -8,7 +8,7 @@ import { createWorld, type InputFrame, type World, type WorldOpts } from '../src
 export function openArena(w = 4000, h = 4000, start = { x: 200, y: 2000, heading: 0 }): ArenaDef {
   const T = 16;
   return {
-    w, h, wall: T,
+    id: 'open', w, h, wall: T,
     solids: [
       { x: 0, y: 0, w, h: T }, { x: 0, y: h - T, w, h: T }, { x: 0, y: 0, w: T, h }, { x: w - T, y: 0, w: T, h },
     ],

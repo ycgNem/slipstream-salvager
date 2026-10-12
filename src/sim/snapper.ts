@@ -40,12 +40,20 @@ export function toSlide(w: World, e: Enemy, dur: number, carry: number) {
   e.slideDir = e.face;
 }
 
-/** Where to drive: an intercept on your line (it hunts), or round an obstacle in the way. */
+/**
+ * Where to drive: an intercept on your line while it closes in, round an obstacle in the way, and
+ * once it's close and can't snap yet, round you in a circle ~70 px out (each Snapper its own way
+ * round), side on to you: a pack circling, darting in to snap.
+ */
 function huntGoal(w: World, e: Enemy): { x: number; y: number } {
-  const p = w.player;
-  const g = pathGoal(w, e, w.t.snapperRadius + 8);
+  const p = w.player, t = w.t;
+  const g = pathGoal(w, e, t.snapperRadius + 8);
   if (g.x !== p.x || g.y !== p.y) return g;
   const d = Math.hypot(p.x - e.x, p.y - e.y);
+  if (d < t.snapCircle + 30 && (e.cd > 0 || snapping(w) >= t.maxSnaps)) {
+    const a = Math.atan2(e.y - p.y, e.x - p.x) + (e.id % 2 ? 0.7 : -0.7);
+    return { x: p.x + Math.cos(a) * t.snapCircle, y: p.y + Math.sin(a) * t.snapCircle };
+  }
   const T = Math.min(0.6, d / Math.max(120, w.t.snapperTop));
   const lx = p.x + Math.cos(p.heading) * p.speed * T, ly = p.y + Math.sin(p.heading) * p.speed * T;
   return lineOfSight(w.arena, e.x, e.y, lx, ly) ? { x: lx, y: ly } : p;

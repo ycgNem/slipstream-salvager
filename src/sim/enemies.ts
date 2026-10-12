@@ -157,7 +157,7 @@ export function resolveContacts(w: World) {
       w.events.push({ k: 'bump', id: r.id, x: r.x + nx * rr, y: r.y + ny * rr });
       if (w.result) continue;
       if (r.kind === 'rammer' && r.state === 'stalk' && windingUp(w) < t.maxWindups) beginWindup(w, r, true);
-      if (r.kind === 'snapper' && r.state === 'hunt' && snapping(w) < t.maxSnaps) beginSnap(w, r);
+      if (r.kind === 'snapper' && r.state === 'hunt' && r.cd <= 0 && snapping(w) < t.maxSnaps) beginSnap(w, r);
     }
   }
 }

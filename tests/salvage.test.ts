@@ -62,7 +62,8 @@ describe('tearing a part off', () => {
 
   it("wave 1's Rammer can't be wrecked while it has its booster, and shakes it loose after two hits at 1 HP", () => {
     const { w, r } = setup(220, -Math.PI / 2, { safety: true });
-    for (let n = 0; n < 4; n++) {
+    // a side hit takes it from 3 to 1 (where the net holds), then two more shake the booster loose
+    for (let n = 0; n < 3; n++) {
       Object.assign(w.player, { x: r.x - 34, y: r.y, heading: 0, speed: 220, ripCd: 0, prevRip: false, invuln: 99, rip: null, pass: 0 });
       w.hitstop = 0;
       Object.assign(r, { face: -Math.PI / 2, state: 'skid' });

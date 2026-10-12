@@ -1,11 +1,17 @@
-// One encounter on screen: runs the sim from input, turns its events into effects and sound,
-// draws the world, the HUD, hints, and the pause and results overlays.
+// A run on screen (PLAN.md 8.1): runs the current yard's sim from input, turns its events into
+// effects and sound, draws the world, the HUD, hints and the exit signs, wipes from yard to yard,
+// and shows the pause and run-results overlays.
 import { C } from '../data/palette';
 import { DEBUG_KEYS, keyLabel, type Input } from '../engine/input';
 import type { Audio } from '../engine/audio/audio';
 import { Fx } from '../render/fx';
 import { drawWorld, playerSprite } from '../render/renderer';
-import { createWorld, giveBolted, hasBooster, type InputFrame, type World } from '../sim/world';
+import { giveBolted, hasBooster, type InputFrame, type World } from '../sim/world';
+import { finishYard, newRun, yardWorld, type Run } from '../sim/run';
+import { RUN_LENGTH, YARDS, type YardId } from '../data/yards';
+import { PARTS, PART_IDS, type PartId } from '../data/parts';
+import { drawSprite, sprite } from '../render/atlas';
+import { textWidth } from '../ui/font';
 import { step } from '../sim/tick';
 import { revving } from '../sim/rip';
 import type { SimEvent } from '../sim/events';
@@ -15,6 +21,9 @@ import type { UI } from '../ui/ui';
 import { LIVE, TuningPanel } from './tuning';
 import { loadBest, loadSeenHints, saveBest, saveSeenHints, type Settings } from './settings';
 
+/** seconds the wipe between yards takes */
+const WIPE = 0.8;
+
 export interface PlayHost {
   input: Input;
   audio: Audio;
@@ -23,8 +32,20 @@ export interface PlayHost {
   openSettings(): void;
 }
 
+/** ?yard=kennel (debug builds): start a run in that yard, for testing and the screenshot sweep */
+function startYard(): YardId {
+  if (!DEBUG_KEYS || typeof location === 'undefined') return 'ring';
+  const y = new URLSearchParams(location.search).get('yard');
+  return y && y in YARDS ? (y as YardId) : 'ring';
+}
+
 export class Play {
+  run: Run;
   world: World;
+  /** the wipe between yards: seconds in, and whether the next yard is in yet */
+  wipe: { t: number; swapped: boolean } | null = null;
+  /** the run's end has been recorded */
+  private runDone = false;
   fx = new Fx();
   hints: Hints;
   tuning = new TuningPanel();
@@ -43,11 +64,41 @@ export class Play {
   /** a scripted player (src/sim/bots.ts) drives instead of the input, for e2e and the critic */
   autopilot: ((w: World) => InputFrame) | null = null;
 
-  constructor(private host: PlayHost, seed = (Math.random() * 1e9) | 0) {
-    this.world = createWorld({ seed, tuning: LIVE.t, flat: LIVE.flat });
-    if (LIVE.booster) giveBolted(this.world, 'booster');
+  constructor(private host: PlayHost, seed = (Math.random() * 1e9) | 0, start: YardId = startYard()) {
+    this.run = newRun(seed, start);
+    this.world = yardWorld(this.run, { tuning: LIVE.t, flat: LIVE.flat });
+    for (const id of LIVE.parts) giveBolted(this.world, id);
     this.hints = new Hints(loadSeenHints(), host.settings.hints);
     this.hints.onSeen = saveSeenHints;
+    const b = loadBest();
+    b.runs++;
+    saveBest(b);
+  }
+
+  /** The next yard: fold this one into the run and build the next world (mid-wipe). */
+  private nextYard() {
+    finishYard(this.run, this.world);
+    this.world = yardWorld(this.run, { tuning: LIVE.t, flat: LIVE.flat });
+    this.fx.parts.length = 0;
+    this.fx.marks.length = 0;
+    this.fx.after.length = 0;
+    this.fx.flash.clear();
+    this.endT = 0;
+  }
+
+  /** The run is over (won or scrapped): fold in the last yard and record the best. */
+  private endRun() {
+    if (this.runDone) return;
+    this.runDone = true;
+    finishYard(this.run, this.world);
+    const b = loadBest(), r = this.run;
+    const yards = r.over === 'won' ? RUN_LENGTH : r.depth - 1;
+    b.bestYards = Math.max(b.bestYards, yards);
+    if (r.over === 'won') {
+      b.wins++;
+      if (!b.bestWinTicks || r.totals.ticks < b.bestWinTicks) b.bestWinTicks = r.totals.ticks;
+    }
+    saveBest(b);
   }
 
   get keys() {
@@ -57,7 +108,7 @@ export class Play {
 
   /** One fixed tick (called by the loop). */
   tick() {
-    if (this.paused || this.frozen) return;
+    if (this.paused || this.frozen || this.wipe) return;
     const input = this.host.input;
     const s = input.steer();
     const frame: InputFrame = this.autopilot ? this.autopilot(this.world) : {
@@ -260,12 +311,20 @@ export class Play {
         a.sfx('bolted');
         break;
       case 'bolt-cancel': a.sfx('bolt_cancel'); break;
-      case 'wave':
-        fx.showBanner(`WAVE ${e.n}`, e.n === 1 ? 'TEAR OFF A BOOSTER, BOLT IT ON' : e.n === 3 ? 'LAST WAVE' : '', this.world.t.bannerTime);
+      case 'wave': {
+        const r = this.run, y = YARDS[r.yard], last = e.n === this.world.waves.length;
+        if (e.n === 1) fx.showBanner(y.name, r.yard === 'ring' ? 'TEAR OFF A BOOSTER, BOLT IT ON' : `YARD ${r.depth} OF ${RUN_LENGTH}`, this.world.t.bannerTime + 0.4);
+        else fx.showBanner(`WAVE ${e.n}`, last ? 'LAST WAVE' : '', this.world.t.bannerTime);
         a.sfx('wave');
         break;
+      }
       case 'gate': a.sfx('gate'); break;
       case 'enter': break;
+      case 'yard-clear':
+        fx.showBanner('YARD CLEARED', e.patched ? '+1 HULL   DRIVE OUT THROUGH A GATE' : 'DRIVE OUT THROUGH A GATE', 2.4);
+        a.sfx('cleared');
+        break;
+      case 'exit': a.sfx('wave', 0.8, 1.2); break;
       case 'cleared': a.sfx('cleared'); this.recordClear(); break;
       case 'scrapped': a.sfx('scrapped'); break;
     }
@@ -292,29 +351,76 @@ export class Play {
     }
     this.host.audio.setDuck(this.paused);
     this.time += dt;
+    // drove out through an exit: wipe to the next yard
+    if (this.world.result === 'exit' && !this.wipe && !this.frozen) this.wipe = { t: 0, swapped: false };
+    if (this.wipe) {
+      this.wipe.t += dt;
+      if (!this.wipe.swapped && this.wipe.t >= WIPE / 2) {
+        this.nextYard();
+        this.wipe.swapped = true;
+      }
+      if (this.wipe.t >= WIPE) this.wipe = null;
+    }
+    if (this.world.result === 'cleared' || this.world.result === 'scrapped') this.endRun();
     if (!this.paused && !this.frozen) {
       this.fx.update(dt);
       this.hints.update(this.world, dt);
     }
-    if (this.world.result) this.endT += dt;
+    if (this.world.result && this.world.result !== 'exit') this.endT += dt;
     const p = this.world.player;
-    this.host.audio.engine(p.speed / this.world.t.burnMax, revving(this.world), !this.paused && !this.world.result);
+    this.host.audio.engine(p.speed / this.world.t.burnMax, revving(this.world), !this.paused && (!this.world.result || this.world.result === 'exit'));
   }
 
   draw(ui: UI, dt: number) {
     const w = this.world;
     drawWorld(ui.ctx, w, this.fx, { time: this.time, shake: this.host.settings.shake });
+    this.drawExitSigns(ui);
     if (!w.result) this.hints.draw(ui, this.keys);
-    drawHud(ui, w, this.keys);
-    if (DEBUG_KEYS) this.tuning.draw(ui, w.t, (on) => (w.flat = on), (on) => (on ? giveBolted(w, 'booster') : delete w.player.parts.rear), dt);
+    drawHud(ui, w, this.keys, `YARD ${this.run.depth}/${RUN_LENGTH}  WAVE ${Math.min(w.waves.length, w.wave.index + 1)}/${w.waves.length}`);
+    if (DEBUG_KEYS) this.tuning.draw(ui, w.t, (on) => (w.flat = on), (id, on) => (on ? giveBolted(w, id) : delete w.player.parts[PARTS[id].mount]), dt);
     if (w.flat) ui.text('FLAT MODE', 8, 22, C.white, { shadow: C.ink });
+    if (this.wipe) this.drawWipe(ui);
     if (this.paused) this.drawPause(ui);
-    else if (w.result && this.endT > 1.2) this.drawResults(ui);
+    else if (w.result && w.result !== 'exit' && this.endT > 1.2) this.drawResults(ui);
+  }
+
+  /** The signs over the open exits: where each leads and what its enemies carry. */
+  private drawExitSigns(ui: UI) {
+    const w = this.world;
+    for (const e of w.exits) {
+      const g = w.arena.gates.find((q) => q.id === e.gate)!;
+      const y = YARDS[this.run.options[e.option]];
+      const left = g.id === 'w', right = g.id === 'e';
+      const name = y.name, icons = y.salvage;
+      const tw = Math.max(textWidth(name), icons.length * 18 - 2);
+      const bx = left ? 22 : right ? 618 - tw - 8 : g.rect.x + 16 - Math.floor(tw / 2) - 4;
+      // below the side gates, clear of the yard banner
+      const by = left || right ? g.rect.y + g.rect.h + 10 : g.id === 'n' ? 22 : 360 - 66;
+      const blink = Math.floor(this.time * 3) % 2 === 0;
+      ui.fill(bx, by, tw + 8, 38, C.ink);
+      ui.fill(bx, by, tw + 8, 1, blink ? C.gold3 : C.gold);
+      ui.text(name, bx + 4, by + 4, C.white);
+      icons.forEach((id, i) => drawSprite(ui.ctx, sprite(`icon:part:${id}`), bx + 4 + i * 18, by + 17));
+      // an arrow toward the gate
+      if (left || right) ui.text(left ? '<' : '>', left ? 8 : 626, g.rect.y + 12, blink ? C.gold3 : C.gold);
+    }
+  }
+
+  /** Ink bars sweep across and back while the next yard is built. */
+  private drawWipe(ui: UI) {
+    const f = this.wipe!.t / WIPE;
+    const cover = f < 0.5 ? f * 2 : (1 - f) * 2;
+    const rows = 12;
+    for (let i = 0; i < rows; i++) {
+      const wdt = Math.round(Math.min(1, cover * 1.4 - (i % 3) * 0.08) * 640);
+      if (wdt > 0) ui.fill(f < 0.5 ? 0 : 640 - wdt, i * 30, wdt, 30, C.ink);
+    }
+    if (cover > 0.8) ui.text(YARDS[this.run.yard].name, 320, 172, C.gold3, { align: 'center', scale: 2 });
   }
 
   restart() {
     const fresh = new Play(this.host);
-    Object.assign(this, { world: fresh.world, fx: fresh.fx, hints: fresh.hints, paused: false, endT: 0, time: 0, recent: [] });
+    Object.assign(this, { run: fresh.run, world: fresh.world, fx: fresh.fx, hints: fresh.hints, paused: false, endT: 0, time: 0, recent: [], wipe: null, runDone: false });
   }
 
   private drawPause(ui: UI) {
@@ -329,26 +435,34 @@ export class Play {
   }
 
   private drawResults(ui: UI) {
-    const w = this.world, s = w.stats, cleared = w.result === 'cleared';
+    const r = this.run, T = r.totals, won = r.over === 'won';
     ui.dim();
-    const x = 220, y = 80, pw = 200, ph = 196;
+    const x = 200, y = 60, pw = 240, ph = 236;
     ui.panel(x, y, pw, ph, 'dark');
-    ui.text(cleared ? 'YARD CLEARED' : 'SCRAPPED', x + pw / 2, y + 10, cleared ? C.white : C.danger2, { align: 'center', scale: 2 });
-    const secs = s.ticks / 60;
+    ui.text(won ? 'RUN CLEARED' : 'SCRAPPED', x + pw / 2, y + 10, won ? C.white : C.danger2, { align: 'center', scale: 2 });
+    ui.text(won ? 'ALL FIVE YARDS' : `IN ${YARDS[r.yard].name}, YARD ${r.depth} OF ${RUN_LENGTH}`, x + pw / 2, y + 30, C.mist, { align: 'center' });
+    const secs = T.ticks / 60;
     const rows: [string, string][] = [
       ['TIME', `${Math.floor(secs / 60)}:${String(Math.floor(secs % 60)).padStart(2, '0')}`],
-      ['HULL LEFT', `${Math.max(0, w.player.hull)}/${w.t.hull}`],
-      ['BOOSTERS TORN OFF', String(s.tears)],
-      ['SLIPSTREAM HITS', String(s.slipHits)],
-      ['TOP SPEED', String(Math.round(s.topSpeed))],
+      ['YARDS CLEARED', `${won ? RUN_LENGTH : r.depth - 1}/${RUN_LENGTH}`],
+      ['PARTS TORN OFF', String(T.tears)],
+      ['WRECKED', String(T.wrecks)],
+      ['JOUSTS', String(T.jousts)],
+      ['TOP SPEED', String(Math.round(T.topSpeed))],
     ];
     rows.forEach(([k, v], i) => {
-      ui.text(k, x + 16, y + 40 + i * 13, C.mist);
-      ui.text(v, x + pw - 16, y + 40 + i * 13, C.white, { align: 'right' });
+      ui.text(k, x + 16, y + 46 + i * 12, C.mist);
+      ui.text(v, x + pw - 16, y + 46 + i * 12, C.white, { align: 'right' });
     });
+    // the build you finished with
+    ui.text('BUILD', x + 16, y + 122, C.mist);
+    const parts = (['rear', 'sides', 'front'] as const).map((m) => r.loadout?.parts[m]?.id).filter((id): id is PartId => !!id);
+    if (!parts.length) ui.text('BARE CHASSIS', x + pw - 16, y + 122, C.lilac, { align: 'right' });
+    parts.forEach((id, i) => drawSprite(ui.ctx, sprite(`icon:part:${id}`), x + pw - 16 - (parts.length - i) * 18 + 2, y + 118));
     const b = loadBest();
-    if (b.clears) ui.text(`BEST CLEAR ${Math.floor(b.bestTicks / 3600)}:${String(Math.floor((b.bestTicks / 60) % 60)).padStart(2, '0')}`, x + pw / 2, y + 112, C.lilac, { align: 'center' });
-    if (ui.button('r-again', x + 16, y + 130, pw - 32, 20, 'AGAIN')) this.restart();
-    if (ui.button('r-title', x + 16, y + 156, pw - 32, 20, 'TITLE')) this.host.toTitle();
+    const best = b.wins ? `BEST WIN ${Math.floor(b.bestWinTicks / 3600)}:${String(Math.floor((b.bestWinTicks / 60) % 60)).padStart(2, '0')}   WINS ${b.wins}` : `BEST: ${b.bestYards} YARD${b.bestYards === 1 ? '' : 'S'} CLEARED`;
+    ui.text(best, x + pw / 2, y + 146, C.lilac, { align: 'center' });
+    if (ui.button('r-again', x + 16, y + 168, pw - 32, 20, 'AGAIN')) this.restart();
+    if (ui.button('r-title', x + 16, y + 194, pw - 32, 20, 'TITLE')) this.host.toTitle();
   }
 }

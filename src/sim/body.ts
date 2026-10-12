@@ -153,7 +153,8 @@ export function movePlayer(w: World) {
   p.x += Math.cos(p.heading) * p.speed * DT;
   p.y += Math.sin(p.heading) * p.speed * DT;
   for (let pass = 0; pass < 2; pass++) {
-    for (const c of contacts(w.arena, p.x, p.y, t.playerRadius)) {
+    const open = w.exits.length ? w.arena.gates.filter((g) => w.exits.some((e) => e.gate === g.id)) : [];
+    for (const c of contacts(w.arena, p.x, p.y, t.playerRadius, open)) {
       p.x += c.nx * c.depth;
       p.y += c.ny * c.depth;
       let vx = Math.cos(p.heading) * p.speed, vy = Math.sin(p.heading) * p.speed;

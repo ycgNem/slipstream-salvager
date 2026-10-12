@@ -1,6 +1,7 @@
 // Scripted scenes for the screenshot sweep (e2e/screens.mjs): each puts the game into one state and
 // freezes the sim there, so every screen and every feedback state can be checked for overlaps.
-import { addRammer, giveBolted, type World } from '../sim/world';
+import { addEnemy, addRammer, giveBolted, type World } from '../sim/world';
+import type { YardId } from '../data/yards';
 import { beginWindup } from '../sim/rammer';
 import { step } from '../sim/tick';
 import { NO_INPUT, type InputFrame } from '../sim/world';
@@ -10,6 +11,8 @@ import type { Play } from './play';
 export const SCENES = [
   'title', 'settings', 'play', 'crawl', 'cruise', 'slip', 'telegraph-track', 'telegraph-lock', 'hitstop',
   'towing', 'bolting', 'booster', 'burn', 'pause', 'tuning', 'cleared', 'scrapped', 'flat',
+  // M3: the Snapper and the new parts, the exits, the wipe, every yard
+  'snapper', 'parts', 'exits', 'wipe', 'yard-kennel', 'yard-lanes', 'yard-pit', 'yard-jaws', 'yard-heap',
 ] as const;
 export type SceneName = (typeof SCENES)[number];
 
@@ -44,7 +47,7 @@ export function scene(app: App, name: SceneName) {
     app.toTitle();
     return app.openSettings();
   }
-  app.startPlay(3);
+  app.startPlay(3, name.startsWith('yard-') ? (name.slice(5) as YardId) : name === 'snapper' ? 'kennel' : 'ring');
   const play = app.play!;
   const w = play.world;
   play.hints.seen = { speed: true, tear: true, bolt: true };
@@ -121,6 +124,52 @@ export function scene(app: App, name: SceneName) {
       quiet(play);
       w.flat = true;
       play.tuning.open = true;
+      break;
+    case 'snapper': {
+      quiet(play);
+      play.hints.seen = { ...play.hints.seen, snapper: false };
+      place(w, 300, 250, 0, 200);
+      const a = addEnemy(w, 'snapper', 360, 230, -Math.PI / 2);
+      Object.assign(a, { state: 'slide', t: 0.2, skidFor: 0.6, speed: 60, cd: 99, slideDir: -Math.PI / 2 });
+      const b = addEnemy(w, 'snapper', 470, 140, Math.PI, { parts: ['treads', 'jaws'] });
+      b.cd = 0;
+      run(play, 10, { x: 1, y: 0, rip: false, bolt: false });
+      break;
+    }
+    case 'parts': {
+      quiet(play);
+      for (const id of ['booster', 'treads', 'plow'] as const) giveBolted(w, id);
+      place(w, 100, 300, 0, 0);
+      const r = addRammer(w, 470, 120, Math.PI, { parts: ['booster', 'plow'] });
+      r.cd = 99;
+      const s = addEnemy(w, 'snapper', 520, 260, Math.PI, { parts: ['treads', 'jaws'] });
+      s.cd = 99;
+      run(play, 50, { x: 1, y: 0, rip: false, bolt: false });
+      break;
+    }
+    case 'exits':
+      w.wave.index = w.waves.length - 1;
+      w.wave.phase = 'fight';
+      w.player.hull = 3;
+      run(play, 50);
+      play.hints.seen = { ...play.hints.seen, exit: false };
+      run(play, 2);
+      break;
+    case 'wipe':
+      w.wave.index = w.waves.length - 1;
+      w.wave.phase = 'exit';
+      w.exits = w.exitPlan;
+      w.result = 'exit';
+      w.exitChoice = 0;
+      play.wipe = { t: 0.42, swapped: false };
+      play.update(0);
+      break;
+    case 'yard-kennel':
+    case 'yard-lanes':
+    case 'yard-pit':
+    case 'yard-jaws':
+    case 'yard-heap':
+      run(play, 240);
       break;
     case 'cleared':
     case 'scrapped':

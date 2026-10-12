@@ -38,7 +38,14 @@ export function updateWaves(w: World) {
       break;
     case 'fight':
       if (w.enemies.length === 0) {
-        if (wv.index >= w.waves.length - 1) {
+        if (wv.index >= w.waves.length - 1 && w.exitPlan.length) {
+          // a yard of a run: patch the hull up a pip and open the exits (PLAN.md 8.1)
+          const patched = p.hull < t.hull;
+          p.hull = Math.min(t.hull, p.hull + 1);
+          wv.phase = 'exit';
+          w.exits = w.exitPlan;
+          w.events.push({ k: 'yard-clear', patched });
+        } else if (wv.index >= w.waves.length - 1) {
           wv.phase = 'done';
           w.result = 'cleared';
           w.events.push({ k: 'cleared' });
@@ -48,6 +55,19 @@ export function updateWaves(w: World) {
         }
       }
       break;
+    case 'exit': {
+      // drive out through an open gate to choose the next yard
+      const m = 12;
+      for (const e of w.exits) {
+        const out = e.gate === 'w' ? p.x < m : e.gate === 'e' ? p.x > w.arena.w - m : e.gate === 'n' ? p.y < m : p.y > w.arena.h - m;
+        if (!out) continue;
+        w.result = 'exit';
+        w.exitChoice = e.option;
+        w.events.push({ k: 'exit', option: e.option });
+        break;
+      }
+      break;
+    }
     case 'breather':
       if (wv.t >= t.breather) {
         wv.index++;

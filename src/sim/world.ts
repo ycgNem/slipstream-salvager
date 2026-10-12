@@ -150,7 +150,7 @@ export interface Pickup {
   cracked: boolean;
 }
 
-export type WavePhase = 'banner' | 'warn' | 'fight' | 'breather' | 'done';
+export type WavePhase = 'banner' | 'warn' | 'fight' | 'breather' | 'exit' | 'done';
 
 export interface Stats {
   ticks: number;
@@ -189,7 +189,8 @@ export interface World {
   hitstop: number;
   events: SimEvent[];
   stats: Stats;
-  result: null | 'cleared' | 'scrapped';
+  /** cleared: the last yard (or a lone encounter) is done; exit: you drove out to the next yard */
+  result: null | 'cleared' | 'scrapped' | 'exit';
   /** run no waves (tests and the route bots set up their own Rammers) */
   sandbox: boolean;
   /** in a run: the exit gates that open once the yard is cleared, each leading to a next-yard option */
