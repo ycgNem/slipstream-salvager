@@ -107,21 +107,24 @@ export const CROSS = arena('cross', [
   { x: 464, y: 256, w: 112, h: 64 },
 ]);
 
-/** The Hurdles: staggered rows of short low walls. The Hoppers leap them; you go round (or over,
- * on Jump Jets). The middle and the gate lanes stay open. */
-const hurdle = (x: number, y: number): Rect => ({ x, y, w: 48, h: 16 });
+/** The Hurdles: two long low walls split the yard into three lanes, each wall broken only by
+ * narrow gaps at its ends and its middle. The Hoppers leap them; going round costs you the
+ * distance to a gap, so a leap on the Jump Jets is the shortcut (DECISIONS #92). */
+const lowWall = (x: number, y: number, w: number, h: number): Rect => ({ x, y, w, h });
 export const HURDLES = arena('hurdles', [
-  hurdle(96, 96), hurdle(208, 96), hurdle(384, 96), hurdle(496, 96),
-  hurdle(160, 176), hurdle(432, 176),
-  hurdle(96, 256), hurdle(208, 256), hurdle(384, 256), hurdle(496, 256),
+  lowWall(200, 56, 16, 92), lowWall(200, 212, 16, 92),
+  lowWall(424, 56, 16, 92), lowWall(424, 212, 16, 92),
 ]);
 
-/** The Pinball: a diamond of pillars round an open middle, posts out at the corners: bumpers for
- * the Bouncers' rolls, and for your bank shots on Springs. */
+/** The Pinball: four low walls facing each other across the yard round a pillar bumper in the
+ * middle, posts out in the corners: a straight line (a Bouncer's roll, your bank shot on Springs)
+ * goes back and forth across it (DECISIONS #92). */
 export const PINBALL = arena('pinball', [
-  pillar(320, 100), pillar(224, 180), pillar(416, 180), pillar(320, 260),
-  post(136, 96), post(504, 96), post(136, 264), post(504, 264),
-]);
+  lowWall(144, 128, 16, 104), lowWall(480, 128, 16, 104),
+  lowWall(256, 72, 128, 16), lowWall(256, 272, 128, 16),
+  pillar(320, 180),
+  post(80, 64), post(560, 64), post(80, 296), post(560, 296),
+], { x: 320, y: 232, heading: 0 });
 
 const strip = (x: number, y: number, w: number, h: number, dir: 0 | 1 | 2 | 3): FloorPatch => ({ kind: 'boost', rect: { x, y, w, h }, dir });
 const ramp = (x: number, y: number, dir: 0 | 1 | 2 | 3): FloorPatch => ({ kind: 'ramp', rect: { x, y, w: 32, h: 32 }, dir });

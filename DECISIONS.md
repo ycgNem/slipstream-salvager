@@ -543,3 +543,38 @@ a number in the tuning panel, and the M1 rule is one setting away (given with ea
     holding Rip with Springs + Booster, the Hopper's ring missing a fast straight line, the
     Bouncer dying fastest head-on, a leap landing behind anything, a standing leap making speed,
     the new yards playing alike, the new parts being sidegrades) is the next phase, 8b.
+92. **M8b: the rest of the critic's M6 review** (DECISIONS #91).
+    - **The rev has a limit** (`revMax` 1.0 s, then the Burn launches itself), and with Springs a
+      wall bounce mid-rev launches it along the new line (the bank shot is one Burn). The critic's
+      hold-Rip bot (Springs + Booster, never aims) cleared The Ring and Jaw Yard unhit; now it
+      clears 0 of 6 Pinballs and is scrapped in 5.
+    - **A lunge your rip only shoved or clanked off still hits you**; only one your rip went
+      through at Slipstream (or the one you're biting) can't. Revving into a charge's side at a
+      crawl no longer makes you unhittable.
+    - **Leaps strike the zone you came from** (your heading against its facing), not where you
+      land: the ring is no longer a reticle that goes round every front and plow. A standing hop's
+      landing is at the tier you really had (`leapMin` 120 -> 40). The Jaws don't bite on a landing,
+      so the landing's stick stays. Landing on a solid puts you at its edge along your line, never
+      round its side.
+    - **Leaps lead you fully** (`leapLead` 1.0, the Hopper's and the core-open Compactor's), so a
+      steady straight line is always under the ring and only a juke clears it; the shockwave band
+      is 12 px past the hit (was ~24), so a lift is for a tight dodge, not a fast line.
+    - **Bouncers keep about 140 px off** (backing away if you close in, coming round a pillar to see
+      you) and won't start a roll with another enemy in its first 70 px, so two no longer park at
+      your side and roll into each other. A guard test parks a player at every yard's start for a
+      minute: every yard hits it (the Pinball used to hit it 0 times). Its front clangs unless you
+      joust its roll (head-on was its quickest death); HP stays 2. (HP 3 was tried: it only made
+      every route longer.)
+    - **Springs:** a head-on bounce keeps 90% of your speed with no kick (was 100% + 25), so the
+      walls still turn you but it costs something.
+    - **The Hurdles** are two long low walls splitting the yard into three lanes (32-48 px gaps at
+      their ends and middle), so going round costs distance and a leap is the shortcut. **The
+      Pinball** is four facing low walls round a pillar bumper (a first try, longer walls and no
+      pillar, was slower for every loadout). In the critic's layout probe
+      (`scripts/pacing/layout.ts`, its own waves, 8 seeds) the Pinball takes 70 s with Springs,
+      67 s with the Grip Treads and 78 s bare: the Springs help, but the Treads still edge them.
+      The search bot puts the Hurdles at 69-74 s and the Pinball at ~80 s, the longest middle
+      yards: watch both in playtesting.
+    - The search bots can't show what a shortcut is worth: even with the critic's leap plans
+      (`scripts/pacing/hleap.ts`) the bot is slower with the Jets, because its value only looks a
+      moment ahead. Judge the Jets in the Hurdles by play, not by the bot.

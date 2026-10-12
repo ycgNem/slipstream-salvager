@@ -4,7 +4,7 @@
 // dizzy: the opening. Stripped of its springs, its first wall stops it dead.
 import { lineOfSight } from './arena';
 import { aimPoint, pathGoal, turnToward } from './rammer';
-import { DT, type Enemy, type World } from './world';
+import { airborne, DT, radiusOf, type Enemy, type World } from './world';
 
 const halve = (v: number, half: number) => v * Math.pow(0.5, DT / half);
 
@@ -28,6 +28,17 @@ export function beginRoll(w: World, e: Enemy) {
   w.events.push({ k: 'windup', id: e.id, near: false, shove: false });
 }
 
+/** Is the start of a roll along angle a clear of other enemies? (Two Bouncers side by side used to
+ * roll into each other and both end dizzy, so standing still was safe: DECISIONS #92.) */
+function laneClear(w: World, e: Enemy, a: number): boolean {
+  const ux = Math.cos(a), uy = Math.sin(a);
+  return !w.enemies.some((o) => {
+    if (o === e || airborne(o)) return false;
+    const dx = o.x - e.x, dy = o.y - e.y, along = dx * ux + dy * uy;
+    return along > 0 && along < 70 && Math.abs(-dx * uy + dy * ux) < radiusOf(w, o) + w.t.bouncerRadius;
+  });
+}
+
 /** The roll is over: dizzy for a moment, wherever it stopped. */
 function dizzy(w: World, e: Enemy, dur = w.t.dizzyTime) {
   e.state = 'stunned';
@@ -49,12 +60,25 @@ export function thinkBouncer(w: World, e: Enemy): { speed: number; dir: number }
       }
       return { speed: e.speed, dir: e.face };
     case 'stalk': {
-      const goal = pathGoal(w, e, t.bouncerRadius + 6);
-      e.face = turnToward(e.face, Math.atan2(goal.y - e.y, goal.x - e.x), t.bouncerTurn * DT);
-      e.speed = dist > t.playerRadius + t.bouncerRadius + 10 ? t.bouncerDrift : 0;
+      // it keeps about bouncerKeep from you: closer in, it backs off (still facing you), so a
+      // roll always has room to build and two never park shoulder to shoulder at your side
+      const at = Math.atan2(p.y - e.y, p.x - e.x);
+      const sees = lineOfSight(w.arena, e.x, e.y, p.x, p.y);
+      let dir = e.face;
+      // out of reach, or a pillar between you: it comes round to where it can roll at you
+      if (dist > t.bouncerKeep + 20 || !sees) {
+        const goal = pathGoal(w, e, t.bouncerRadius + 6);
+        e.face = turnToward(e.face, Math.atan2(goal.y - e.y, goal.x - e.x), t.bouncerTurn * DT);
+        dir = e.face;
+        e.speed = t.bouncerDrift;
+      } else {
+        e.face = turnToward(e.face, at, t.bouncerTurn * DT);
+        dir = at + Math.PI;
+        e.speed = dist < t.bouncerKeep - 30 ? t.bouncerDrift : 0;
+      }
       const can = e.cd <= 0 && rollingUp(w) < t.maxRolls && !w.result;
-      if (can && dist < t.rollRange && lineOfSight(w.arena, e.x, e.y, p.x, p.y)) beginRoll(w, e);
-      return { speed: e.speed, dir: e.face };
+      if (can && dist < t.rollRange && sees && laneClear(w, e, at)) beginRoll(w, e);
+      return { speed: e.speed, dir };
     }
     case 'windup':
       e.speed = 0;
@@ -64,6 +88,14 @@ export function thinkBouncer(w: World, e: Enemy): { speed: number; dir: number }
       } else if (!e.locked) {
         e.locked = true;
         w.events.push({ k: 'lock', id: e.id });
+      }
+      if (e.t >= e.windup && !laneClear(w, e, e.face)) {
+        // something moved into its lane: it holds the roll a moment
+        e.state = 'stalk';
+        e.t = 0;
+        e.cd = 0.5;
+        w.events.push({ k: 'cancel', id: e.id });
+        return { speed: 0, dir: e.face };
       }
       if (e.t >= e.windup) {
         e.state = 'roll';

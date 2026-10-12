@@ -9,7 +9,8 @@ the critic's open points as defaults, M3 (the short run, PLAN.md section 8) and 
 pixel-art-studio art) are built, and both reviews are fixed. M5: 0.2.0 is live on GitHub Pages
 (2026-10-12). After 0.2.0 the owner said "looks good get started on next milestones so we can make
 this game more expansive" (2026-10-12): **M6-M9 are planned in PLAN.md section 9 and section 6
-below**. M6, M7 and M8a (The Compactor and the six-yard run) are built; 8b is next.
+below**. M6, M7, M8a (The Compactor and the six-yard run) and 8b (the M6 review's fixes) are built;
+8c (verify) is next.
 
 **How every session runs:** start with *"Read ROADMAP.md and HANDOFF.md"*, then paste the phase's
 prompt. Build the phase, deciding small things alone and logging them in `DECISIONS.md`. Run the
@@ -262,10 +263,7 @@ family by family when it beats the placeholder.
   PLAN.md when it starts.
 - **M8 — The Compactor** (PLAN.md 9.5): the boss and the six-yard run.
   - **8a — The boss.** Built (DECISIONS #90).
-  - **8b — The M6 review's fixes** (DECISIONS #91): Bouncers keep their distance, the rev has a
-    limit, the Hopper leads a straight line fully, a Bouncer's front clangs, a leap strikes the
-    zone you came from, a standing leap makes no speed, the Hurdles and the Pinball play
-    differently, guard bots for each new part pair.
+  - **8b — The M6 review's fixes.** Built (DECISIONS #92).
   - **8c — Verify.** Both agents on M7 and M8, fixes, docs; the art agents on M7 and M8.
 - **M9 — The Garage** (PLAN.md 9.6): two chassis, unlocks, the Log, the daily run.
 - **0.3.0** is published only when the owner says so (HANDOFF "Releasing").

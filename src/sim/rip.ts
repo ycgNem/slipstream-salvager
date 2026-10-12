@@ -69,6 +69,26 @@ export function landingPoint(w: World): { x: number; y: number } {
   const d = p.air ? p.speed * Math.max(0, p.air.dur - p.air.t) : Math.max(p.speed, t.leapMin) * t.leapAir;
   const x = Math.max(a.wall + r, Math.min(a.w - a.wall - r, p.x + Math.cos(p.heading) * d));
   const y = Math.max(a.wall + r, Math.min(a.h - a.wall - r, p.y + Math.sin(p.heading) * d));
+  return settle(w, x, y);
+}
+
+/**
+ * Where you come down at (x, y): if that's on a pillar or a low wall, the nearest clear spot along
+ * your line (a little further on, or short of it), never sideways round it (DECISIONS #92).
+ */
+function settle(w: World, x: number, y: number): { x: number; y: number } {
+  const p = w.player, a = w.arena, r = w.t.playerRadius;
+  const ux = Math.cos(p.heading), uy = Math.sin(p.heading);
+  const clear = (q: { x: number; y: number }) => {
+    const o = pushOut(a, q.x, q.y, r);
+    return Math.hypot(o.x - q.x, o.y - q.y) < 0.5;
+  };
+  for (let s = 0; s <= 96; s += 1)
+    for (const k of [1, -1]) {
+      const q = { x: x + ux * s * k, y: y + uy * s * k };
+      if (q.x < a.wall + r || q.x > a.w - a.wall - r || q.y < a.wall + r || q.y > a.h - a.wall - r) continue;
+      if (clear(q)) return q;
+    }
   return pushOut(a, x, y, r);
 }
 
@@ -104,8 +124,9 @@ export function releaseBurn(w: World) {
 function startLeap(w: World) {
   const p = w.player, t = w.t;
   p.rev = null;
-  p.speed = Math.max(p.speed, t.leapMin);
+  // the landing's tier is the speed you really had: a standing hop makes none (DECISIONS #92)
   const tier = tierOf(t, p.speed);
+  p.speed = Math.max(p.speed, t.leapMin);
   p.air = { t: 0, dur: t.leapAir, tier, slam: true };
   p.ripCd = t.leapAir + t.leapCooldown;
   p.brake = false;
@@ -126,7 +147,7 @@ export function updateAir(w: World, dt: number) {
   if (A.t < A.dur) return;
   p.air = null;
   // come down clear of any pillar or low wall you sailed over
-  Object.assign(p, pushOut(w.arena, p.x, p.y, t.playerRadius));
+  Object.assign(p, settle(w, p.x, p.y));
   w.events.push({ k: 'touchdown', x: p.x, y: p.y, tier: A.tier });
   if (!A.slam) {
     // off a ramp without the Jump Jets: a clean landing
@@ -139,7 +160,9 @@ export function updateAir(w: World, dt: number) {
   for (const e of under) {
     if (!w.enemies.includes(e) || p.latch) continue;
     p.rip = { t: 0.05, tier: A.tier, burn: false, leap: true, hits: [] };
-    hitEnemy(w, e);
+    // the zone is the side you came at it from, not where you came down: going over its front
+    // strikes the front (DECISIONS #92)
+    hitEnemy(w, e, p.heading + Math.PI);
   }
   p.rip = null;
   // you come down among them: pass through for a moment rather than bumping straight off
@@ -229,9 +252,9 @@ export function inRearArc(w: World, r: Enemy): boolean {
  * Where the player is striking this enemy from: its armored front (within frontArcDeg of its
  * facing), its back (within rearArcDeg of straight behind), or a side (DECISIONS #55).
  */
-export function hitZone(w: World, r: Enemy): Zone {
+export function hitZone(w: World, r: Enemy, from?: number): Zone {
   const p = w.player;
-  const off = Math.abs(wrapAngle(Math.atan2(p.y - r.y, p.x - r.x) - r.face));
+  const off = Math.abs(wrapAngle((from ?? Math.atan2(p.y - r.y, p.x - r.x)) - r.face));
   if (off >= Math.PI - deg(w.t.rearArcDeg)) return 'rear';
   if (off <= deg(w.t.frontArcDeg)) return 'front';
   return 'side';
@@ -256,11 +279,12 @@ export function stunEnemy(w: World, r: Enemy, dur: number) {
   }
 }
 
-function hitEnemy(w: World, r: Enemy) {
+/** from: the direction from the enemy toward where the hit comes from (default: where you are). */
+function hitEnemy(w: World, r: Enemy, from?: number) {
   const p = w.player, t = w.t, rip = p.rip!;
   rip.hits.push(r.id);
   const hx = (p.x + r.x) / 2, hy = (p.y + r.y) / 2;
-  const zone = hitZone(w, r);
+  const zone = hitZone(w, r, from);
   // side parts (treads) run along the back too: with nothing on its rear, a back hit tears them,
   // so the efficient kill strips instead of wrecking (DECISIONS #79)
   const mount = zone === 'rear' && !r.parts.rear && r.parts.sides ? 'sides' : ZONE_MOUNT[zone];
@@ -322,8 +346,9 @@ function hitEnemy(w: World, r: Enemy) {
         if (!joust) latch(w, r);
         break;
       }
-      if (part === 'plow') {
-        // a plowed front takes nothing at all
+      if (part === 'plow' || (r.kind === 'bouncer' && zone === 'front' && !joust)) {
+        // a plowed front takes nothing at all; nor does a Bouncer's round chrome face, unless you
+        // joust its roll (DECISIONS #92: head-on was its quickest death)
         clang(w, r, zone, hx, hy);
         break;
       }
@@ -358,7 +383,8 @@ function clang(w: World, r: Enemy, zone: Zone, x: number, y: number) {
  */
 function latch(w: World, r: Enemy) {
   const p = w.player;
-  if (w.flat || !hasBehavior(w, 'onHit', 'latch') || p.latch) return;
+  // a leap's landing doesn't bite: the Jaws don't cancel the landing's stick (DECISIONS #92)
+  if (w.flat || !hasBehavior(w, 'onHit', 'latch') || p.latch || p.rip?.leap) return;
   const a0 = Math.atan2(p.y - r.y, p.x - r.x);
   const cross = Math.cos(p.heading) * (r.y - p.y) - Math.sin(p.heading) * (r.x - p.x);
   p.latch = { id: r.id, t: 0, cx: r.x, cy: r.y, r: Math.max(Math.hypot(p.x - r.x, p.y - r.y), radiusOf(w, r) + w.t.playerRadius), a0, dir: cross >= 0 ? 1 : -1 };

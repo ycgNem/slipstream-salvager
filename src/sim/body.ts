@@ -6,6 +6,7 @@ import { dirHyst, wrapAngle } from '../data/dirs';
 import { PARTS, type AttackMode, type PartDef, type StatKey } from '../data/parts';
 import { MOUNTS } from '../data/mounts';
 import { contacts, onOil, pushOut } from './arena';
+import { releaseBurn } from './rip';
 import { DT, tierOf, type InputFrame, type World } from './world';
 
 export interface BodyStats {
@@ -208,6 +209,8 @@ export function movePlayer(w: World) {
         p.heading = Math.atan2(vy, vx);
         p.speed = Math.min(t.burnMax, p.speed * t.springKeep + t.springKick);
         w.events.push({ k: 'boing', x: p.x - c.nx * t.playerRadius, y: p.y - c.ny * t.playerRadius });
+        // revving, the bounce is the bank shot: the Burn goes off along the new line
+        if (p.rev !== null && p.rev >= t.burnTapTime && attackMode(w) === 'burn') releaseBurn(w);
         continue;
       }
       if (headOn > t.clankCos && p.speed > 40) {

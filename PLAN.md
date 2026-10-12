@@ -484,13 +484,13 @@ cover doesn't save you, and it punishes **loitering where it will land**.
 - Radius 10, **HP 3**, front armored (1), side 2, back 4 or the tear, like the Rammer.
 - **Stalks** slowly (30 px/s), turning to face you (5 rad/s).
 - **The leap:** when you're 44-220 px away, it crouches for 0.6 s. A **red ring** (radius 28) is
-  painted on the floor where it will land: it tracks the point you'll be at (the Rammer's lead) for
-  0.35 s, then locks for 0.25 s. Then it leaps: 0.55 s in the air, over everything (bodies, pillars,
+  painted on the floor where it will land: it tracks the point you'll be at, leading you fully (a
+  steady line is always under it; only a juke clears it) for 0.35 s, then locks for 0.25 s. Then it leaps: 0.55 s in the air, over everything (bodies, pillars,
   low walls; never out of the arena). While airborne it can't be hit and touches nothing. It lands
   with a **slam**: anyone inside the ring takes a hit, loose parts there are crushed, and other
   enemies are shoved out.
-- **The shockwave:** a slam that only just misses you (within 24 px of the ring) lifts you to
-  Slipstream, like a charge's slipstream. Dodging close pays (DECISIONS #83).
+- **The shockwave:** a slam that only just misses you (within 12 px of the hit) lifts you to
+  Slipstream, like a charge's slipstream. Dodging close pays (DECISIONS #83, #92).
 - **Stuck:** after landing it's stuck for 1.3 s, legs buried, steaming: the opening. Its back glints.
   It waits 1.6-2.6 s before the next leap.
 - **Too close** (under 44 px), or bumped: it stomps where it stands instead (0.45 s crouch, a ring
@@ -505,11 +505,13 @@ Booster are the rear mount's two choices.
 - A tap is still a plain Rip. **Hold Rip to crouch:** you keep your speed (no thrust, no coasting)
   and steer at half rate, and a **teal ring** shows where you'll land: ahead of you, your speed ×
   the air time.
-- **Let go to leap:** 0.4 s in the air along your heading (at least 120 px/s, so a standing leap
-  still clears a lane). In the air you can't steer, and nothing can touch you: charges, snaps, bites
+- **Let go to leap:** 0.4 s in the air along your heading (at least 40 px/s: a standing hop is
+  small, and lands at the tier you really had). In the air you can't steer, and nothing can touch you: charges, snaps, bites
   and slams pass under you, and you sail over pillars and low walls (never the ring wall).
 - **The landing is a hit:** every enemy within 24 px of where you land takes a hit at your tier (the
-  tier you leapt at), on the zone you land on. Land behind a Rammer and you tear its booster off.
+  tier you leapt at), on the zone **you came at it from**: come down on a Rammer from behind and
+  you tear its booster off; go over its front and you strike the front. The Jaws don't bite on a
+  landing. Coming down on a pillar or low wall puts you at its edge along your line.
 - **Inherited weakness:** the landing sticks you, like the Hopper. For 0.25 s you have no control and
   lose 15% of your speed, and you can't leap again for 0.5 s after landing.
 - The line it gives you: over the top. The Booster goes *through* a lane, the jets go *over* it.
@@ -519,8 +521,10 @@ Booster are the rear mount's two choices.
 **The Bouncer.** A round pinball of a bot in a ring of coil springs. It punishes **standing in a
 lane you can't see the end of**: its rolls bounce off walls and pillars and come back faster.
 
-- Radius 9, **HP 2**. It faces the way it rolls; front 1 (glances), side 2, back 4.
-- **Drifts** toward you slowly (40 px/s) between rolls.
+- Radius 9, **HP 2**. It faces the way it rolls; its round chrome front takes nothing (a clang)
+  unless you joust its roll; side 2, back 4.
+- **Drifts** to about 140 px from you (40 px/s) between rolls, backing off if you come closer, and
+  comes round a pillar to see you. It won't start a roll with another enemy in the way.
 - **The roll:** within 260 px and in sight, it winds up for 0.6 s: a red lane to the first wall or
   pillar, **plus the first bounce's stub** (60 px), tracking for 0.35 s, locked for 0.25 s. Then it
   rolls at 230 px/s. Each wall or pillar it hits **reflects** it and adds 30 px/s (up to 330). After
@@ -534,10 +538,11 @@ lane you can't see the end of**: its rolls bounce off walls and pillars and come
 **The Springs** (sides; from the Bouncer). They change what walls do to you, so they and the Grip
 Treads are the side mount's two choices.
 
-- A **head-on hit on a wall or pillar bounces you off** instead of clanking: you keep all your speed
-  plus 25 px/s (up to 330). A Rip or a Burn that hits a wall bounces and **keeps going** on the new
-  line; the Booster's wall stun is gone (the springs take it).
-- Bumping an enemy outside a Rip bounces you off at full speed (instead of losing 60%), but it still
+- A **head-on hit on a wall or pillar bounces you off** instead of clanking: you keep 90% of your
+  speed. A Rip or a Burn that hits a wall bounces and **keeps going** on the new line; the Booster's
+  wall stun is gone (the springs take it). Revving, the bounce launches the Burn along the new line:
+  the bank shot.
+- Bumping an enemy outside a Rip bounces you off at 90% (instead of losing 60%), but it still
   starts its quick windup.
 - **Inherited weakness:** springy, not grippy. Turning ×0.85 at speed and turn scrub starts at ×0.8
   the sideways pull: you corner badly, and the walls are how you turn.
@@ -550,8 +555,8 @@ wall or pillar and carries on for the rest of its length. Its springs tear from 
 
 | Yard | Layout | Salvage | Waves (at depth 2) |
 |---|---|---|---|
-| **The Hurdles** | rows of short low walls (hurdles) | Jump Jets | 2 Hoppers; 2 Hoppers + 1 Snapper; 3 Hoppers + 1 Rammer |
-| **The Pinball** | a diamond of pillars and posts (bumpers) | Springs | 2 Bouncers; 3 Bouncers; 2 Bouncers + Spring Rammer + 1 Snapper |
+| **The Hurdles** | two long low walls split the yard into three lanes, with narrow gaps at their ends and middle: going round costs distance, leaping is the shortcut | Jump Jets | 2 Hoppers; 2 Hoppers + 1 Snapper; 3 Hoppers + 1 Rammer |
+| **The Pinball** | four low walls facing each other across the yard round a pillar bumper, posts in the corners: a straight line goes back and forth | Springs | 2 Bouncers; 3 Bouncers; 2 Bouncers + Spring Rammer + 1 Snapper |
 
 The middle pool is now six yards; a run still visits three of them, two choices at each exit. The
 Heap gains a Hopper in its first wave and a Bouncer and a Spring Rammer in its last, and its sign

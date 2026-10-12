@@ -1,7 +1,7 @@
 // One simulation tick, systems in a fixed order (PLAN.md architecture rule 6):
 // input → player movement → rip/burn → enemies → collisions → hits and tear-offs → towed part and
 // pickups → bolting → waves.
-import { drift, movePlayer, settleFacing, steer } from './body';
+import { attackMode, drift, movePlayer, settleFacing, steer } from './body';
 import { autoRelease, releaseBurn, resolveRipHits, tryAttack, updateAir, updateLatch, updateRip } from './rip';
 import { checkDrafts, resolveContacts, updateEnemies } from './enemies';
 import { startBolt, updateBolt, updatePickups, updateTow } from './salvage';
@@ -52,6 +52,8 @@ export function step(w: World, input: InputFrame): boolean {
     // a press a moment too early fires when it can (a tap with the Booster is a plain Rip)
     if (p.ripBuf > 0 && tryAttack(w)) p.ripBuf = 0;
     if (p.rev !== null && !input.rip) releaseBurn(w);
+    // a rev can't be held forever: at revMax the Burn launches itself
+    if (p.rev !== null && p.rev >= w.t.revMax && attackMode(w) === 'burn') releaseBurn(w);
     if (boltEdge) startBolt(w);
     // a leap that just started has no steering
     if (!p.air) steer(w, input);

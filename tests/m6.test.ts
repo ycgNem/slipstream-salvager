@@ -161,12 +161,12 @@ describe('the Jump Jets', () => {
     expect(w.stats.hitsTaken).toBe(0);
   });
 
-  it('land behind a Rammer at Slipstream and its booster comes off', () => {
+  it('come down on a Rammer from behind at Slipstream and its booster comes off', () => {
     const w = openWorld();
     giveBolted(w, 'jets');
     const v = 230, d = v * w.t.leapAir;
-    Object.assign(w.player, { x: 1112 - d, y: 2000, heading: 0, speed: v });
-    const r = addRammer(w, 1100, 2000, Math.PI);
+    Object.assign(w.player, { x: 1100 - d, y: 2000, heading: 0, speed: v });
+    const r = addRammer(w, 1100, 2000, 0);
     Object.assign(r, { state: 'skid', t: 0, skidFor: 9, cd: 99 });
     w.player.rev = w.t.burnTapTime;
     const ev = [...evs(w, 1, IN(1, 0, false)), ...evs(w, 30)];
@@ -174,6 +174,30 @@ describe('the Jump Jets', () => {
     expect(ev).toContain('tear');
     expect(r.parts.rear).toBeUndefined();
     expect(w.player.tow?.part).toBe('booster');
+  });
+
+  it('leaping over its front strikes the front, wherever you land (DECISIONS #92)', () => {
+    const w = openWorld();
+    giveBolted(w, 'jets');
+    const v = 230, d = v * w.t.leapAir;
+    Object.assign(w.player, { x: 1112 - d, y: 2000, heading: 0, speed: v });
+    const r = addRammer(w, 1100, 2000, Math.PI);
+    Object.assign(r, { state: 'skid', t: 0, skidFor: 9, cd: 99 });
+    w.player.rev = w.t.burnTapTime;
+    evs(w, 1, IN(1, 0, false));
+    evs(w, 30);
+    expect(r.parts.rear).toBe('booster');
+    expect(w.player.tow).toBeNull();
+  });
+
+  it('a standing hop is no faster than you were (DECISIONS #92)', () => {
+    const w = openWorld();
+    giveBolted(w, 'jets');
+    Object.assign(w.player, { x: 1000, y: 2000, heading: 0, speed: 0 });
+    w.player.rev = w.t.burnTapTime;
+    const ev = tick(w, IN(1, 0, false));
+    expect(ev.find((e) => e.k === 'leap')).toMatchObject({ tier: 'crawl' });
+    expect(w.player.air!.tier).toBe('crawl');
   });
 
   it('the landing sticks you: no control for a moment, and 15% of your speed gone', () => {
@@ -267,7 +291,7 @@ describe('the Springs', () => {
     for (let i = 0; i < 30 && !ev.includes('boing'); i++) ev.push(...evs(w, 1, EAST));
     expect(ev).toContain('boing');
     expect(ev).not.toContain('clank');
-    expect(w.player.speed).toBeGreaterThanOrEqual(230);
+    expect(w.player.speed).toBeGreaterThanOrEqual(230 * w.t.springKeep - 1);
     expect(Math.cos(w.player.heading)).toBeLessThan(-0.95);
   });
 

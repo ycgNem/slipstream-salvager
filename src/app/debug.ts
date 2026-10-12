@@ -181,7 +181,7 @@ export function scene(app: App, name: SceneName) {
       quiet(play);
       play.hints.seen = { ...play.hints.seen, bouncer: false };
       place(w, 140, 300, 0, 150);
-      const a = addEnemy(w, 'bouncer', 320, 180, Math.PI);
+      const a = addEnemy(w, 'bouncer', 400, 200, Math.PI);
       beginRoll(w, a);
       const b = addEnemy(w, 'bouncer', 520, 300, Math.PI);
       Object.assign(b, { state: 'roll', speed: 280, cd: 99 });

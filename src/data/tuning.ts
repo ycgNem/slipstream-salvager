@@ -71,6 +71,8 @@ export const DEFAULT_TUNING = {
   burnWallStun: 0.6,
   /** let go of Rip sooner than this and it's a plain Rip, not a Burn (DECISIONS #57) */
   burnTapTime: 0.15,
+  /** a rev held this long launches the Burn on its own (DECISIONS #92) */
+  revMax: 1.0,
 
   // ---- the Grip Treads (PLAN.md 8.4) ----
   treadsTopMul: 0.92,
@@ -97,7 +99,7 @@ export const DEFAULT_TUNING = {
   // ---- the Jump Jets (PLAN.md 9.1) ----
   /** seconds in the air, and the least speed a leap goes at (a standing leap still clears a lane) */
   leapAir: 0.4,
-  leapMin: 120,
+  leapMin: 40,
   /** how high the arc is drawn (px; the sim is flat) */
   leapHeight: 20,
   /** the landing hits every enemy within this of where you land (plus its radius) */
@@ -112,8 +114,8 @@ export const DEFAULT_TUNING = {
 
   // ---- the Springs (PLAN.md 9.2) ----
   /** a head-on wall hit keeps this share of your speed, plus springKick */
-  springKeep: 1,
-  springKick: 25,
+  springKeep: 0.9,
+  springKick: 0,
   /** inherited weakness: springy, not grippy */
   springsTurnMul: 0.85,
   springsGripMul: 0.8,
@@ -153,6 +155,10 @@ export const DEFAULT_TUNING = {
   chargeRange: 230,
   /** it aims where you'll be if you keep going at this share of your velocity (DECISIONS #48) */
   leadFrac: 0.8,
+  /** a leap's ring leads you fully: a steady line is always under it, only a juke clears it */
+  leapLead: 1.0,
+  /** a slam that misses you by less than this (px past the hit) lifts you to Slipstream */
+  shockBand: 12,
   trackTurn: 10,
   chargeSpeed: 330,
   /** a charge runs this far past where you were when it locked, within min..max, so it always
@@ -231,6 +237,8 @@ export const DEFAULT_TUNING = {
 
   // ---- the Bouncer (PLAN.md 9.2) ----
   bouncerHp: 2,
+  /** it keeps about this far from you and rolls from there (DECISIONS #92) */
+  bouncerKeep: 140,
   bouncerRadius: 9,
   bouncerDrift: 40,
   bouncerTurn: 4,
@@ -332,14 +340,14 @@ export const TUNING_GROUPS: { title: string; keys: [TuningKey, number][] }[] = [
   { title: 'Movement', keys: [['topSpeed', 10], ['accLow', 50], ['accHigh', 10], ['accSplit', 5], ['turnLow', 0.5], ['turnHigh', 0.25], ['scrubLat', 25], ['scrubK', 0.05], ['coastHalf', 0.05], ['brakeDecel', 50], ['brakeDeg', 5], ['pivotSpeed', 5], ['overspeedHalf', 0.05], ['clankCos', 0.05], ['clankKeep', 0.05]] },
   { title: 'Tiers', keys: [['cruiseAt', 5], ['slipAt', 5]] },
   { title: 'Rip', keys: [['ripTime', 0.02], ['ripImpulse', 10], ['ripCooldown', 0.05], ['aimAssistDeg', 1], ['slipDamage', 1], ['frontDamage', 1], ['rearDamage', 1], ['frontArcDeg', 5], ['cruiseShove', 2], ['cruiseKeep', 0.05], ['hitstopSlip', 1], ['passThrough', 0.02]] },
-  { title: 'Booster', keys: [['boosterTopMul', 0.025], ['boosterTurnLowMul', 0.05], ['boosterTurnHighMul', 0.05], ['burnAccel', 10], ['burnMax', 10], ['burnTime', 0.05], ['burnCooldown', 0.05], ['burnWallStun', 0.05], ['burnTapTime', 0.01]] },
+  { title: 'Booster', keys: [['boosterTopMul', 0.025], ['boosterTurnLowMul', 0.05], ['boosterTurnHighMul', 0.05], ['burnAccel', 10], ['burnMax', 10], ['burnTime', 0.05], ['burnCooldown', 0.05], ['burnWallStun', 0.05], ['burnTapTime', 0.01], ['revMax', 0.05]] },
   { title: 'Jump Jets, Springs', keys: [['leapAir', 0.05], ['leapMin', 10], ['leapSlamR', 2], ['leapRecoil', 0.05], ['leapKeep', 0.05], ['leapCooldown', 0.05], ['crouchSteerMul', 0.05], ['springKeep', 0.05], ['springKick', 5], ['springsTurnMul', 0.05], ['springsGripMul', 0.05]] },
   { title: 'Treads, Plow, Jaws', keys: [['treadsTopMul', 0.02], ['treadsTurnMul', 0.05], ['treadsGripMul', 0.05], ['slideTurn', 0.5], ['slideKeep', 0.02], ['plowAccMul', 0.05], ['plowConeDeg', 5], ['latchTime', 0.02], ['slingBoost', 5]] },
   { title: 'Salvage', keys: [['boltTime', 0.05], ['boltSteerMul', 0.05], ['rearArcDeg', 5], ['partLives', 1]] },
   { title: 'Hull', keys: [['hull', 1], ['invulnTime', 0.1], ['knockSpeed', 10], ['bumpKeep', 0.05]] },
   { title: 'Snapper', keys: [['snapperHp', 1], ['snapperTop', 5], ['snapperAcc', 20], ['snapperTurn', 0.5], ['snapRange', 5], ['snapCircle', 4], ['snapConeDeg', 5], ['snapWindup', 0.05], ['snapLock', 0.05], ['snapSpeed', 10], ['snapDist', 5], ['snapSlide', 0.05], ['snapCdMin', 0.1], ['snapCdMax', 0.1], ['maxSnaps', 1], ['jawFling', 0.1]] },
   { title: 'Hopper', keys: [['hopperHp', 1], ['hopperSpeed', 5], ['hopMin', 5], ['hopMax', 10], ['hopWindup', 0.05], ['hopLock', 0.05], ['hopAir', 0.05], ['hopSlamR', 2], ['hopStuck', 0.1], ['stompWindup', 0.05], ['stompR', 2], ['hopCdMin', 0.1], ['hopCdMax', 0.1], ['maxCrouch', 1]] },
-  { title: 'Bouncer', keys: [['bouncerHp', 1], ['bouncerDrift', 5], ['rollRange', 10], ['rollWindup', 0.05], ['rollLock', 0.05], ['rollSpeed', 10], ['rollGain', 5], ['rollMax', 10], ['rollBounces', 1], ['rollTime', 0.1], ['dizzyTime', 0.1], ['rollCdMin', 0.1], ['rollCdMax', 0.1], ['maxRolls', 1]] },
+  { title: 'Bouncer', keys: [['bouncerHp', 1], ['bouncerKeep', 10], ['bouncerDrift', 5], ['rollRange', 10], ['rollWindup', 0.05], ['rollLock', 0.05], ['rollSpeed', 10], ['rollGain', 5], ['rollMax', 10], ['rollBounces', 1], ['rollTime', 0.1], ['dizzyTime', 0.1], ['rollCdMin', 0.1], ['rollCdMax', 0.1], ['maxRolls', 1]] },
   { title: 'The Compactor', keys: [['compactorHp', 1], ['bossSpeed', 5], ['bossTurn', 0.25], ['bossWindup', 0.05], ['bossLock', 0.05], ['bossChargeSpeed', 10], ['bossChargeOver', 10], ['bossBounces', 1], ['bossSkid', 0.1], ['bossWallStun', 0.1], ['bossShoveDist', 5], ['bossLeapWindup', 0.05], ['bossLeapAir', 0.05], ['bossSlamR', 2], ['bossStuck', 0.1], ['bossCall', 1]] },
   { title: 'Terrain', keys: [['boostTo', 10], ['boostConeDeg', 5], ['boostEnemy', 10], ['boostRoll', 10], ['oilHalf', 0.25], ['rampAir', 0.05], ['rampConeDeg', 5], ['crusherPeriod', 0.25], ['crusherWarn', 0.05], ['crusherDamage', 1]] },
   { title: 'Flat mode', keys: [['flatDamage', 1], ['flatPartDamage', 1]] },

@@ -171,8 +171,9 @@ export function resolveContacts(w: World) {
     if (d >= min) continue;
     if (lunging(r)) {
       // the Jaws' swing can't be steered out of, so another lunge can catch you mid-swing; only the
-      // one you're biting can't (DECISIONS #79)
-      if (p.rip?.hits.includes(r.id) || p.latch?.id === r.id) continue;
+      // one you're biting can't (DECISIONS #79). A lunge your rip went through at Slipstream can't
+      // hit you; one you only shoved or clanked off still can (DECISIONS #92)
+      if ((p.rip?.hits.includes(r.id) && p.rip.tier === 'slip') || p.latch?.id === r.id) continue;
       if (plow && inPlowCone(w, r) && p.knock <= 0 && p.stun <= 0) {
         // the Plow takes the charge on its face: the charger is stopped and stunned, you're
         // knocked back with nothing lost (PLAN.md 8.4)

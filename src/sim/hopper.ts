@@ -58,7 +58,7 @@ function aimLanding(w: World, e: Enemy) {
   const p = w.player, t = w.t, a = w.arena, r = radiusOf(w, e), s = leapSpec(w, e);
   const T = Math.max(0, e.windup - e.t) + s.air;
   const ah = ahead(w, T);
-  let x = p.x + (ah.x - p.x) * t.leadFrac, y = p.y + (ah.y - p.y) * t.leadFrac;
+  let x = p.x + (ah.x - p.x) * t.leapLead, y = p.y + (ah.y - p.y) * t.leapLead;
   const dx = x - e.x, dy = y - e.y, d = Math.hypot(dx, dy);
   if (d > s.max) {
     x = e.x + (dx / d) * s.max;
@@ -84,7 +84,7 @@ function land(w: World, e: Enemy) {
   w.events.push({ k: 'land', id: e.id, x: e.x, y: e.y, r: R });
   const d = Math.hypot(p.x - e.x, p.y - e.y);
   if (!p.air && !w.result && d < R + 2) hitPlayer(w, Math.atan2(p.y - e.y, p.x - e.x), 1.1);
-  else if (!p.air && !w.result && d < R + t.draftGap + t.playerRadius && p.invuln <= 0 && p.knock <= 0 && p.stun <= 0) {
+  else if (!p.air && !w.result && d < R + 2 + t.shockBand && p.invuln <= 0 && p.knock <= 0 && p.stun <= 0) {
     // the shockwave: a slam that only just misses you lifts you to Slipstream, like a charge's
     // slipstream, so a tight dodge sets up the counter-pass while it's stuck
     p.speed = Math.min(t.burnMax, Math.max(p.speed + 15, t.slipAt + t.draftBoost));

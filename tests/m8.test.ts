@@ -3,11 +3,11 @@
 // in the air).
 import { describe, expect, it } from 'vitest';
 import { FOUNDRY } from '../src/data/arena';
-import { RUN_LENGTH, YARDS } from '../src/data/yards';
+import { RUN_LENGTH, YARDS, type YardId } from '../src/data/yards';
 import { beginBossWindup, bossChargeLength } from '../src/sim/compactor';
 import { beginWindup } from '../src/sim/rammer';
 import { finishYard, newRun, yardWorld } from '../src/sim/run';
-import { addEnemy, addRammer, createWorld, type Enemy, type InputFrame, type World } from '../src/sim/world';
+import { addEnemy, addRammer, createWorld, giveBolted, type Enemy, type InputFrame, type World } from '../src/sim/world';
 import { EAST, IDLE, IN, openArena, openWorld, tick } from './helpers';
 
 const evs = (w: World, n: number, input: InputFrame = IDLE) => {
@@ -212,5 +212,99 @@ describe('the M6 review fixes', () => {
     const ev = evs(w, 20);
     expect(ev).not.toContain('draft');
     expect(w.player.speed).toBeLessThan(w.t.slipAt);
+  });
+
+  it('every yard hits a player who parks at the start (Bouncers no longer cancel each other)', () => {
+    const safe: string[] = [];
+    for (const id of Object.keys(YARDS) as YardId[]) {
+      const w = yardWorld(newRun(3, id));
+      for (let i = 0; i < 60 * 60 && !w.result; i++) tick(w, IDLE);
+      if (w.stats.hitsTaken < 2 && w.result !== 'scrapped') safe.push(`${id}: ${w.stats.hitsTaken} hits in 60 s`);
+    }
+    expect(safe).toEqual([]);
+  });
+
+  it('a Bouncer keeps its distance and rolls from there', () => {
+    const w = openWorld();
+    Object.assign(w.player, { x: 1000, y: 2000, invuln: 999 });
+    const b = addEnemy(w, 'bouncer', 1040, 2000, Math.PI);
+    b.cd = 99;
+    evs(w, 120);
+    expect(Math.hypot(b.x - 1000, b.y - 2000)).toBeGreaterThan(w.t.bouncerKeep - 40);
+  });
+
+  it("a Bouncer won't start a roll into another enemy", () => {
+    const w = openWorld();
+    Object.assign(w.player, { x: 1000, y: 2000, invuln: 999 });
+    const b = addEnemy(w, 'bouncer', 1150, 2000, Math.PI);
+    const o = addRammer(w, 1110, 2000, Math.PI / 2);
+    o.cd = 99;
+    b.cd = 0;
+    const ev = evs(w, 2);
+    expect(ev).not.toContain('windup');
+    expect(b.state).toBe('stalk');
+  });
+
+  it('a rev held past revMax launches the Burn on its own', () => {
+    const w = openWorld();
+    giveBolted(w, 'booster');
+    Object.assign(w.player, { x: 1000, y: 2000, heading: 0, speed: 150 });
+    const ev = evs(w, Math.ceil(w.t.revMax * 60) + 3, IN(1, 0, true));
+    expect(ev).toContain('rip');
+    expect(w.player.rev).toBeNull();
+    expect(w.player.rip?.burn || w.player.ripCd > 0).toBe(true);
+  });
+
+  it('with Springs, a wall bounce mid-rev fires the Burn along the new line', () => {
+    const w = box();
+    giveBolted(w, 'booster');
+    giveBolted(w, 'springs');
+    Object.assign(w.player, { x: 340, y: 150, heading: 0, speed: 200, rev: w.t.burnTapTime + 0.05 });
+    const ev = evs(w, 30, IN(1, 0, true));
+    expect(ev).toContain('boing');
+    expect(ev).toContain('rip');
+    expect(ev.indexOf('rip')).toBeGreaterThanOrEqual(ev.indexOf('boing'));
+  });
+
+  it('a charge still hits you if your rev only bumped it at a crawl', () => {
+    const w = openWorld();
+    giveBolted(w, 'booster');
+    Object.assign(w.player, { x: 1000, y: 2000, heading: -Math.PI / 2, speed: 60, rev: w.t.burnTapTime + 0.05 });
+    const r = addRammer(w, 940, 2000, 0);
+    Object.assign(r, { state: 'charge', t: 0, travelled: 0, chargeLen: 300, cd: 99 });
+    evs(w, 30, IN(0, -1, true));
+    expect(w.stats.hitsTaken).toBe(1);
+  });
+
+  it("a Hopper's ring is under a steady straight line at any speed", () => {
+    for (const v of [140, 200, 240]) {
+      const w = openWorld();
+      Object.assign(w.player, { x: 1000, y: 2000, heading: 0, speed: v });
+      const h = addEnemy(w, 'hopper', 1120, 1880, Math.PI / 2);
+      h.cd = 0;
+      // hold the line (no steering input changes it) at that speed
+      for (let i = 0; i < 120 && !w.stats.hitsTaken; i++) {
+        w.player.speed = v;
+        tick(w, IN(1, 0));
+      }
+      expect(w.stats.hitsTaken, `at ${v} px/s`).toBe(1);
+    }
+  });
+
+  it('coming down on a big block puts you at its edge along your line, never round its side', () => {
+    const w = openWorld();
+    const block = { x: 1100, y: 1940, w: 96, h: 120 };
+    w.arena.pillars.push(block);
+    w.arena.solids.push(block);
+    giveBolted(w, 'jets');
+    Object.assign(w.player, { x: 1060, y: 2010, heading: 0, speed: 230 });
+    w.player.rev = w.t.burnTapTime;
+    evs(w, 1, IN(1, 0, false));
+    let down = false;
+    for (let i = 0; i < 40 && !down; i++) down = tick(w, IDLE).some((e) => e.k === 'touchdown');
+    expect(down).toBe(true);
+    expect(Math.abs(w.player.y - 2010)).toBeLessThan(1);
+    const r = w.t.playerRadius, x = w.player.x;
+    expect(x <= block.x - r + 0.5 || x >= block.x + block.w + r - 0.5).toBe(true);
   });
 });
