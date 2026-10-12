@@ -335,7 +335,7 @@ export class Play {
       case 'call': {
         // The Compactor calls a Snapper in: a horn, and a word over it
         const b = this.world.enemies.find((q) => q.id === e.id);
-        if (b) fx.text(b.x, b.y - 46, 'CALLS FOR HELP', C.mist);
+        if (b) fx.text(b.x, b.y - 46 < 30 ? b.y + 26 : b.y - 46, 'CALLS FOR HELP', C.mist);
         a.sfx('wave', 0.7, 0.6);
         break;
       }

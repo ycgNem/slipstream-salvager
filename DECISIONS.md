@@ -620,3 +620,18 @@ a number in the tuning panel, and the M1 rule is one setting away (given with ea
       "The same for everyone" holds for anyone on the same build (the seed drives the yard choices
       and every wave; a balance change changes the run).
     - The debug scenes `garage` and `log` show made-up progress (`app.preview`), not the save.
+96. **Fixes from the M7-M8 visual QA** (the qa-screens agent at e599e43).
+    - The Compactor keeps its centre at y 64 or lower (`bossTopY`; the top of the yard is a wall to
+      it, its lane and its leap ring stop there too), so the HUD band never covers its head; its
+      "CALLS FOR HELP" goes below it when above would land on its body.
+    - Its mounts drop with its pose (lift 5 winding up, 6 charging, 4 stunned, 7 otherwise), so its
+      parts stay on its body.
+    - Its Springs' bounces are most of its charge: both are drawn, and once locked in the lane's
+      own colours (a Spring Rammer's and a Bouncer's single stub stay dim and dashed).
+    - Oil's base is dark blue (44), never palette 0, the outline colour, so bodies and shadows on
+      it keep their edges.
+    - A crusher plate's warning is a steady red border drawn over the bodies standing on it.
+    - Hints: teal for a speed move, gold only for salvage (tearing, bolting, the exit signs), plain
+      frost otherwise (oil, the plates).
+    - Passed to the art agent: the boss's springs and plow must be the imported parts' models at
+      2x (the code ones aren't what drops).

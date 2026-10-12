@@ -65,7 +65,7 @@ function aimLanding(w: World, e: Enemy) {
     y = e.y + (dy / d) * s.max;
   }
   x = clamp(x, a.wall + r + 1, a.w - a.wall - r - 1);
-  y = clamp(y, a.wall + r + 1, a.h - a.wall - r - 1);
+  y = clamp(y, e.kind === 'compactor' ? t.bossTopY : a.wall + r + 1, a.h - a.wall - r - 1);
   const o = pushOut(a, x, y, r);
   e.tx = o.x;
   e.ty = o.y;

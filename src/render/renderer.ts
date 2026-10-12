@@ -225,12 +225,21 @@ export function drawWorld(ctx: Ctx, w: World, fx: Fx, o: DrawOpts) {
     draw(sx, sy, l.angle, l.len);
     // on springs the lunge bounces off the wall it meets: the first bounce's stub shows where it
     // comes back (a Bouncer's roll; a Spring Rammer's charge, for the rest of its length), dim and
-    // dashed so a near head-on bounce doesn't tangle with the lane
-    const rest = r.kind === 'bouncer' ? w.t.rollStub : r.kind !== 'snapper' && !r.shove ? chargeLenOf(w, r) - l.len : 0;
-    if (r.parts.sides === 'springs' && rest > 8) {
-      const ex = r.x + Math.cos(l.angle) * l.len, ey = r.y + Math.sin(l.angle) * l.len;
-      const a2 = reflectAt(w.arena, ex, ey, l.angle, rr);
-      lane(ctx, ex, ey, a2, Math.min(rest, laneLength(w.arena, ex, ey, a2, rest, rr)), l.width, r.locked ? C.danger2 : C.danger1, C.danger0, { dash: 3, phase: Math.floor(o.time * 30), density: 8 });
+    // dashed so a near head-on bounce doesn't tangle with the lane. The Compactor's bounces are
+    // most of its charge: both are drawn, and once locked they're drawn like the lane itself
+    const boss = r.kind === 'compactor', top = w.t.bossTopY;
+    let rest = r.kind === 'bouncer' ? w.t.rollStub : r.kind !== 'snapper' && !r.shove ? chargeLenOf(w, r) - l.len : 0;
+    let ex = r.x + Math.cos(l.angle) * l.len, ey = r.y + Math.sin(l.angle) * l.len, a1 = l.angle;
+    for (let b = 0; r.parts.sides === 'springs' && b < (boss ? w.t.bossBounces : 1) && rest > 8; b++) {
+      const a2 = boss && ey <= top + 0.5 ? -a1 : reflectAt(w.arena, ex, ey, a1, rr);
+      let len2 = Math.min(rest, laneLength(w.arena, ex, ey, a2, rest, rr));
+      if (boss && Math.sin(a2) < -0.01) len2 = Math.min(len2, Math.max(0, (ey - top) / -Math.sin(a2)));
+      if (boss && r.locked) lane(ctx, ex, ey, a2, len2, l.width, hot ? C.danger3 : C.danger2, C.danger1, { density: 2 });
+      else lane(ctx, ex, ey, a2, len2, l.width, r.locked ? C.danger2 : C.danger1, C.danger0, { dash: 3, phase: Math.floor(o.time * 30), density: 8 });
+      ex += Math.cos(a2) * len2;
+      ey += Math.sin(a2) * len2;
+      rest -= len2;
+      a1 = a2;
     }
   }
   const p = w.player;
@@ -279,6 +288,17 @@ export function drawWorld(ctx: Ctx, w: World, fx: Fx, o: DrawOpts) {
   items.sort((a, b) => a.y - b.y);
   for (const it of items) it.draw();
 
+  // a crusher plate's warning, over the bodies standing on it: a steady red border
+  for (const f of w.arena.floor ?? []) {
+    if (f.kind !== 'crusher' || crusherState(w, f).state !== 'warn') continue;
+    const r = f.rect;
+    ctx.fillStyle = PALETTE[C.danger3];
+    ctx.fillRect(r.x, r.y, r.w, 1);
+    ctx.fillRect(r.x, r.y + r.h - 1, r.w, 1);
+    ctx.fillRect(r.x, r.y, 1, r.h);
+    ctx.fillRect(r.x + r.w - 1, r.y, 1, r.h);
+  }
+
   // stun stars
   for (const r of w.enemies)
     if ((r.state === 'skid' && r.slammed) || r.state === 'stunned') drawSprite(ctx, sprite(`fx:stars:${Math.floor(o.time * 10) % 4}`), Math.round(r.x), Math.round(r.y) - STARS_Y[r.kind]);
@@ -304,13 +324,15 @@ function drawEnemy(ctx: Ctx, r: Enemy, fx: Fx, time: number, lift = 0) {
   const x = Math.round(r.x) + shake, y = Math.round(r.y) - lift;
   const name = enemySprite(r, time);
   const blink = Math.floor(time * 10) % 2 === 0;
-  // The Compactor wears its parts at 2x (`bo:part:*`), bolted higher up its hull
+  // The Compactor wears its parts at 2x (`bo:part:*`), bolted higher up its hull; they drop with
+  // its body when it hunkers down (winding up, charging, stunned)
   const boss = r.kind === 'compactor', pre = boss ? 'bo:part' : 'part';
-  const rm = rearMount(d, MOUNT_DIST[r.kind], boss ? 7 : 3);
+  const mountLift = boss ? (r.state === 'windup' ? 5 : r.state === 'charge' ? 6 : r.state === 'stunned' ? 4 : 7) : 3;
+  const rm = rearMount(d, MOUNT_DIST[r.kind], mountLift);
   // the Snapper's head lunges 3 px out on a snap and dips 1 px in its windup and when stunned,
   // and the jaws stay on it
   const fm = r.kind !== 'snapper'
-    ? frontMount(d, FRONT_DIST[r.kind], boss ? 7 : 3)
+    ? frontMount(d, FRONT_DIST[r.kind], mountLift)
     : frontMount(d, FRONT_DIST.snapper + (r.state === 'snap' ? 3 : 0), r.state === 'windup' || r.state === 'stunned' ? 2 : 3);
   const rear = () => {
     const part = r.parts.rear;

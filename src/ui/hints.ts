@@ -124,10 +124,12 @@ export class Hints {
       boss: 'EACH PART IS ONE OF ITS MOVES - TEAR THEM OFF',
     };
     const text = TEXT[this.current];
+    // teal for a speed move, gold only for salvage (tearing and bolting parts), plain otherwise
     const speedy = ['speed', 'burn', 'treads', 'plow', 'jaws', 'jets', 'springs', 'boost', 'ramp'].includes(this.current);
+    const salvage = ['tear', 'bolt', 'exit', 'snapper', 'plowfoe', 'jawfoe', 'hopper', 'bouncer', 'boss'].includes(this.current);
     const tw = textWidth(text);
     ui.fill(632 - tw - 4, 345, tw + 8, 14, C.ink);
     const blink = this.shownFor < 0.6 && Math.floor(this.shownFor * 10) % 2 === 1;
-    ui.text(text, 632, 348, blink ? C.white : speedy ? C.speed4 : C.gold3, { align: 'right' });
+    ui.text(text, 632, 348, blink ? C.white : speedy ? C.speed4 : salvage ? C.gold3 : C.frost, { align: 'right' });
   }
 }

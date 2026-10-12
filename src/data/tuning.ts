@@ -298,6 +298,8 @@ export const DEFAULT_TUNING = {
   /** it calls a Snapper in this often, if fewer than bossHelpers others are in the yard */
   bossCall: 16,
   bossHelpers: 2,
+  /** its centre stays at least this far down the yard, so the HUD band never covers its head */
+  bossTopY: 64,
 
   // ---- terrain (PLAN.md 9.4) ----
   /** a boost strip lifts you to this while you drive along it (within boostConeDeg of its arrow) */
