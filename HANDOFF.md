@@ -73,8 +73,9 @@ Read this first, every session.
    - Your parts are armor: a hit knocks one loose (cracked), and a second hit shatters it.
 6. **Dev shortcuts (local dev server, or `?debug` on a debug build):**
    - `?yard=kennel` (or `lanes`, `pit`, `jaws`, `hurdles`, `pinball`, `slick`, `jumps`, `press`,
-     `heap`, `compactor`) starts a run in that yard; `?chassis=skiff` (or `hauler`) drives that
-     body. (These apply to a run started with PLAY -> START too.)
+     `heap`, `compactor`) starts a run in that yard (from the Garage's START too).
+   - `?unlock` opens every chassis and modifier in the Garage, to try the Skiff and the Hauler
+     without earning them; `?chassis=skiff` drives that body in the debug scenes.
    - The tuning panel has **START WITH** toggles for each part, flat mode, every number and **COPY**.
 7. **Defaults I chose for you, all reversible in the tuning panel** (DECISIONS #55-#75):
    - A Rammer's front is armored: a teal hit there does 1, a side does 2, the back tears or does 4.

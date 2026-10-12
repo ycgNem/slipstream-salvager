@@ -142,6 +142,8 @@ export class App {
   /** Your lifetime counts, as the unlocks read them. */
   career(): Career {
     if (this.preview.career) return this.preview.career;
+    // ?unlock (debug builds): everything in the Garage is open, for trying the chassis and modifiers
+    if (DEBUG_KEYS && typeof location !== 'undefined' && new URLSearchParams(location.search).has('unlock')) return { tears: 999, jousts: 999, bestYards: 99, wins: 99 };
     const b = loadBest();
     return { tears: b.tearsTotal, jousts: b.joustsTotal, bestYards: b.bestYards, wins: b.wins };
   }
