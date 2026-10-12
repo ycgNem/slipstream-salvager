@@ -16,8 +16,11 @@ Read this first, every session.
     critic's M6 review fixed (#91-#92).
   - **M9, The Garage:** two more chassis (the Skiff and the Hauler), the Garage screen with
     unlocks and two run modifiers, the Log, the daily run (#93-#95).
-  - **Next:** 8c/9e, the visual QA and the critic on M7-M9 and the art agent on the boss and the
-    terrain (background agents), and their fixes.
+  - **Verified:** the visual QA and the critic reviewed M7-M8 (#96-#97) and M9 (#98-#99), and
+    everything they found is fixed. The art for the boss, its parts and the M7 terrain is imported.
+  - **Next:** the owner's playtest of M6-M9, then 0.3.0 when the owner says so (Releasing,
+    below). Watch items for the playtest are in DECISIONS #97 and #99: the Skiff's and the Hauler's
+    feel (the bots can't judge it), the boss fight's length, the new unlock gates' pace.
 - **`works` is ahead of `main` and not pushed.** `main` is still 0.2.0, and the site with it.
   Nothing goes live until the owner says so (Releasing, below).
 - Repo: https://github.com/ycgNem/slipstream-salvager (public; DECISIONS #54). Day-to-day work is on

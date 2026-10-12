@@ -38,7 +38,8 @@ function callHelp(w: World, e: Enemy) {
   e.aux = t.bossCall;
   if (w.enemies.length - 1 >= t.bossHelpers) return;
   const g = [...w.arena.gates].sort((a, b) => Math.hypot(b.spawn.x - p.x, b.spawn.y - p.y) - Math.hypot(a.spawn.x - p.x, a.spawn.y - p.y))[0];
-  const s = addEnemy(w, 'snapper', g.spawn.x, g.spawn.y, Math.atan2(g.dir.y, g.dir.x), { state: 'enter' });
+  // bare: its help isn't a supply of treads to bolt back on (DECISIONS #99)
+  const s = addEnemy(w, 'snapper', g.spawn.x, g.spawn.y, Math.atan2(g.dir.y, g.dir.x), { state: 'enter', parts: [] });
   s.enter = { ...g.dir };
   w.events.push({ k: 'gate', gate: g.id });
   w.events.push({ k: 'enter', id: s.id, gate: g.id });

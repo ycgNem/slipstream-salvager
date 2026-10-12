@@ -144,6 +144,8 @@ export interface Enemy {
   skidFor: number;
   /** this charge already gave the player its slipstream */
   drafted: boolean;
+  /** the tick until which a Hauler's bump can't cancel its windup again (DECISIONS #99) */
+  braced: number;
   /** Slipstream hits taken at 1 HP under the wave 1 safety net */
   shaken: number;
   /** its own speed along its facing (a Snapper drives like you do) */
@@ -196,6 +198,9 @@ export interface Stats {
   /** parts knocked loose by hits (they can be grabbed again) */
   partsKnocked: number;
   jousts: number;
+  /** windups you cancelled (a Cruise hit, the Hauler's shove) and slipstreams you caught */
+  cancels: number;
+  drafts: number;
   /** ticks spent at each tier (for the route tests) */
   tierTicks: Record<Tier, number>;
 }
@@ -274,7 +279,7 @@ export function createWorld(opts: WorldOpts = {}): World {
     events: [],
     stats: {
       ticks: 0, topSpeed: 0, slipHits: 0, cruiseHits: 0, crawlHits: 0, tears: 0, wrecks: 0,
-      damageDealt: 0, hitsTaken: 0, hullLost: 0, partsShattered: 0, partsKnocked: 0, jousts: 0,
+      damageDealt: 0, hitsTaken: 0, hullLost: 0, partsShattered: 0, partsKnocked: 0, jousts: 0, cancels: 0, drafts: 0,
       tierTicks: { crawl: 0, cruise: 0, slip: 0 },
     },
     result: null,
@@ -309,7 +314,7 @@ export function addEnemy(w: World, kind: EnemyKind, x: number, y: number, face =
   const e: Enemy = {
     id: w.nextId++, kind, x, y, face, hp: w.t[K.hp], parts, safety: !!opts.safety,
     state: opts.state ?? K.state, t: 0, windup: 0, lock: 0, shove: false, locked: false, travelled: 0, chargeLen: 0,
-    cd: w.rng.range(0.6, 1.2), vx: 0, vy: 0, enter: { x: Math.cos(face), y: Math.sin(face) }, slammed: false, skidFor: w.t.skidTime, drafted: false, shaken: 0,
+    cd: w.rng.range(0.6, 1.2), vx: 0, vy: 0, enter: { x: Math.cos(face), y: Math.sin(face) }, slammed: false, skidFor: w.t.skidTime, drafted: false, braced: 0, shaken: 0,
     speed: 0, tx: x, ty: y, sx: x, sy: y, stomp: false, bounces: 0, leap: false, aux: kind === 'compactor' ? w.t.bossCall : 0,
   };
   w.enemies.push(e);

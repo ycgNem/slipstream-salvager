@@ -88,6 +88,7 @@ function land(w: World, e: Enemy) {
     // the shockwave: a slam that only just misses you lifts you to Slipstream, like a charge's
     // slipstream, so a tight dodge sets up the counter-pass while it's stuck
     p.speed = Math.min(t.burnMax, Math.max(p.speed + 15, t.slipAt + t.draftBoost));
+    w.stats.drafts++;
     w.events.push({ k: 'draft', id: e.id, x: p.x, y: p.y });
   }
   for (const k of [...w.pickups]) {

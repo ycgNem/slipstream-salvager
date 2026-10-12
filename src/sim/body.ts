@@ -15,6 +15,7 @@ export interface BodyStats {
   turnHigh: number;
   scrubLat: number;
   accHigh: number;
+  coastHalf: number;
 }
 
 /** The defs of every part bolted on, in mount order (none in flat mode: there parts never change how you move). */
@@ -39,11 +40,13 @@ export function hasBehavior<K extends keyof PartDef['behavior']>(w: World, key: 
  */
 export function playerStats(w: World): BodyStats {
   const t = w.t;
-  const s: BodyStats = { topSpeed: t.topSpeed, turnLow: t.turnLow, turnHigh: t.turnHigh, scrubLat: t.scrubLat, accHigh: t.accHigh };
+  const s: BodyStats = { topSpeed: t.topSpeed, turnLow: t.turnLow, turnHigh: t.turnHigh, scrubLat: t.scrubLat, accHigh: t.accHigh, coastHalf: t.coastHalf };
   const parts = activeParts(w);
   for (const part of parts) for (const [k, key] of Object.entries(part.stats) as [StatKey, keyof typeof t][]) s[k] *= t[key];
-  // the Skiff: every part weighs it down
-  s.topSpeed *= Math.pow(t.partWeight, parts.length);
+  // the Skiff: every part costs it glide, grip in a turn and coast (DECISIONS #99), so a loaded
+  // Skiff drives like a Scrapper: armour or glide
+  s.scrubLat *= Math.pow(t.partGrip, parts.length);
+  s.coastHalf *= Math.pow(t.partCoast, parts.length);
   return s;
 }
 
@@ -144,12 +147,12 @@ export function steer(w: World, input: InputFrame) {
         const a = p.speed < t.accSplit ? t.accLow : st.accHigh;
         p.speed = Math.min(cap, p.speed + a * along * DT);
       } else if (p.speed > st.topSpeed) decayOverspeed(w, st);
-      else if (p.speed > cap) p.speed = cap + halve(p.speed - cap, t.coastHalf);
+      else if (p.speed > cap) p.speed = cap + halve(p.speed - cap, st.coastHalf);
     }
   } else {
     p.brake = false;
     p.slide = false;
-    p.speed = halve(p.speed, t.coastHalf);
+    p.speed = halve(p.speed, st.coastHalf);
     if (p.speed < 0.5) p.speed = 0;
   }
 }

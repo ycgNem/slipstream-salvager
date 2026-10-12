@@ -37,6 +37,13 @@ export function updateWaves(w: World) {
       }
       break;
     case 'fight':
+      // No Breather: the next wave doesn't wait for the last of this one
+      if (t.rushLeft > 0 && w.enemies.length > 0 && w.enemies.length <= t.rushLeft && wv.index < w.waves.length - 1) {
+        wv.index++;
+        wv.phase = 'banner';
+        wv.t = 0;
+        break;
+      }
       if (w.enemies.length === 0) {
         if (wv.index >= w.waves.length - 1 && w.exitPlan.length) {
           // a yard of a run: patch the hull up a pip and open the exits (PLAN.md 8.1)

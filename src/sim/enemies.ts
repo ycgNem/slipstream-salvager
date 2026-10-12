@@ -222,20 +222,26 @@ export function resolveContacts(w: World) {
     let vx = Math.cos(p.heading) * p.speed, vy = Math.sin(p.heading) * p.speed;
     const vn = vx * nx + vy * ny;
     if (vn < 0 && CHASSIS[w.chassis].bump === 'shove' && !w.result) {
-      // the Hauler: a bump is a shove, the Cruise hit's interrupt at any speed (PLAN.md 9.6). It's
-      // pushed away and its windup is cancelled; you plough on, a little slower
+      // the Hauler: a bump is a shove, the Cruise hit's interrupt at any speed (PLAN.md 9.6): it's
+      // pushed away, and a windup is cancelled. But only once per enemy in a while (it's braced
+      // after), and a shove costs your speed like any bump, so leaning on them isn't safe: a
+      // shove that cancels nothing sets it off like your bump would (DECISIONS #99)
       const push = (t.cruiseShove * Math.LN2) / 0.08;
       r.vx -= nx * push;
       r.vy -= ny * push;
-      if (r.state === 'windup') {
+      const cancel = r.state === 'windup' && r.braced <= w.tick;
+      if (cancel) {
         r.state = KINDS[r.kind].state;
         r.leap = false;
         r.t = 0;
         r.cd = 0.8;
+        r.braced = w.tick + Math.round(t.shoveBrace * 60);
+        w.stats.cancels++;
         w.events.push({ k: 'cancel', id: r.id });
       }
-      p.speed *= t.cruiseKeep;
+      p.speed *= t.bumpKeep;
       w.events.push({ k: 'shove', id: r.id, x: r.x + nx * rr, y: r.y + ny * rr });
+      if (!cancel) bumpedOff(w, r);
       continue;
     }
     if (vn < 0) {
@@ -247,15 +253,20 @@ export function resolveContacts(w: World) {
       p.speed *= springs ? t.springKeep : t.bumpKeep;
       w.events.push({ k: 'bump', id: r.id, x: r.x + nx * rr, y: r.y + ny * rr });
       if (springs) w.events.push({ k: 'boing', x: r.x + nx * rr, y: r.y + ny * rr });
-      if (w.result) continue;
-      if (r.kind === 'rammer' && r.state === 'stalk' && windingUp(w) < t.maxWindups) beginWindup(w, r, true);
-      if (r.kind === 'compactor' && r.state === 'stalk' && hasAnyPart(r)) beginBossWindup(w, r, true);
-      if (r.kind === 'snapper' && r.state === 'hunt' && r.cd <= 0 && snapping(w) < t.maxSnaps) beginSnap(w, r);
-      if (r.kind === 'bouncer' && r.state === 'stalk' && r.cd <= 0 && rollingUp(w) < t.maxRolls) beginRoll(w, r);
-      // a Hopper you bump stomps where it stands
-      if (r.kind === 'hopper' && r.state === 'stalk' && crouching(w) < t.maxCrouch) beginCrouch(w, r, true);
+      if (!w.result) bumpedOff(w, r);
     }
   }
+}
+
+/** A body you bump into reacts: it winds up its quick attack, right there. */
+function bumpedOff(w: World, r: Enemy) {
+  const t = w.t;
+  if (r.kind === 'rammer' && r.state === 'stalk' && windingUp(w) < t.maxWindups) beginWindup(w, r, true);
+  if (r.kind === 'compactor' && r.state === 'stalk' && hasAnyPart(r)) beginBossWindup(w, r, true);
+  if (r.kind === 'snapper' && r.state === 'hunt' && r.cd <= 0 && snapping(w) < t.maxSnaps) beginSnap(w, r);
+  if (r.kind === 'bouncer' && r.state === 'stalk' && r.cd <= 0 && rollingUp(w) < t.maxRolls) beginRoll(w, r);
+  // a Hopper you bump stomps where it stands
+  if (r.kind === 'hopper' && r.state === 'stalk' && crouching(w) < t.maxCrouch) beginCrouch(w, r, true);
 }
 
 /**
@@ -273,6 +284,7 @@ export function checkDrafts(w: World) {
     if (d <= touch || d > touch + t.draftGap || dx * Math.cos(r.face) + dy * Math.sin(r.face) > 4) continue;
     r.drafted = true;
     p.speed = Math.min(t.burnMax, Math.max(p.speed + 15, t.slipAt + t.draftBoost));
+    w.stats.drafts++;
     w.events.push({ k: 'draft', id: r.id, x: p.x, y: p.y });
   }
 }

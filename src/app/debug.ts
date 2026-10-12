@@ -31,7 +31,7 @@ export const SCENES = [
 function previewScreen(app: App, name: 'garage' | 'log') {
   app.toTitle();
   app.preview = {
-    career: { tears: 24, jousts: 6, bestYards: 5, wins: 0 },
+    career: { tears: 24, cancels: 6, drafts: 17, bestYards: 5, wins: 0 },
     log: { met: { rammer: 31, snapper: 12, hopper: 4 }, wrecked: { rammer: 9, snapper: 7, hopper: 1 }, torn: { booster: 14, treads: 6, jets: 2 }, bolted: { booster: 9, treads: 3 } },
   };
   app.garage.chassis = 'skiff';

@@ -53,6 +53,8 @@ export const DEFAULT_TUNING = {
   /** Cruise rips push the enemy this far and cancel its windup */
   cruiseShove: 24,
   cruiseKeep: 0.85,
+  /** the Hauler's bump cancels a windup, then that enemy is braced against it this long (s) */
+  shoveBrace: 2.5,
   hitstopCrawl: 2,
   hitstopCruise: 4,
   hitstopSlip: 7,
@@ -133,8 +135,10 @@ export const DEFAULT_TUNING = {
 
   // ---- the player's hull ----
   hull: 5,
-  /** each bolted part multiplies your top speed by this (the Skiff's weight; 1 for the others) */
-  partWeight: 1,
+  /** each bolted part multiplies your grip in a turn (scrubLat) and your coast by these (the Skiff's
+   * weight; 1 for the others) */
+  partGrip: 1,
+  partCoast: 1,
   invulnTime: 1.0,
   knockTime: 0.3,
   knockSpeed: 160,
@@ -324,6 +328,8 @@ export const DEFAULT_TUNING = {
   gateWarn: 1.0,
   enterTime: 0.6,
   breather: 2.0,
+  /** No Breather: the next wave comes in once this few of the current one are left (0: all gone) */
+  rushLeft: 0,
 
   // ---- flat mode (the removal test as an A/B; DECISIONS #28, #50) ----
   /** every rip's damage, at any speed */
@@ -343,12 +349,12 @@ export function defaultTuning(): Tuning {
 export const TUNING_GROUPS: { title: string; keys: [TuningKey, number][] }[] = [
   { title: 'Movement', keys: [['topSpeed', 10], ['accLow', 50], ['accHigh', 10], ['accSplit', 5], ['turnLow', 0.5], ['turnHigh', 0.25], ['scrubLat', 25], ['scrubK', 0.05], ['coastHalf', 0.05], ['brakeDecel', 50], ['brakeDeg', 5], ['pivotSpeed', 5], ['overspeedHalf', 0.05], ['clankCos', 0.05], ['clankKeep', 0.05]] },
   { title: 'Tiers', keys: [['cruiseAt', 5], ['slipAt', 5]] },
-  { title: 'Rip', keys: [['ripTime', 0.02], ['ripImpulse', 10], ['ripCooldown', 0.05], ['aimAssistDeg', 1], ['slipDamage', 1], ['frontDamage', 1], ['rearDamage', 1], ['frontArcDeg', 5], ['cruiseShove', 2], ['cruiseKeep', 0.05], ['hitstopSlip', 1], ['passThrough', 0.02]] },
+  { title: 'Rip', keys: [['ripTime', 0.02], ['ripImpulse', 10], ['ripCooldown', 0.05], ['aimAssistDeg', 1], ['slipDamage', 1], ['frontDamage', 1], ['rearDamage', 1], ['frontArcDeg', 5], ['cruiseShove', 2], ['cruiseKeep', 0.05], ['shoveBrace', 0.1], ['hitstopSlip', 1], ['passThrough', 0.02]] },
   { title: 'Booster', keys: [['boosterTopMul', 0.025], ['boosterTurnLowMul', 0.05], ['boosterTurnHighMul', 0.05], ['burnAccel', 10], ['burnMax', 10], ['burnTime', 0.05], ['burnCooldown', 0.05], ['burnWallStun', 0.05], ['burnTapTime', 0.01], ['revMax', 0.05]] },
   { title: 'Jump Jets, Springs', keys: [['leapAir', 0.05], ['leapMin', 10], ['leapSlamR', 2], ['leapRecoil', 0.05], ['leapKeep', 0.05], ['leapCooldown', 0.05], ['crouchSteerMul', 0.05], ['springKeep', 0.05], ['springKick', 5], ['springsTurnMul', 0.05], ['springsGripMul', 0.05]] },
   { title: 'Treads, Plow, Jaws', keys: [['treadsTopMul', 0.02], ['treadsTurnMul', 0.05], ['treadsGripMul', 0.05], ['slideTurn', 0.5], ['slideKeep', 0.02], ['plowAccMul', 0.05], ['plowConeDeg', 5], ['latchTime', 0.02], ['slingBoost', 5]] },
   { title: 'Salvage', keys: [['boltTime', 0.05], ['boltSteerMul', 0.05], ['rearArcDeg', 5], ['partLives', 1]] },
-  { title: 'Hull', keys: [['hull', 1], ['invulnTime', 0.1], ['knockSpeed', 10], ['bumpKeep', 0.05], ['partWeight', 0.01]] },
+  { title: 'Hull', keys: [['hull', 1], ['invulnTime', 0.1], ['knockSpeed', 10], ['bumpKeep', 0.05], ['partGrip', 0.01], ['partCoast', 0.05]] },
   { title: 'Snapper', keys: [['snapperHp', 1], ['snapperTop', 5], ['snapperAcc', 20], ['snapperTurn', 0.5], ['snapRange', 5], ['snapCircle', 4], ['snapConeDeg', 5], ['snapWindup', 0.05], ['snapLock', 0.05], ['snapSpeed', 10], ['snapDist', 5], ['snapSlide', 0.05], ['snapCdMin', 0.1], ['snapCdMax', 0.1], ['maxSnaps', 1], ['jawFling', 0.1]] },
   { title: 'Hopper', keys: [['hopperHp', 1], ['hopperSpeed', 5], ['hopMin', 5], ['hopMax', 10], ['hopWindup', 0.05], ['hopLock', 0.05], ['hopAir', 0.05], ['hopSlamR', 2], ['hopStuck', 0.1], ['stompWindup', 0.05], ['stompR', 2], ['hopCdMin', 0.1], ['hopCdMax', 0.1], ['maxCrouch', 1]] },
   { title: 'Bouncer', keys: [['bouncerHp', 1], ['bouncerKeep', 10], ['bouncerDrift', 5], ['rollRange', 10], ['rollWindup', 0.05], ['rollLock', 0.05], ['rollSpeed', 10], ['rollGain', 5], ['rollMax', 10], ['rollBounces', 1], ['rollTime', 0.1], ['dizzyTime', 0.1], ['rollCdMin', 0.1], ['rollCdMax', 0.1], ['maxRolls', 1]] },

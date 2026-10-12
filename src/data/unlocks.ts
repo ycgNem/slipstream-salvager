@@ -8,14 +8,16 @@ export type ModId = 'bare' | 'rush';
 
 export const MODS: Record<ModId, { id: ModId; name: string; line: string }> = {
   bare: { id: 'bare', name: 'BARE BONES', line: "YOUR PARTS DON'T CARRY BETWEEN YARDS" },
-  rush: { id: 'rush', name: 'NO BREATHER', line: 'THE NEXT WAVE COMES IN AT ONCE' },
+  rush: { id: 'rush', name: 'NO BREATHER', line: 'THE NEXT WAVE COMES IN WHILE ONE ENEMY IS LEFT' },
 };
 export const MOD_IDS = Object.keys(MODS) as ModId[];
 
 /** Your lifetime counts, as the unlocks read them. */
 export interface Career {
   tears: number;
-  jousts: number;
+  /** windups cancelled (a Cruise hit) and slipstreams caught (a close dodge of a charge or a slam) */
+  cancels: number;
+  drafts: number;
   /** the most yards cleared in one run */
   bestYards: number;
   wins: number;
@@ -24,8 +26,10 @@ export interface Career {
 type Lockable = Exclude<ChassisId, 'scrapper'> | ModId;
 
 const UNLOCKS: Record<Lockable, { need: number; have: (c: Career) => number; what: string; count: boolean }> = {
-  skiff: { need: 20, have: (c) => c.tears, what: 'TEAR 20 PARTS OFF', count: true },
-  hauler: { need: 10, have: (c) => c.jousts, what: 'JOUST 10 CHARGES', count: true },
+  // each chassis is unlocked by its own verb (DECISIONS #99): the Hauler, the forgiving one, by
+  // the Cruise cancel any new player finds; the Skiff, the glass cannon, by close dodges at speed
+  skiff: { need: 15, have: (c) => c.drafts, what: 'CATCH 15 SLIPSTREAMS', count: true },
+  hauler: { need: 15, have: (c) => c.cancels, what: 'CANCEL 15 WINDUPS', count: true },
   // The Heap is the second-last yard: clear it and you've cleared RUN_LENGTH - 1
   bare: { need: RUN_LENGTH - 1, have: (c) => c.bestYards, what: 'CLEAR THE HEAP', count: false },
   rush: { need: 1, have: (c) => c.wins, what: 'WIN A RUN', count: false },

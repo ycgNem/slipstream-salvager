@@ -143,9 +143,9 @@ export class App {
   career(): Career {
     if (this.preview.career) return this.preview.career;
     // ?unlock (debug builds): everything in the Garage is open, for trying the chassis and modifiers
-    if (DEBUG_KEYS && typeof location !== 'undefined' && new URLSearchParams(location.search).has('unlock')) return { tears: 999, jousts: 999, bestYards: 99, wins: 99 };
+    if (DEBUG_KEYS && typeof location !== 'undefined' && new URLSearchParams(location.search).has('unlock')) return { tears: 999, cancels: 999, drafts: 999, bestYards: 99, wins: 99 };
     const b = loadBest();
-    return { tears: b.tearsTotal, jousts: b.joustsTotal, bestYards: b.bestYards, wins: b.wins };
+    return { tears: b.tearsTotal, cancels: b.cancelsTotal, drafts: b.draftsTotal, bestYards: b.bestYards, wins: b.wins };
   }
 
   backPressed(): boolean {

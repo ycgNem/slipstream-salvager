@@ -640,20 +640,23 @@ Slipstream and how you keep it.
 |---|---|---|---|
 | Hull | 5 | 3 | 7 |
 | Top speed | 240 | 270 | 230 |
-| Acceleration above 60 px/s | 180 | 220 | 160 |
+| Acceleration above 60 px/s | 180 | 150 | 160 |
 | Turn rate (rest -> top) | 14 -> 4 | 10 -> 3.4 | 12 -> 4.4 |
 | Turn scrub starts at | 900 px/s^2 | 1300 | 800 |
 | Coast half-life | 0.3 s | 0.9 s | 0.25 s |
 | Brake | 900 px/s^2 | 300 | 1200 |
-| Bumping an enemy | you bounce off, losing 60% | you bounce off, losing 60%, thrown 40% further by hits | **a shove**: like a Cruise hit (it's pushed 24 px and its windup is cancelled), you keep 85% |
-| Parts | | **each bolted part costs 6% top speed** | |
+| Bumping an enemy | you bounce off, losing 60% | you bounce off, losing 60%, thrown 40% further by hits | **a shove**: it's pushed 24 px and its windup is cancelled (then it's braced for 2.5 s); you lose 60% like any bump, and a shove that cancels nothing sets it off |
+| Parts | | **each bolted part costs 15% of its grip in a turn and 30% of its coast** | |
 
 - **The Skiff glides.** It holds Slipstream through a full-lock turn (270 x 3.4 is under its scrub
-  line) and coasts nearly a second, but it turns wide, can hardly brake, and three hits scrap it.
-  Its line is the big sweeping arc, and it wants few parts.
+  line) and coasts nearly a second, but it builds speed slower than the Scrapper, turns wide, can
+  hardly brake, and three hits scrap it. Its line is the big sweeping arc. Parts are armour that
+  costs it the glide: three and it scrubs in a hard turn like anyone (DECISIONS #99).
 - **The Hauler bullies.** It's slower to Slipstream and its Slipstream band is narrower (230
-  against 190), so a hard turn drops it out. But it walks into enemies: a bump is a shove that cancels a
-  windup at any speed, and it has seven hull. Its line is in close, interrupting, then a run-up.
+  against 190), so a hard turn drops it out. But it walks into enemies: a bump is a shove that
+  cancels a windup at any speed (once in a while: then that enemy is braced), and it has seven
+  hull. Its line is in close, interrupting, then a run-up. Leaning on an enemy is as dangerous as
+  for anyone (DECISIONS #99).
 - Each has its own body sprite (`pl:<chassis>:...`, the Scrapper's sizes and mounts) and carries
   the same parts on the same mounts.
 
@@ -661,12 +664,12 @@ Slipstream and how you keep it.
 - Pick a chassis (a card each: the body, its name, its line in a sentence; a locked one shows how
   to unlock it) and any unlocked **run modifiers**, then START.
 - **Unlocks**, by playing, never stat upgrades:
-  - The Skiff: tear 20 parts off (over all your runs).
-  - The Hauler: joust 10 charges.
+  - Each chassis by its own verb (DECISIONS #99), over all your runs. The Skiff: catch 15
+    slipstreams (a close dodge of a charge or a slam). The Hauler: cancel 15 windups (a Cruise hit).
   - **Bare Bones** (modifier): your parts don't carry between yards; every yard starts bare, so
     every yard's salvage is the build. Unlock: clear The Heap.
-  - **No Breather** (modifier): the next wave comes in as soon as one is cleared. Unlock: win a
-    run.
+  - **No Breather** (modifier): the next wave comes in while the last enemy of this one is still
+    up, and The Compactor calls its help twice as often. Unlock: win a run.
 - What's unlocked and the lifetime counts persist (localStorage, like the bests).
 
 **The Log** (title -> LOG): every enemy and every part, a card each with its sprite, its name and

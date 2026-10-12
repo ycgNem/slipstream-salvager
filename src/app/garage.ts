@@ -3,7 +3,8 @@
 import { C } from '../data/palette';
 import { CHASSIS, CHASSIS_IDS, type ChassisId } from '../data/chassis';
 import { isUnlocked, MOD_IDS, MODS, unlockText, type Career, type ModId } from '../data/unlocks';
-import { drawFit, sprite } from '../render/atlas';
+import { defaultTuning } from '../data/tuning';
+import { drawFit, drawSprite, sprite } from '../render/atlas';
 import { silhouette } from '../render/pixgeom';
 import type { UI } from '../ui/ui';
 import type { PlayOpts } from './play';
@@ -34,11 +35,14 @@ export class Garage {
       const name = `pl:${id}:drive:se:${on ? Math.floor(time * 6) % 2 : 0}`, s = sprite(name);
       if (open) drawFit(ui.ctx, s, x + cw / 2 - 32, y + 6, 64, 64);
       else ui.ctx.drawImage(silhouette(s, name, C.ink), 0, 0, s.w, s.h, x + cw / 2 - 32, y + 6, 64, 64);
-      ui.text(def.name, x + cw / 2, y + 74, open ? C.white : C.mist, { align: 'center' });
-      if (open) ui.para(def.line, x + 10, y + 88, cw - 20, on ? C.white : C.frost);
+      ui.text(def.name, x + cw / 2, y + 72, open ? C.white : C.mist, { align: 'center' });
+      // its hull, as the HUD shows it: the trade you're making
+      const hull = def.tuning.hull ?? defaultTuning().hull, pip = sprite('ui:hull:full');
+      for (let k = 0; k < hull; k++) drawSprite(ui.ctx, pip, x + cw / 2 - Math.floor((hull * 9 - 1) / 2) + k * 9, y + 83);
+      if (open) ui.para(def.line, x + 10, y + 96, cw - 20, on ? C.white : C.frost);
       else {
-        ui.text('LOCKED', x + cw / 2, y + 88, C.lilac, { align: 'center' });
-        ui.para(unlockText(id as Exclude<ChassisId, 'scrapper'>, c), x + 10, y + 100, cw - 20, C.mist);
+        ui.text('LOCKED', x + cw / 2, y + 96, C.lilac, { align: 'center' });
+        ui.para(unlockText(id as Exclude<ChassisId, 'scrapper'>, c), x + 10, y + 108, cw - 20, C.mist);
       }
       if (ui.button(`g-${id}`, x + 14, y + ch - 26, cw - 28, 18, !open ? 'LOCKED' : on ? 'TAKEN' : 'TAKE IT', { active: on, disabled: !open, row: 'cards' })) this.chassis = id;
     });

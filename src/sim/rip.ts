@@ -328,6 +328,7 @@ function hitEnemy(w: World, r: Enemy, from?: number) {
         r.leap = false;
         r.t = 0;
         r.cd = 0.8;
+        w.stats.cancels++;
         w.events.push({ k: 'cancel', id: r.id });
       }
       w.events.push({ k: 'shove', id: r.id, x: hx, y: hy });
@@ -410,7 +411,7 @@ function tear(w: World, r: Enemy, mount: MountSlot, x: number, y: number) {
 function shakeLoose(w: World, r: Enemy, part: PartId, mount: MountSlot) {
   delete r.parts[mount];
   w.pickups.push({ id: w.nextId++, part, x: r.x - Math.cos(r.face) * 14, y: r.y - Math.sin(r.face) * 14, vx: -Math.cos(r.face) * 70, vy: -Math.sin(r.face) * 70, age: 0, cracked: false });
-  w.events.push({ k: 'drop', part, x: r.x, y: r.y });
+  w.events.push({ k: 'drop', part, x: r.x, y: r.y, id: r.id });
 }
 
 /** Damage from the yard itself (a crusher plate): the same rules as a hit's damage. */

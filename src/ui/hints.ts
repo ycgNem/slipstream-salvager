@@ -10,7 +10,7 @@ import type { SimEvent } from '../sim/events';
 import type { UI } from './ui';
 import { textWidth } from './font';
 
-export type HintId = 'speed' | 'tear' | 'bolt' | 'burn' | 'exit' | 'treads' | 'plow' | 'jaws' | 'snapper' | 'plowfoe' | 'jawfoe' | 'jets' | 'springs' | 'hopper' | 'bouncer' | 'boost' | 'oil' | 'ramp' | 'crusher' | 'boss';
+export type HintId = 'speed' | 'tear' | 'bolt' | 'burn' | 'exit' | 'treads' | 'plow' | 'jaws' | 'snapper' | 'plowfoe' | 'jawfoe' | 'jets' | 'springs' | 'hopper' | 'bouncer' | 'boost' | 'oil' | 'ramp' | 'crusher' | 'boss' | 'skiff' | 'hauler';
 
 /** a hint about a part you've bolted on, by part */
 const PART_HINT: Record<PartId, HintId> = { booster: 'burn', treads: 'treads', plow: 'plow', jaws: 'jaws', jets: 'jets', springs: 'springs' };
@@ -60,6 +60,7 @@ export class Hints {
     if (e.k === 'slide') this.done('treads');
     if (e.k === 'ram' && e.tier === 'slip') this.done('plow');
     if (e.k === 'sling') this.done('jaws');
+    if (e.k === 'cancel' && this.current === 'hauler') this.done('hauler');
   }
 
   update(w: World, dt: number) {
@@ -68,6 +69,8 @@ export class Hints {
       return;
     }
     const p = w.player, s = this.seen;
+    // the Skiff's hint has nothing to wait for: it goes after a few seconds
+    if (this.current === 'skiff' && this.shownFor > 6) this.done('skiff');
     const floor = (k: string) => (w.arena.floor ?? []).some((f) => f.kind === k);
     // you've felt the oil once you've been on it
     if (!s.oil && onOil(w.arena, p.x, p.y) && p.speed > 60) this.done('oil');
@@ -78,6 +81,7 @@ export class Hints {
       !s.bolt && p.tow ? 'bolt'
       : !s.exit && w.exits.length ? 'exit'
       : partHint ? partHint
+      : w.chassis !== 'scrapper' && !s[w.chassis] && w.wave.phase === 'fight' ? w.chassis
       : !s.speed && w.wave.phase !== 'banner' ? 'speed'
       : !s.boost && floor('boost') ? 'boost'
       : !s.oil && floor('oil') ? 'oil'
@@ -122,10 +126,12 @@ export class Hints {
       ramp: 'HIT A RAMP AT SPEED TO JUMP THE WALL',
       crusher: 'LURE THEM ONTO THE PLATES BEFORE THEY SLAM',
       boss: 'EACH PART IS ONE OF ITS MOVES - TEAR THEM OFF',
+      skiff: "YOU NEVER SLOW IN A TURN - BUT YOU CAN'T STOP",
+      hauler: 'BUMP ONE WINDING UP TO STOP ITS ATTACK',
     };
     const text = TEXT[this.current];
     // teal for a speed move, gold only for salvage (tearing and bolting parts), plain otherwise
-    const speedy = ['speed', 'burn', 'treads', 'plow', 'jaws', 'jets', 'springs', 'boost', 'ramp'].includes(this.current);
+    const speedy = ['speed', 'burn', 'treads', 'plow', 'jaws', 'jets', 'springs', 'boost', 'ramp', 'skiff'].includes(this.current);
     const salvage = ['tear', 'bolt', 'exit', 'snapper', 'plowfoe', 'jawfoe', 'hopper', 'bouncer', 'boss'].includes(this.current);
     const tw = textWidth(text);
     ui.fill(632 - tw - 4, 345, tw + 8, 14, C.ink);

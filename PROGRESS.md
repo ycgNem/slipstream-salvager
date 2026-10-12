@@ -2,6 +2,21 @@
 
 What's built. Newest first.
 
+## 2026-10-12 — M8c, M9: The Garage, and both milestones verified
+
+On `works`, not published:
+- **M9, The Garage** (#93-#95): two more chassis, the Skiff (glides, never slows in a turn, 3 hull)
+  and the Hauler (bumps stop windups, 7 hull); the Garage screen with unlocks (each chassis by its
+  own verb) and two run modifiers (Bare Bones, No Breather); the Log; the daily run.
+- **The art** for The Compactor, its parts at 2x, and the M7 terrain (boost strips, oil, ramps,
+  crusher plates) is imported; the Hauler wears wide side parts (`part:bigtreads`).
+- **Reviews acted on:** the M7-M8 visual QA and critic (#96-#97: the boss can't be skipped apart,
+  crusher plates pass the removal test, a shorter run) and the M9 ones (#98-#99: the Hauler's bump
+  no longer makes camping the best strategy, the Skiff's parts cost it glide, unlock gates, No
+  Breather made real, four bugs, focus and the Log's scales).
+- **Checks:** 170 tests, typecheck, the smoke test, the screenshot sweep with 0 overlaps, coverage
+  773 names (0 missing), the strategy-bot guards at their baselines.
+
 ## 2026-10-12 — M6-M8: the expansion (new salvage, terrain, The Compactor)
 
 The owner asked to "make this game more expansive" (DECISIONS #82). On `works`, not published:

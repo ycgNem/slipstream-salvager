@@ -6,7 +6,7 @@ import { Rng } from '../engine/rng';
 import type { Gate } from '../data/arena';
 import type { MountSlot } from '../data/mounts';
 import type { PartId } from '../data/parts';
-import type { Tuning } from '../data/tuning';
+import { defaultTuning, type Tuning } from '../data/tuning';
 import { MIDDLE, RUN_LENGTH, YARDS, wavesAt, type YardId } from '../data/yards';
 import type { ChassisId } from '../data/chassis';
 import type { ModId } from '../data/unlocks';
@@ -79,8 +79,9 @@ export function yardWorld(run: Run, opts: { tuning?: Partial<Tuning>; flat?: boo
   const w = createWorld({
     seed: (run.seed * 31 + run.depth * 7919) >>> 0,
     chassis: run.chassis,
-    // No Breather: the next wave comes in as soon as one is cleared
-    tuning: run.mods.includes('rush') ? { breather: 0, ...opts.tuning } : opts.tuning,
+    // No Breather: the next wave comes in while the last enemy of this one is still up, and The
+    // Compactor calls its help twice as often (DECISIONS #99)
+    tuning: run.mods.includes('rush') ? { breather: 0, rushLeft: 1, bossCall: defaultTuning().bossCall / 2, ...opts.tuning } : opts.tuning,
     flat: opts.flat,
     arena: y.arena,
     waves: wavesAt(y, run.depth),
@@ -117,8 +118,6 @@ export function finishYard(run: Run, w: World) {
   T.topSpeed = Math.max(T.topSpeed, s.topSpeed);
   const p = w.player;
   run.loadout = { hull: p.hull, parts: { ...p.parts }, tow: p.tow ? { part: p.tow.part, cracked: p.tow.cracked } : null };
-  // Bare Bones: only your hull carries; every yard starts with no parts
-  if (run.mods.includes('bare')) run.loadout = { hull: p.hull, parts: {}, tow: null };
   if (w.result === 'scrapped') {
     run.over = 'scrapped';
     return;
@@ -127,6 +126,8 @@ export function finishYard(run: Run, w: World) {
     run.over = 'won';
     return;
   }
+  // Bare Bones: only your hull carries into the next yard (the results still show what you ended with)
+  if (run.mods.includes('bare')) run.loadout = { hull: p.hull, parts: {}, tow: null };
   const exitGate = w.exits.find((e) => e.option === w.exitChoice)!.gate;
   run.yard = run.options[w.exitChoice];
   run.depth++;

@@ -49,7 +49,7 @@ export type SimEvent =
   | { k: 'skid' }
   | { k: 'tier'; tier: Tier; prev: Tier }
   | { k: 'grab'; part: PartId }
-  | { k: 'drop'; part: PartId; x: number; y: number }
+  | { k: 'drop'; part: PartId; x: number; y: number; id?: number }
   | { k: 'pickup'; part: PartId }
   | { k: 'bolt-start' }
   | { k: 'bolt-tick'; n: number }

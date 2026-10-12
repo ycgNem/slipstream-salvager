@@ -29,11 +29,12 @@ A bigger run, new salvage, terrain and a boss.
 
 **The Garage**
 - PLAY now opens the Garage. Pick your chassis and any run modifiers you've unlocked.
-- Two new chassis, unlocked by playing. **The Skiff** holds its speed through any turn and glides,
-  but it has 3 hull and can hardly brake. **The Hauler** shoves enemies out of their windups just
-  by bumping them and has 7 hull, but it's slow to get up to speed.
+- Two new chassis, unlocked by playing (each by its own move). **The Skiff** never slows in a
+  turn and glides, but it's slow to build speed, can hardly brake, has 3 hull, and every part costs
+  it some glide. **The Hauler** stops a windup just by bumping into it and has 7 hull, but it's
+  slow to get up to speed.
 - Two run modifiers: **Bare Bones** (your parts don't carry between yards) and **No Breather** (the
-  next wave comes in at once).
+  next wave comes in while the last enemy of this one is still up).
 - **The Log**: every enemy and part you've met, with what to do about it.
 - **The daily run**: one seed a day, the same for everyone. Your best for the day shows on the
   title.

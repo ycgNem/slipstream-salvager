@@ -141,13 +141,28 @@ export class Play {
     }
   }
 
-  /** Bank a finished yard's tears and jousts into the lifetime counts (the unlocks read them). */
-  private bank() {
-    if (!this.record) return;
+  private banked: World | null = null;
+
+  /** Bank a yard's counts into the lifetime ones (the unlocks read them), once: when it ends, or
+   * when you restart or quit in the middle of it. */
+  bank() {
+    if (!this.record || this.banked === this.world) return;
+    this.banked = this.world;
     const b = loadBest(), s = this.world.stats;
     b.tearsTotal += s.tears;
-    b.joustsTotal += s.jousts;
+    b.cancelsTotal += s.cancels;
+    b.draftsTotal += s.drafts;
     saveBest(b);
+  }
+
+  /** A part off The Compactor: say which move just went; the last one opens its core. */
+  private bossLost(id: number, part: PartId, x: number, y: number): boolean {
+    const boss = this.world.enemies.find((q) => q.id === id);
+    if (boss?.kind !== 'compactor') return false;
+    const open = !Object.keys(boss.parts).length;
+    this.fx.text(x, y - 30, open ? 'CORE OPEN!' : BOSS_LOSS[part] ?? 'TORN OFF!', open ? C.white : C.gold3);
+    if (open) this.fx.showBanner('CORE OPEN', "IT CAN ONLY LEAP NOW - HIT IT WHILE IT'S STUCK", 1.8);
+    return true;
   }
 
   /** Count one thing into the Log. */
@@ -372,13 +387,7 @@ export class Play {
         this.note('torn', e.part);
         fx.dots(e.x, e.y, 18, [C.gold, C.gold2, C.gold3, C.white], 150, 0.6);
         fx.sparks(e.x, e.y, 8);
-        // off The Compactor, say which move just went; the last one opens its core
-        const boss = this.world.enemies.find((q) => q.id === e.id);
-        if (boss?.kind === 'compactor') {
-          const open = !Object.keys(boss.parts).length;
-          fx.text(e.x, e.y - 30, open ? 'CORE OPEN!' : BOSS_LOSS[e.part] ?? 'TORN OFF!', open ? C.white : C.gold3);
-          if (open) fx.showBanner('CORE OPEN', "IT CAN ONLY LEAP NOW - HIT IT WHILE IT'S STUCK", 1.8);
-        } else fx.text(e.x, e.y - 18, 'TORN OFF!', C.gold3);
+        if (!this.bossLost(e.id, e.part, e.x, e.y)) fx.text(e.x, e.y - 18, 'TORN OFF!', C.gold3);
         fx.addShake(3);
         a.sfx('tear');
         break;
@@ -441,7 +450,11 @@ export class Play {
       case 'tier': if (e.tier === 'slip' && e.prev !== 'slip') a.sfx('slipstream'); break;
       case 'grab': a.sfx('grab'); break;
       case 'pickup': a.sfx('pickup'); break;
-      case 'drop': a.sfx('drop'); break;
+      case 'drop':
+        // the safety net shook it loose: off The Compactor that's a move gone, like a tear
+        if (e.id !== undefined) this.bossLost(e.id, e.part, e.x, e.y);
+        a.sfx('drop');
+        break;
       case 'bolt-start': a.sfx('bolt_tick'); break;
       case 'bolt-tick': a.sfx('bolt_tick', 1, 1 + e.n * 0.15); break;
       case 'bolted':
@@ -574,6 +587,7 @@ export class Play {
   }
 
   restart() {
+    this.bank();
     // the same chassis and modifiers (and the same daily seed), a new run
     const fresh = new Play(this.host, { chassis: this.run.chassis, mods: this.run.mods, daily: this.opts.daily });
     Object.assign(this, { run: fresh.run, world: fresh.world, fx: fresh.fx, hints: fresh.hints, paused: false, endT: 0, time: 0, recent: [], wipe: null, runDone: false, counted: false });
@@ -587,7 +601,10 @@ export class Play {
     if (ui.button('p-resume', x + 15, y + 36, 110, 18, 'RESUME')) this.paused = false;
     if (ui.button('p-restart', x + 15, y + 60, 110, 18, 'RESTART')) this.restart();
     if (ui.button('p-settings', x + 15, y + 84, 110, 18, 'SETTINGS')) this.host.openSettings();
-    if (ui.button('p-title', x + 15, y + 108, 110, 18, 'TITLE')) this.host.toTitle();
+    if (ui.button('p-title', x + 15, y + 108, 110, 18, 'TITLE')) {
+      this.bank();
+      this.host.toTitle();
+    }
   }
 
   private drawResults(ui: UI) {

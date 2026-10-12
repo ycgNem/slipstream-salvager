@@ -686,3 +686,42 @@ a number in the tuning panel, and the M1 rule is one setting away (given with ea
     - The selected Garage card's line is white (it was ink on mauve, about 2:1).
     - The `hauler` debug scene runs 10 ticks longer so it shows the shove; the Scrapper's antenna
       tip no longer uses amber 23 (a salvage colour).
+99. **The critic's M9 review** (indie-critic at ea7837f), acted on.
+    - **The Hauler's bump made the pillar camper the best strategy** (the camper bot cleared the
+      full Ring 16/16 on the Hauler, 5/16 on the Scrapper; it's the bump, not the hull). Body
+      contact cost it nothing. Now a shove cancels an enemy's windup only once in 2.5 s (the enemy
+      is `braced` after), every shove costs 60% of your speed like any bump, and a shove that
+      cancels nothing sets the enemy off like a Scrapper's bump. Measured: the camper 5/16 (like
+      the Scrapper), hugging an enemy 21-25 hits a minute, the brawler scrapped.
+    - **The unlock gates were backwards** (the forgiving Hauler behind jousts, the hardest skill;
+      the glass-cannon Skiff behind tears, the commonest action). Each chassis is now unlocked by
+      its own verb: the Hauler by 15 windups cancelled (a Cruise hit; it's the Hauler's shove at
+      walking pace), the Skiff by 15 slipstreams caught (close dodges at speed). New lifetime
+      counts `cancelsTotal`, `draftsTotal` (stats `cancels`, `drafts`).
+    - **The Skiff was better at both halves of the chassis promise** (getting to Slipstream and
+      keeping it; the search bot ran 12 yards in 533 s against the Scrapper's 624). It builds speed
+      slower now (acceleration 150, was 220): building speed is its cost, keeping it its strength.
+      **Its part weight cost nothing** (6% top speed a part, never enough to scrub), and "wants few
+      parts" worked against "you become what you rip". Now each part costs glide: 15% of its grip
+      in a turn and 30% of its coast (`partGrip`, `partCoast`), so a loaded Skiff drives like a
+      Scrapper. Armour or glide is a choice, and parts change your lines.
+    - **The route flip (the Booster's guard) holds only on the Scrapper**, by design: on the Skiff
+      the Booster's inherited cost isn't speed lost in a tight loop (it never scrubs) but its
+      turning circle, ~160 px at top speed; on the Hauler it's both chassis numbers. The strategy
+      bots and the route guard stay Scrapper tests; the chassis tests check lines (the Skiff's
+      full-lock turn, loaded and bare).
+    - **No Breather barely changed a run** (2 s saved per wave, none in the boss yard). Now the next
+      wave comes in while the last enemy of this one is still up (`rushLeft`), and The Compactor
+      calls its help twice as often.
+    - **The Compactor's helpers were a parts dispenser** (an orbit bot tore 43 treads off them over
+      8 fights): they come bare now.
+    - **Bugs:** under Bare Bones the results always said BARE CHASSIS (the clear ran on the last
+      yard too); a part the boss's safety net shook loose gave no move text and no CORE OPEN banner
+      (the drop event names the enemy now); lifetime counts were lost on RESTART or TITLE mid-yard
+      (banked then too, once per yard); the daily used the local date (now UTC, the same day for
+      everyone at once).
+    - **The Garage shows the trade:** hull pips on each card, and each line is verbs ("LOOPS HOLD
+      SPEED, HAIRPINS DON'T"; "NEVER SLOWS IN A TURN - CAN'T STOP - EVERY PART COSTS ITS GLIDE";
+      "BUMP ONE WINDING UP TO STOP IT - SLOW TO SPEED"). A first-run hint for each chassis's verb.
+    - Not taken: nothing; the critic's other checks (Hauler with the Plow, the #97 fixes, the kept
+      recoil) needed no action.
