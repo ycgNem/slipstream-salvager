@@ -546,6 +546,24 @@
     0,
     0
    ]
+  },
+  {
+   "match": "icon:part:booster",
+   "file": "parts.png",
+   "rect": [
+    96,
+    64,
+    16,
+    16
+   ],
+   "frame": [
+    16,
+    16
+   ],
+   "origin": [
+    0,
+    0
+   ]
   }
  ]
 }

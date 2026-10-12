@@ -6,7 +6,8 @@ you tear off is visibly the thing you bolt on.
   part:plow:<dir>     16x16, anchor (8,8)   = the front mount (frontMount in src/data/mounts.ts)
   part:jaws:<dir>     16x16, anchor (8,8)   = the front mount
   pickup:<part>       16x16, anchor (8,12)  = the part lying loose on the floor, with a glint
-  icon:part:<part>    16x16, anchor (0,0)   = HUD slot icon, art <= 14x14
+  icon:part:<part>    16x16, anchor (0,0)   = HUD slot icon, art <= 14x14, hand-drawn side on
+                      (the booster's too, so the four slots match)
 
 Every direction is rendered from the model (pixel-art/parts/model.py), never rotated or mirrored.
 Run: python pixel-art/parts/build.py -> parts.png, sprites.json, previews in e2e/out/pixel-art/.
@@ -165,8 +166,61 @@ def icon_plow():
 
 
 def icon_jaws():
-    sc = lambda h, x, y, z: M.jaws_scene(h, x + 3.2, y, z, spread=0.6)  # noqa: E731
-    return sculpt(16, 16, 8, 8, -math.pi / 4, sc, M.jaws_mats(), zmax=3, zmin=-3, scale=1.3, view=ICON_VIEW)[0]
+    """Hand-drawn: the mandible pair from above, hinged on a steel block at the left, hooking
+    round to their tips at the right, pale teeth on their inner edges. Art 13x12."""
+    img = blank(16, 16)
+    # steel hinge block
+    for y in range(5, 11):
+        for x in range(2, 5):
+            img[y][x] = 7 if (x == 2 or y == 5) else 2 if (x == 4 or y == 10) else 6
+    img[7][3] = img[8][3] = 8
+    # upper mandible: up and out, then hooking down to its tip
+    upper = {3: range(7, 11), 4: range(5, 13), 5: range(5, 14), 6: range(11, 14), 7: range(13, 14)}
+    for y, xs in upper.items():
+        for x in xs:
+            img[y][x] = 28 if y == 3 or (y == 4 and x < 7) else 18 if y < 6 else 17
+    img[4][12] = 18
+    # lower mandible: the mirror below, in shadow
+    lower = {12: range(7, 11), 11: range(5, 13), 10: range(5, 14), 9: range(12, 14)}
+    for y, xs in lower.items():
+        for x in xs:
+            img[y][x] = 18 if y == 10 else 17
+    img[10][5] = img[10][6] = 28
+    # teeth on the inner edges
+    for x in (7, 9):
+        img[6][x] = 8
+        img[9][x] = 7
+    img[9][11] = 7
+    add_outline(img, 0)
+    return img
+
+
+def icon_booster():
+    """Hand-drawn, to sit with the other part icons: the booster side on, gold can with a rounded
+    nose, the steel strap and its bolt, the steel nozzle bell with its dark throat. Art 14x9."""
+    img = blank(16, 16)
+    # can: x 5..13, rows 5..11, the nose rounded at the right
+    ends = {5: 11, 6: 12, 7: 13, 8: 13, 9: 13, 10: 12, 11: 11}
+    for y, x1 in ends.items():
+        for x in range(5, x1 + 1):
+            img[y][x] = 28 if y == 5 or (y == 6 and x < 9) else 18 if y < 10 else 17
+        img[y][x1] = 17 if y > 6 else img[y][x1]
+    # steel strap round the middle, a bolt on top
+    for y in range(5, 12):
+        img[y][8] = 8 if y < 7 else 7 if y < 10 else 6
+        img[y][9] = 7 if y < 7 else 6 if y < 10 else 2
+    img[4][8] = 9
+    # nozzle bell: flaring out to the left, dark throat
+    for y in range(6, 11):
+        img[y][4] = 7 if y < 8 else 6 if y < 10 else 2
+        img[y][3] = 7 if y < 8 else 6 if y < 10 else 2
+    for y in range(5, 12):
+        img[y][2] = 8 if y < 7 else 6 if y < 10 else 2
+    for y in (7, 8, 9):
+        img[y][2] = 1
+    img[8][3] = 1
+    add_outline(img, 0)
+    return img
 
 
 # ---------------------------------------------------------------- build
@@ -186,6 +240,8 @@ def main():
         ('icon:part:treads', icon_treads(), (0, 0)),
         ('icon:part:plow', icon_plow(), (0, 0)),
         ('icon:part:jaws', icon_jaws(), (0, 0)),
+        # redrawn to sit with the three new icons in the HUD slots (same side-on hand-drawn style)
+        ('icon:part:booster', icon_booster(), (0, 0)),
     ]
     # sheet: the 32x32 treads on the first row, the 16x16 sprites in rows of 8 under it
     sheet = Image.new('RGBA', (32 * 8, 32 + 16 * 4), (0, 0, 0, 0))

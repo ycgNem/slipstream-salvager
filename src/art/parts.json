@@ -33,6 +33,7 @@
   {"match":"pickup:jaws","r":[85,66,16,16],"o":[8,12]},
   {"match":"icon:part:treads","r":[102,66,16,16],"o":[0,0]},
   {"match":"icon:part:plow","r":[119,66,16,16],"o":[0,0]},
-  {"match":"icon:part:jaws","r":[136,66,16,16],"o":[0,0]}
+  {"match":"icon:part:jaws","r":[136,66,16,16],"o":[0,0]},
+  {"match":"icon:part:booster","r":[153,66,16,16],"o":[0,0]}
  ]
 }
