@@ -41,6 +41,7 @@ export class TuningPanel {
     ui.text('START WITH', x + 6, y + 31, C.mist);
     PART_IDS.forEach((id, i) => {
       const on = LIVE.parts.includes(id);
+      if (on) ui.fill(x + 62 + i * 21, y + 40, 20, 1, C.gold3);
       if (ui.button(`t-part-${id}`, x + 62 + i * 21, y + 29, 20, 11, id.slice(0, 3).toUpperCase(), { active: on })) {
         LIVE.parts = on ? LIVE.parts.filter((q) => q !== id) : [...LIVE.parts.filter((q) => PARTS[q].mount !== PARTS[id].mount), id];
         setPart(id, !on);

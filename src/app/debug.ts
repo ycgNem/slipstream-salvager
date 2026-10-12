@@ -182,6 +182,9 @@ export function scene(app: App, name: SceneName) {
       beginRoll(w, a);
       const b = addEnemy(w, 'bouncer', 520, 300, Math.PI);
       Object.assign(b, { state: 'roll', speed: 280, cd: 99 });
+      // a Spring Rammer winding up at the wall: its lane shows the bounce
+      const c = addRammer(w, 540, 110, -Math.PI / 4, { parts: ['booster', 'springs'] });
+      beginWindup(w, c, false);
       run(play, 30, { x: 1, y: 0, rip: false, bolt: false });
       break;
     }

@@ -101,6 +101,7 @@ Grammar: `group:thing[:state][:dir][:frame]`.
 | `part:treads:<dir>` | 1 | sides overlay (32 × 32, the body's anchor), drawn *under* the body so the guards stick out either side |
 | `part:jets:<dir>` | 1 | M6. Rear overlay (16 × 16, like the booster): two upright gold jet canisters on a strap; the plume fires under it on a leap |
 | `part:springs:<dir>` | 1 | M6. Sides overlay (32 × 32, like the treads): a gold coil bumper either side |
+| `part:bigsprings:<dir>` | 1 | M6. The Springs on a Rammer (40 × 40, anchor (20, 26)): the pair set wide enough to show past its hull |
 | `fl:boost:<e\|s\|w\|n>:<0-2>` | 3 | M7. A boost strip tile: a dark teal deck, bright teal chevrons pointing its way; the frames scroll them forward (teal: it's speed) |
 | `fl:oil:<mask>` | 1 | M7. Oil, a 4-bit neighbor mask like the walls: near-black with a blue-violet sheen, its open edges rounded off |
 | `fl:ramp:<e\|s\|w\|n>` | 1 | M7. A jump ramp: a steel wedge, darker at its foot, lighter up the slope to its lip, a teal arrow |

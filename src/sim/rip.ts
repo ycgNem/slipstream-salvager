@@ -60,10 +60,16 @@ export function crouched(w: World): boolean {
   return revving(w) && attackMode(w) === 'leap';
 }
 
-/** Where a leap taken now would come down (the teal ring). */
+/**
+ * Where you'll come down (the teal ring): from a leap taken now, or from the one you're in. Inside
+ * the ring wall (the leap slides along it) and clear of obstacles (you're pushed off them).
+ */
 export function landingPoint(w: World): { x: number; y: number } {
-  const p = w.player, d = Math.max(p.speed, w.t.leapMin) * w.t.leapAir;
-  return { x: p.x + Math.cos(p.heading) * d, y: p.y + Math.sin(p.heading) * d };
+  const p = w.player, t = w.t, a = w.arena, r = t.playerRadius;
+  const d = p.air ? p.speed * Math.max(0, p.air.dur - p.air.t) : Math.max(p.speed, t.leapMin) * t.leapAir;
+  const x = Math.max(a.wall + r, Math.min(a.w - a.wall - r, p.x + Math.cos(p.heading) * d));
+  const y = Math.max(a.wall + r, Math.min(a.h - a.wall - r, p.y + Math.sin(p.heading) * d));
+  return pushOut(a, x, y, r);
 }
 
 /**

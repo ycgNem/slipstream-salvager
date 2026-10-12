@@ -504,3 +504,16 @@ a number in the tuning panel, and the M1 rule is one setting away (given with ea
     staggered beats, Plow Rammers). The middle pool is nine. The search bot clears each on every
     seed (the Slick ~35 s at 60% Slipstream, the Press ~47 s, the Jumps ~71 s). A two-part exit
     sign uses short names ("TREADS + BOOSTER"), so it stays within 104 px.
+89. **Fixes from the M6 visual QA.**
+    - The Hopper's ring stays on the floor (locked, flashing) through its whole flight, not only the
+      crouch: the flight is when you dodge it.
+    - A Spring Rammer's lane shows its bounce stub for the rest of its charge, like a Bouncer's.
+      Stubs are dim and dashed, so a near head-on bounce doesn't tangle with the lane.
+    - Your landing ring is where you'll really come down: inside the ring wall and off obstacles,
+      while crouched and in the air.
+    - No afterimages while you're in the air (they stayed on the floor under the lifted body).
+    - The Springs: bigger coils set further out on the Scrapper, and a wide pair
+      (`part:bigsprings`) on a Rammer, whose hull hid the normal pair facing north or south.
+    - A crouching Hopper sits lower and wider and shakes for its whole windup.
+    - No speed blue on the Bouncer's visor. The tuning panel underlines the START WITH parts that
+      are on, in gold.

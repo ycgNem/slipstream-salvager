@@ -1,6 +1,6 @@
 // The sign by an open exit gate (PLAN.md 8.1, DECISIONS #79-#80): where it leads, what its enemies
 // carry (icons, and the names, since an icon means nothing before you've met the part) and how big
-// its last wave is at that depth. Painted on the floor below the side gate, at most 96 px wide, and
+// its last wave is at that depth. Painted on the floor below the side gate, at most 104 px wide, and
 // clear of every wall and block in every yard (tests/run.test.ts checks).
 import type { Gate } from '../data/arena';
 import { PARTS } from '../data/parts';

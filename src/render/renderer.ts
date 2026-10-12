@@ -13,6 +13,7 @@ import { makeCanvas, ctx2d } from './art/pixel';
 import { crack, dot, floorRing, lane, outline, pline, ring, silhouette } from './pixgeom';
 import type { Fx } from './fx';
 import { laneOf } from '../sim/enemies';
+import { chargeLength } from '../sim/rammer';
 import { crouched, landingPoint, revving } from '../sim/rip';
 import { hopProgress, slamRadius } from '../sim/hopper';
 import { FLOOR_ANGLE, laneLength, reflectAt } from '../sim/arena';
@@ -192,15 +193,17 @@ export function drawWorld(ctx: Ctx, w: World, fx: Fx, o: DrawOpts) {
 
   // telegraphs: under bodies, over the floor
   for (const r of w.enemies) {
-    if (r.state !== 'windup') continue;
     const hot = Math.floor(o.time * 12) % 2 === 0;
     if (r.kind === 'hopper') {
-      // where it will land: a ring, dashed while it tracks you, solid and flashing once locked
+      // where it will land: a ring, dashed while it tracks you, solid and flashing once locked and
+      // all through the flight
+      if (r.state !== 'windup' && r.state !== 'air') continue;
       const R = slamRadius(w, r);
-      if (r.locked) floorRing(ctx, r.tx, r.ty, R, hot ? C.danger3 : C.danger2, C.danger1, { density: 4 });
+      if (r.locked || r.state === 'air') floorRing(ctx, r.tx, r.ty, R, hot ? C.danger3 : C.danger2, C.danger1, { density: 4 });
       else floorRing(ctx, r.tx, r.ty, R, C.danger1, C.danger0, { dash: 4, phase: Math.floor(o.time * 30) });
       continue;
     }
+    if (r.state !== 'windup') continue;
     const l = laneOf(w, r);
     const rr = l.width / 2;
     const sx = r.x + Math.cos(l.angle) * rr, sy = r.y + Math.sin(l.angle) * rr;
@@ -209,11 +212,14 @@ export function drawWorld(ctx: Ctx, w: World, fx: Fx, o: DrawOpts) {
       else lane(ctx, x0, y0, a, len, l.width, C.danger1, C.danger0, { dash: 4, phase: Math.floor(o.time * 30), density: 4 });
     };
     draw(sx, sy, l.angle, l.len);
-    if (r.kind === 'bouncer' && r.parts.sides === 'springs') {
-      // the first bounce's stub, so you can see where the roll comes back
+    // on springs the lunge bounces off the wall it meets: the first bounce's stub shows where it
+    // comes back (a Bouncer's roll; a Spring Rammer's charge, for the rest of its length), dim and
+    // dashed so a near head-on bounce doesn't tangle with the lane
+    const rest = r.kind === 'bouncer' ? w.t.rollStub : r.kind === 'rammer' && !r.shove ? (r.locked ? r.chargeLen : chargeLength(w, r)) - l.len : 0;
+    if (r.parts.sides === 'springs' && rest > 8) {
       const ex = r.x + Math.cos(l.angle) * l.len, ey = r.y + Math.sin(l.angle) * l.len;
       const a2 = reflectAt(w.arena, ex, ey, l.angle, rr);
-      draw(ex, ey, a2, Math.min(w.t.rollStub, laneLength(w.arena, ex, ey, a2, w.t.rollStub, rr)));
+      lane(ctx, ex, ey, a2, Math.min(rest, laneLength(w.arena, ex, ey, a2, rest, rr)), l.width, r.locked ? C.danger2 : C.danger1, C.danger0, { dash: 3, phase: Math.floor(o.time * 30), density: 8 });
     }
   }
   const p = w.player;
@@ -227,8 +233,8 @@ export function drawWorld(ctx: Ctx, w: World, fx: Fx, o: DrawOpts) {
   }
   if (p.air) {
     // in the air: where you'll land
-    const rest = p.speed * Math.max(0, p.air.dur - p.air.t);
-    floorRing(ctx, p.x + Math.cos(p.heading) * rest, p.y + Math.sin(p.heading) * rest, w.t.leapSlamR, C.speed1, C.speed0, { dash: 2 });
+    const L = landingPoint(w);
+    floorRing(ctx, L.x, L.y, w.t.leapSlamR, C.speed1, C.speed0, { dash: 2 });
   }
 
   // shadows
@@ -283,7 +289,7 @@ function drawMounted(ctx: Ctx, name: string, x: number, y: number, m: MountPos, 
 
 function drawEnemy(ctx: Ctx, r: Enemy, fx: Fx, time: number, lift = 0) {
   const d = dirOfFace(r.face), dn = DIRS[d];
-  const shake = r.state === 'windup' ? (Math.floor(time * 30) % 2 ? 1 : -1) * (r.locked ? 1 : 0) : 0;
+  const shake = r.state === 'windup' ? (Math.floor(time * 30) % 2 ? 1 : -1) * (r.locked || r.kind === 'hopper' ? 1 : 0) : 0;
   const x = Math.round(r.x) + shake, y = Math.round(r.y) - lift;
   const name = enemySprite(r, time);
   const blink = Math.floor(time * 10) % 2 === 0;
@@ -306,7 +312,9 @@ function drawEnemy(ctx: Ctx, r: Enemy, fx: Fx, time: number, lift = 0) {
     if (part) drawMounted(ctx, `part:${part}:${dn}`, x, y, fm, tearable(r, part) && blink, false);
   };
   // the treads go under the body, sticking out either side
-  if (r.parts.sides) drawMounted(ctx, `part:${r.parts.sides}:${dn}`, x, y, { dx: 0, dy: 0, behind: true }, tearable(r, r.parts.sides) && blink, false);
+  // a Rammer's hull is wider: its springs are the wide pair
+  const sideName = r.parts.sides === 'springs' && r.kind === 'rammer' ? `part:bigsprings:${dn}` : `part:${r.parts.sides}:${dn}`;
+  if (r.parts.sides) drawMounted(ctx, sideName, x, y, { dx: 0, dy: 0, behind: true }, tearable(r, r.parts.sides) && blink, false);
   if (rm.behind) rear();
   if (fm.behind) front();
   const s = sprite(name);
@@ -314,7 +322,7 @@ function drawEnemy(ctx: Ctx, r: Enemy, fx: Fx, time: number, lift = 0) {
   else drawSprite(ctx, s, x, y);
   if (!rm.behind) rear();
   if (!fm.behind) front();
-  if (r.parts.sides) nearTrack(ctx, `part:${r.parts.sides}:${dn}`, x, y, dn);
+  if (r.parts.sides) nearTrack(ctx, sideName, x, y, dn);
 }
 
 /** Side parts sit under the body, but except facing straight up or down the near track is in

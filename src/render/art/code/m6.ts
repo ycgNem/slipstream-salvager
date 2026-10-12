@@ -84,7 +84,7 @@ function bouncerMats(phase: number): Mat[] {
       return undefined;
     },
   };
-  m[VISOR] = { ramp: [44, 44, 47, 48], ink: 0, noInk: true };
+  m[VISOR] = { ramp: [44, 44, 46, 47], ink: 0, noInk: true };
   m[CAP] = { ramp: [44, 45, 46, 47], ink: 0 };
   m[BAND] = { ramp: [1, 2, 6, 6], ink: 0 };
   return m;
@@ -143,7 +143,7 @@ const jetsScene: Scene = (h, x, y, z) => {
 
 /** One coil bumper of the Springs: a striped capsule (gold coils on a steel core). */
 function coil(h: Hit, x: number, y: number, z: number, cx: number, cy: number, cz: number, len: number) {
-  h.add(sdCapsule(x, y, z, cx - len, cy, cz, cx + len, cy, cz, 2.1), GOLD, x - cx, y, z);
+  h.add(sdCapsule(x, y, z, cx - len, cy, cz, cx + len, cy, cz, 2.5), GOLD, x - cx, y, z);
   h.add(sdCapsule(x, y, z, cx - len - 0.6, cy, cz, cx + len + 0.6, cy, cz, 1.2), STEEL, x - cx, y, z);
 }
 
@@ -158,7 +158,13 @@ SPRING_MATS[GOLD] = {
 /** The Springs in a body's frame (anchor at the footprint centre): a coil bumper either side. */
 const springsScene: Scene = (h, x, y, z) => {
   const ay = Math.abs(y);
-  coil(h, x, ay, z, 0, 9.0, 3.0, 5.0);
+  coil(h, x, ay, z, 0, 10.2, 3.0, 5.0);
+};
+
+/** The Springs on a big body (a Spring Rammer): the pair set wide enough to show past its hull. */
+const bigSpringsScene: Scene = (h, x, y, z) => {
+  const ay = Math.abs(y);
+  coil(h, x, ay, z, 0.5, 14.2, 3.2, 7.0);
 };
 
 function mountedRear(scene: Scene, d: number) {
@@ -170,11 +176,12 @@ function mountedRear(scene: Scene, d: number) {
   };
 }
 
-function mountedSprings(d: number) {
+function mountedSprings(d: number, big = false) {
+  const [w, h, ox, oy] = big ? [40, 40, 20, 26] : [32, 32, 16, 20];
   return {
-    w: 32, h: 32, ox: 16, oy: 20,
+    w, h, ox, oy,
     draw: (ctx: Ctx, c: HTMLCanvasElement) => {
-      sculpt(ctx, c, { w: 32, h: 32, ox: 16, oy: 20, angle: dirAngle(d), scene: springsScene, mats: SPRING_MATS, zMax: 7 });
+      sculpt(ctx, c, { w, h, ox, oy, angle: dirAngle(d), scene: big ? bigSpringsScene : springsScene, mats: SPRING_MATS, zMax: 8 });
     },
   };
 }
@@ -210,7 +217,7 @@ export function registerM6() {
   DIRS.forEach((dn, d) => {
     for (const f of [0, 1]) {
       defSprite(`en:hopper:stalk:${dn}:${f}`, hopper(d, { ...H0, lift: f ? 0.6 : 0, fold: f ? 0.2 : 0 }));
-      defSprite(`en:hopper:crouch:${dn}:${f}`, hopper(d, { ...H0, lift: f ? -1.6 : -1.2, fold: 1, pitch: 0.1 }));
+      defSprite(`en:hopper:crouch:${dn}:${f}`, hopper(d, { ...H0, lift: f ? -3.0 : -2.6, fold: 1.2, splay: 0.9, pitch: 0.15 }));
       defSprite(`en:bouncer:idle:${dn}:${f}`, bouncer(d, { ...B0, lift: f ? 0.5 : 0 }));
       defSprite(`en:bouncer:windup:${dn}:${f}`, bouncer(d, { ...B0, squash: f ? 1.4 : 1.0 }));
       defSprite(`en:bouncer:roll:${dn}:${f}`, bouncer(d, { ...B0, phase: f ? 1 : 0, lift: 0.3 }));
@@ -220,6 +227,7 @@ export function registerM6() {
     defSprite(`en:hopper:land:${dn}`, hopper(d, { ...H0, lift: -1.8, fold: 1, splay: 1.4, pitch: -0.1 }));
     defSprite(`part:jets:${dn}`, mountedRear(jetsScene, d));
     defSprite(`part:springs:${dn}`, mountedSprings(d));
+    defSprite(`part:bigsprings:${dn}`, mountedSprings(d, true));
   });
   defSprite('pickup:jets', loose((h, x, y, z) => jetsScene(h, z, y, -x), PART_MATS, 1));
   defSprite('pickup:springs', loose(oneCoil, SPRING_MATS, 0));

@@ -149,7 +149,7 @@ export class Play {
     this.afterTick++;
     const w = this.world, p = w.player, fx = this.fx;
     const ang = p.heading;
-    if (p.tier === 'slip' && this.afterTick % 4 === 0) fx.after.push({ name: playerSprite(w, this.time), x: p.x, y: p.y, age: 0 });
+    if (p.tier === 'slip' && !p.air && this.afterTick % 4 === 0) fx.after.push({ name: playerSprite(w, this.time), x: p.x, y: p.y, age: 0 });
     if (p.tier === 'slip' && this.afterTick % 2 === 0) fx.wind(p.x - Math.cos(ang) * 10, p.y - Math.sin(ang) * 10, ang);
     if (p.tier !== 'crawl' && this.afterTick % 3 === 0) fx.puff('dust', p.x - Math.cos(ang) * 8, p.y + 3 - Math.sin(ang) * 6, -Math.cos(ang) * 20, -Math.sin(ang) * 20, 0.35);
     if ((p.brake || p.slide) && p.speed > 30) {
