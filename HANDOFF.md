@@ -61,8 +61,11 @@ Read this first, every session.
 8. **Playtest questions for M3:**
    - Does the exit choice feel like a choice?
    - Does each part change how you play the next yard?
-   - Is a 10-15 minute run the right length?
+   - Is a 10-15 minute run the right length? The critic's estimate for a decent player is
+     10-12 minutes.
    - Is any yard a wall?
+   - Play one yard in **flat mode**. Ask "was it more fun?", not "was it harder?". Flat mode is
+     *easier* for a skilled player, because there's no speed to keep up (DECISIONS #79).
 
 The Windows app also builds: double-click `Build desktop app.bat`. The installer and portable
 `.exe` land in `release/`.
@@ -80,9 +83,14 @@ The Windows app also builds: double-click `Build desktop app.bat`. The installer
   It waits for the owner's go-ahead.
 
 Open points for the owner (also in DECISIONS):
-- **Bot balance is a weak signal now.** The bots clear The Ring but rarely survive the middle
-  yards. The run test only checks that bots play every yard without breaking the sim, softlocking
-  or leaving the arena (#74). How hard the run is is the playtest's call.
+- **Bot balance:** the rule bots in `src/sim/bots.ts` are weaker than a person. They rarely survive
+  the middle yards, so the run test only checks that bots play every yard without breaking the sim,
+  softlocking or leaving the arena (#74).
+  - The critic's search bot (`scripts/pacing/`) is the pacing tool. It clears every yard in
+    30-60 s with almost no hits; a decent player takes about 3-4x its fighting time.
+  - The critic's call: the numbers are fine and the rule bots are just weak (#79).
+- **The Snapper's slide** (#79): should the broadside slide after a snap be a real opening? Now the
+  opening is to loop behind it and rip its treads from the back or side.
 - **The pillar rail** (#39): grazing a pillar turns you without losing speed. It might be a
   technique or an exploit.
 - **The wave 1 safety net's way out** (#33, now 2 hits, #55): two teal hits on the first Rammer's
@@ -103,6 +111,7 @@ Put the portable Node first in every shell:
 | Typecheck | `npm run typecheck` | |
 | Unit tests | `npm test` | movement, combat, salvage, data, the M3 parts and Snapper (`m3.test.ts`), the run (`run.test.ts`) and the removal-test guards |
 | Strategy bots | `npx vite-node scripts/bots.ts` | prints what each bot achieved; use it when tuning |
+| Pacing (search bot) | `npx vite-node scripts/pacing/hrun.ts ring,kennel 1,2,3,4` | the critic's search bot, a skill ceiling: clear times, hits, tears per yard (header has the options) |
 | Smoke test | `npm run e2e` | starts its own server; real key presses; must end with zero console errors |
 | Screenshot sweep | `npm run screens` (or `-- slip burn`) | every scene in `src/app/debug.ts` (all five middle yards and the Heap included), PNGs + overlap audit in `e2e/out/screens/` |
 | Sprite coverage | `npm run coverage` | every name in `src/render/names.ts` has art of the right size and anchor |

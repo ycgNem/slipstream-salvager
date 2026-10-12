@@ -5,7 +5,7 @@
 import { wrapAngle } from '../data/dirs';
 import { contacts, laneLength, pushOut } from './arena';
 import { hasBehavior } from './body';
-import { beginWindup, PUSH_HALF, thinkRammer, toSkid, windingUp } from './rammer';
+import { beginWindup, chargeLength, PUSH_HALF, thinkRammer, toSkid, windingUp } from './rammer';
 import { lunging, ramHit, stunEnemy } from './rip';
 import { hitPlayer } from './salvage';
 import { beginSnap, snapping, thinkSnapper } from './snapper';
@@ -89,7 +89,7 @@ function recoil(w: World, e: Enemy, slammed: boolean) {
 /** The lane a winding-up enemy will lunge along: its angle, how far it runs, and how wide. */
 export function laneOf(w: World, r: Enemy): { angle: number; len: number; width: number } {
   const t = w.t, rr = radiusOf(w, r);
-  const max = r.kind === 'snapper' ? t.snapDist : r.shove ? t.shoveDist : t.chargeDist;
+  const max = r.kind === 'snapper' ? t.snapDist : r.shove ? t.shoveDist : r.locked ? r.chargeLen : chargeLength(w, r);
   return { angle: r.face, len: laneLength(w.arena, r.x, r.y, r.face, max, rr), width: rr * 2 };
 }
 
@@ -113,7 +113,9 @@ export function resolveContacts(w: World) {
     const dx = p.x - r.x, dy = p.y - r.y, d = Math.hypot(dx, dy) || 0.01, min = t.playerRadius + rr;
     if (d >= min) continue;
     if (lunging(r)) {
-      if (p.rip?.hits.includes(r.id) || p.latch) continue;
+      // the Jaws' swing can't be steered out of, so another lunge can catch you mid-swing; only the
+      // one you're biting can't (DECISIONS #79)
+      if (p.rip?.hits.includes(r.id) || p.latch?.id === r.id) continue;
       if (plow && inPlowCone(w, r) && p.knock <= 0 && p.stun <= 0) {
         // the Plow takes the charge on its face: the charger is stopped and stunned, you're
         // knocked back with nothing lost (PLAN.md 8.4)
@@ -131,7 +133,7 @@ export function resolveContacts(w: World) {
       continue;
     }
     if (p.pass > 0 || p.latch) continue;
-    if (plow && !p.rip && p.knock <= 0 && p.stun <= 0 && tierOf(t, p.speed) !== 'crawl' && inPlowCone(w, r)) {
+    if (plow && !p.rip && p.ripCd <= 0 && p.knock <= 0 && p.stun <= 0 && tierOf(t, p.speed) !== 'crawl' && inPlowCone(w, r)) {
       ramHit(w, r);
       continue;
     }

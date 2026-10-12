@@ -5,6 +5,7 @@ import { PARTS, type PartId } from '../data/parts';
 import type { MountSlot } from '../data/mounts';
 import { wrapAngle } from '../data/dirs';
 import { DT, type World } from './world';
+import { pushOut } from './arena';
 
 /** The claw keeps hold of a torn-off part; a part already towed drops to the floor. */
 export function grabPart(w: World, part: PartId, x: number, y: number, cracked = false) {
@@ -56,6 +57,8 @@ export function updatePickups(w: World) {
     const a = w.arena;
     k.x = Math.max(a.wall + 6, Math.min(a.w - a.wall - 6, k.x));
     k.y = Math.max(a.wall + 6, Math.min(a.h - a.wall - 6, k.y));
+    // and out of pillars, low walls and blocks, where it couldn't be reached
+    Object.assign(k, pushOut(a, k.x, k.y, 6));
     if (!p.tow && k.age > 0.4 && Math.hypot(k.x - p.x, k.y - p.y) < t.playerRadius + t.pickupRadius) {
       w.pickups.splice(w.pickups.indexOf(k), 1);
       p.tow = { part: k.part, x: k.x, y: k.y, vx: 0, vy: 0, cracked: k.cracked };

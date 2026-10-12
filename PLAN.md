@@ -383,7 +383,10 @@ Plow, which only comes off in a joust (8.4).
 ### 8.3 The second enemy: the Snapper
 
 A small, fast tread-bot that hunts in packs. The Rammer punishes straight lines and rewards a juke;
-the Snapper punishes loops and parking, and you beat it in a straight line.
+the Snapper punishes **stopping and braking**, and you beat it by out-turning it, looping behind it and
+ripping its tracks. (Measured in M3, DECISIONS #79: its snap needs a clear line, so a pillar loop
+doesn't trouble it, but parking or a brake-pivot near it gets bitten. The Grip Treads, a hairpin with
+no stop, are the answer to it.)
 
 - Small (the Scrapper's size, radius 8), **HP 2**, top speed **170** (under Slipstream: at
   Slipstream you outrun it; at Cruise it catches you), turns fast and faces where it's going.
@@ -393,8 +396,11 @@ the Snapper punishes loops and parking, and you beat it in a straight line.
   its own width, tracking for 0.25 s then locked), then lunges 80 px at 330 px/s. A bite is a hit.
   1.5-2.5 s between snaps.
 - **Power-slide:** after a snap, or when you get behind it, it slides round on its treads to face
-  you again (about 0.6 s), **broadside**. That's the opening: a Slipstream hit on its side tears its
-  **Grip Treads** off. Its front glances (1), its back wrecks it (2).
+  you again (about 0.6 s), broadside.
+- **Its treads come off from the side or the back** (they run the length of it). A Slipstream hit
+  there tears its **Grip Treads** off, so the efficient kill strips it instead of wrecking it
+  (DECISIONS #79). Its front glances (1). Once stripped, a side hit does 2 and the back 4, and
+  either wrecks it.
 - At most two Snappers wind up at once. A stripped Snapper limps (110 px/s), turns slowly and can't
   slide, but still snaps.
 - **Jaw Snapper:** the same bot with **Jaws** on its front. Its bite latches on and flings you (a hit
@@ -412,14 +418,18 @@ the Snapper punishes loops and parking, and you beat it in a straight line.
 - **Plow** (front; from the Plow Rammer, which wears it on its front with a booster on its back).
   **Contact becomes a hit:** at Slipstream, driving your front into an enemy (within 50° of your
   heading) is a hit as if you'd Ripped, and you plough on through; at Cruise it shoves and cancels a
-  windup without bouncing you. **A charge that hits your front is blocked:** the charger is stopped
-  and stunned, and you're knocked back with nothing lost. Weakness, inherited: heavy, so the run-up
-  is slower (acceleration above 60 px/s ×0.8). On a Plow Rammer the plow makes its front take no
-  damage at all ("CLANG"), and it only comes off in a joust.
+  windup without bouncing you. A ram commits like a Rip: the same 0.45 s cooldown before the next
+  ram or Rip. **A charge that hits your front is blocked:** the charger is stopped and stunned, and
+  you're knocked back with nothing lost. Weakness, inherited: heavy, so the run-up is slower
+  (acceleration above 60 px/s ×0.65: Slipstream takes about 1.2 s and 140 px, so the Plow's line is
+  the long straight run-up). On a Plow Rammer the plow makes its front take no damage at all
+  ("CLANG"), and it only comes off in a joust.
 - **Jaws** (front; from the Jaw Snapper). **A hit latches and slings:** a Slipstream hit (Rip or
-  Burn) bites on and swings you 180° round the enemy in 0.2 s, then flings you out the way you came,
-  40 px/s faster. The damage lands as normal. Every hit reverses you at speed: pinball between
-  enemies. Weakness, inherited: the swing is locked; you can't steer out of it.
+  Burn) bites on and whips you once all the way round the enemy in 0.2 s, then flings you back out
+  the way you came, 40 px/s faster (DECISIONS #67). The damage lands as normal. Every hit reverses
+  you at speed: pinball between enemies. A joust doesn't bite: you go on past to its open back.
+  Weakness, inherited: the swing is locked; you can't steer out of it, and another enemy's charge or
+  snap can catch you mid-swing.
 - **Booster** (rear): as in 4.4.
 - Flat mode: every bolted part adds +1 damage and changes nothing about how you move (#50).
 

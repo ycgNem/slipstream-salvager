@@ -70,10 +70,13 @@ export const KENNEL = arena('kennel', [
   post(256, 180), post(384, 180),
 ]);
 
-/** Long Lanes: two long low walls make three straight lanes, open at both ends. Booster country. */
+/** Long Lanes: two long low walls make three straight lanes, open at both ends and joined by a
+ * gap in the middle (DECISIONS #79). Booster country. */
 export const LANES = arena('lanes', [
-  { x: 128, y: 112, w: 384, h: 16 },
-  { x: 128, y: 240, w: 384, h: 16 },
+  { x: 128, y: 112, w: 160, h: 16 },
+  { x: 352, y: 112, w: 160, h: 16 },
+  { x: 128, y: 240, w: 160, h: 16 },
+  { x: 352, y: 240, w: 160, h: 16 },
 ]);
 
 /** The Plow Pit: an open bowl round one big tower, four posts out at the corners. */

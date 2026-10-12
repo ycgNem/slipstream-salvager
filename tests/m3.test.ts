@@ -1,6 +1,8 @@
 // Milestone 3 (PLAN.md section 8): the Snapper, the three mounts, and the new parts' behaviors.
 import { describe, expect, it } from 'vitest';
-import { addEnemy, addRammer, giveBolted, type World } from '../src/sim/world';
+import { addEnemy, addRammer, createWorld, giveBolted, type World } from '../src/sim/world';
+import { chargeLength } from '../src/sim/rammer';
+import { contacts } from '../src/sim/arena';
 import { hitPlayer } from '../src/sim/salvage';
 import { playerStats } from '../src/sim/body';
 import { EAST, IDLE, IN, openWorld, tick, until } from './helpers';
@@ -201,5 +203,51 @@ describe('the Jaws', () => {
     expect(r.hp).toBe(w.t.rammerHp - 2);
     expect(Math.cos(w.player.heading)).toBeLessThan(-0.9);
     expect(w.player.x).toBeLessThan(r.x);
+  });
+});
+
+describe("the critic's M3 fixes (DECISIONS #79)", () => {
+  it("a back hit tears a Snapper's treads when nothing is on its rear (strip, don't wreck)", () => {
+    const w = openWorld();
+    Object.assign(w.player, { x: 1000, y: 2000, heading: 0, speed: 220 });
+    const s = addEnemy(w, 'snapper', 1030, 2000, 0);
+    s.cd = 99;
+    const ev = [...evs(w, 1, IN(1, 0, true)), ...evs(w, 4, EAST)];
+    expect(ev).toContain('tear');
+    expect(ev).not.toContain('wreck');
+    expect(s.parts.sides).toBeUndefined();
+    expect(s.hp).toBe(w.t.snapperHp);
+  });
+
+  it('a charge runs chargeOver past where you were, within chargeMin..chargeMax', () => {
+    const w = openWorld();
+    const r = addRammer(w, 1000, 2000, 0);
+    const at = (d: number) => {
+      Object.assign(w.player, { x: 1000 + d, y: 2000 });
+      return chargeLength(w, r);
+    };
+    expect(at(150)).toBe(150 + w.t.chargeOver);
+    expect(at(20)).toBe(w.t.chargeMin);
+    expect(at(400)).toBe(w.t.chargeMax);
+  });
+
+  it('a loose part never comes to rest inside a pillar', () => {
+    const w = createWorld({ seed: 1 });
+    const pr = w.arena.pillars[0];
+    w.pickups.push({ id: 999, part: 'booster', x: pr.x + pr.w / 2, y: pr.y + pr.h / 2, vx: 0, vy: 0, age: 0, cracked: false });
+    evs(w, 2);
+    const k = w.pickups.find((q) => q.id === 999)!;
+    expect(contacts(w.arena, k.x, k.y, 5)).toHaveLength(0);
+  });
+
+  it('a joust with the Jaws on stuns the charger without biting on', () => {
+    const w = openWorld();
+    giveBolted(w, 'jaws');
+    Object.assign(w.player, { x: 1000, y: 2000, heading: 0, speed: 220 });
+    const r = addRammer(w, 1060, 2000, Math.PI);
+    Object.assign(r, { state: 'charge', t: 0, travelled: 0, cd: 99 });
+    const ev = [...evs(w, 1, IN(1, 0, true)), ...evs(w, 10, EAST)];
+    expect(ev).toContain('joust');
+    expect(ev).not.toContain('latch');
   });
 });

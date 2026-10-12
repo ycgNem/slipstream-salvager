@@ -83,7 +83,7 @@ export const DEFAULT_TUNING = {
   slideKeep: 0.88,
 
   // ---- the Plow ----
-  plowAccMul: 0.8,
+  plowAccMul: 0.65,
   /** contact within this of your heading is a ram hit */
   plowConeDeg: 50,
   /** how long a ram hit lets you plough through */
@@ -131,7 +131,11 @@ export const DEFAULT_TUNING = {
   leadFrac: 0.8,
   trackTurn: 10,
   chargeSpeed: 330,
-  chargeDist: 260,
+  /** a charge runs this far past where you were when it locked, within min..max, so it always
+   * stops a run-up past you and the counter-pass is on (DECISIONS #79) */
+  chargeOver: 120,
+  chargeMin: 220,
+  chargeMax: 340,
   skidTime: 0.9,
   /** a charge that passes within this of you (edge to edge, px) gives you its slipstream... */
   draftGap: 24,
@@ -207,5 +211,5 @@ export const TUNING_GROUPS: { title: string; keys: [TuningKey, number][] }[] = [
   { title: 'Hull', keys: [['hull', 1], ['invulnTime', 0.1], ['knockSpeed', 10], ['bumpKeep', 0.05]] },
   { title: 'Snapper', keys: [['snapperHp', 1], ['snapperTop', 5], ['snapperAcc', 20], ['snapperTurn', 0.5], ['snapRange', 5], ['snapCircle', 4], ['snapConeDeg', 5], ['snapWindup', 0.05], ['snapLock', 0.05], ['snapSpeed', 10], ['snapDist', 5], ['snapSlide', 0.05], ['snapCdMin', 0.1], ['snapCdMax', 0.1], ['maxSnaps', 1], ['jawFling', 0.1]] },
   { title: 'Flat mode', keys: [['flatDamage', 1], ['flatPartDamage', 1]] },
-  { title: 'Rammer', keys: [['rammerHp', 1], ['stalkSpeed', 5], ['stalkTurn', 0.5], ['strippedTurn', 0.25], ['windupFar', 0.05], ['lockFar', 0.05], ['windupNear', 0.05], ['lockNear', 0.05], ['nearDist', 5], ['chargeRange', 10], ['leadFrac', 0.05], ['chargeSpeed', 10], ['chargeDist', 10], ['skidTime', 0.05], ['joustStun', 0.1], ['joustDeg', 5], ['draftGap', 1], ['draftBoost', 5], ['chargeCdMin', 0.1], ['chargeCdMax', 0.1], ['maxWindups', 1]] },
+  { title: 'Rammer', keys: [['rammerHp', 1], ['stalkSpeed', 5], ['stalkTurn', 0.5], ['strippedTurn', 0.25], ['windupFar', 0.05], ['lockFar', 0.05], ['windupNear', 0.05], ['lockNear', 0.05], ['nearDist', 5], ['chargeRange', 10], ['leadFrac', 0.05], ['chargeSpeed', 10], ['chargeOver', 10], ['chargeMin', 10], ['chargeMax', 10], ['skidTime', 0.05], ['joustStun', 0.1], ['joustDeg', 5], ['draftGap', 1], ['draftBoost', 5], ['chargeCdMin', 0.1], ['chargeCdMax', 0.1], ['maxWindups', 1]] },
 ];

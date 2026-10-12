@@ -116,6 +116,8 @@ export interface Enemy {
   shove: boolean;
   locked: boolean;
   travelled: number;
+  /** how far the current charge runs, fixed when its lane locks */
+  chargeLen: number;
   /** seconds until it may wind up again */
   cd: number;
   /** extra velocity (shoves, skids, rebounds), decays */
@@ -263,7 +265,7 @@ export function addEnemy(w: World, kind: EnemyKind, x: number, y: number, face =
   for (const id of opts.parts ?? [kind === 'rammer' ? 'booster' : 'treads']) parts[PARTS[id].mount] = id;
   const e: Enemy = {
     id: w.nextId++, kind, x, y, face, hp: kind === 'rammer' ? w.t.rammerHp : w.t.snapperHp, parts, safety: !!opts.safety,
-    state: opts.state ?? (kind === 'rammer' ? 'stalk' : 'hunt'), t: 0, windup: 0, lock: 0, shove: false, locked: false, travelled: 0,
+    state: opts.state ?? (kind === 'rammer' ? 'stalk' : 'hunt'), t: 0, windup: 0, lock: 0, shove: false, locked: false, travelled: 0, chargeLen: 0,
     cd: w.rng.range(0.6, 1.2), vx: 0, vy: 0, enter: { x: Math.cos(face), y: Math.sin(face) }, slammed: false, skidFor: w.t.skidTime, drafted: false, shaken: 0,
     speed: 0,
   };

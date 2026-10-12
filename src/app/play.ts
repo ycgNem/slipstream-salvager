@@ -8,7 +8,7 @@ import { Fx } from '../render/fx';
 import { drawWorld, playerSprite } from '../render/renderer';
 import { giveBolted, hasBooster, type Bolted, type InputFrame, type World } from '../sim/world';
 import { finishYard, newRun, yardWorld, type Run } from '../sim/run';
-import { RUN_LENGTH, YARDS, type YardId } from '../data/yards';
+import { RUN_LENGTH, YARDS, wavesAt, type YardId } from '../data/yards';
 import { PARTS, PART_IDS, type PartId } from '../data/parts';
 import { drawSprite, sprite } from '../render/atlas';
 import { crack } from '../render/pixgeom';
@@ -413,15 +413,22 @@ export class Play {
       const y = YARDS[this.run.options[e.option]];
       const left = g.id === 'w', right = g.id === 'e';
       const name = y.name, icons = y.salvage;
-      const tw = Math.max(textWidth(name), icons.length * 18 - 2);
+      // the salvage by name (a part you haven't met yet is just an icon), and how big its last
+      // wave is at this depth (DECISIONS #79)
+      const parts = icons.map((id) => PARTS[id].name.toUpperCase()).join(' + ');
+      const last = wavesAt(y, this.run.depth + 1).at(-1)!.enemies.length;
+      const wave = `LAST WAVE: ${last}`;
+      const tw = Math.max(textWidth(name), icons.length * 18 - 2, textWidth(parts), textWidth(wave));
       const bx = left ? 22 : right ? 618 - tw - 8 : g.rect.x + 16 - Math.floor(tw / 2) - 4;
       // below the side gates, clear of the yard banner
-      const by = left || right ? g.rect.y + g.rect.h + 10 : g.id === 'n' ? 22 : 360 - 66;
+      const by = left || right ? g.rect.y + g.rect.h + 10 : g.id === 'n' ? 22 : 360 - 16 - 60;
       const blink = Math.floor(this.time * 3) % 2 === 0;
-      ui.fill(bx, by, tw + 8, 38, C.ink);
+      ui.fill(bx, by, tw + 8, 54, C.ink);
       ui.fill(bx, by, tw + 8, 1, blink ? C.gold3 : C.gold);
       ui.text(name, bx + 4, by + 4, C.white);
-      icons.forEach((id, i) => drawSprite(ui.ctx, sprite(`icon:part:${id}`), bx + 4 + i * 18, by + 17));
+      icons.forEach((id, i) => drawSprite(ui.ctx, sprite(`icon:part:${id}`), bx + 4 + i * 18, by + 14));
+      ui.text(parts, bx + 4, by + 33, C.gold2);
+      ui.text(wave, bx + 4, by + 43, C.mist);
       // an arrow toward the gate
       if (left || right) ui.text(left ? '<' : '>', left ? 8 : 626, g.rect.y + 12, blink ? C.gold3 : C.gold);
     }

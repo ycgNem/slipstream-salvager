@@ -9,7 +9,7 @@ The one arena is now the first of five. Rip, bolt on and drive on.
 - In between, you play three of four new yards: The Kennel, Long Lanes, The Plow Pit and Jaw Yard.
   Each one has its own layout.
 - When a yard is clear, two exit gates open. The sign under each gate shows what you can salvage
-  there. Drive out through the one you want.
+  there and how big its last wave is. Drive out through the one you want.
 - Your hull, your parts and whatever is on your cable come with you. You patch up +1 hull between
   yards.
 - The end of a run shows your yards, time, tears, wrecks, jousts, top speed and the build you
@@ -19,24 +19,31 @@ The one arena is now the first of five. Rip, bolt on and drive on.
 - **Booster** (rear): more top speed, and hold Rip to rev a Burn.
 - **Grip Treads** (sides): more grip. Pull back hard at speed to power-slide round.
 - **Plow** (front): drive into enemies at full speed to ram them. A charge that meets your Plow is
-  stopped cold.
+  stopped cold. It's heavy, so it needs a long run-up.
 - **Jaws** (front): a full-speed hit bites on, whips you round and slings you back out faster.
 - To take a part, hit the side of the enemy where it sits, at full speed: a booster from behind,
-  treads from the side, jaws head-on. A Plow only comes off if you meet its charge nose to nose.
+  treads from the side or behind, jaws head-on. A Plow only comes off if you meet its charge nose
+  to nose.
 
 **A new enemy: the Snapper**
 - Small, fast and always hunting. It circles you and then snaps after a short red warning.
-- After a snap it slides, and its sides are open.
+- Get behind it or beside it at full speed to rip its treads off.
 - Watch out for the Jaw Snapper. Its bite throws you a lot further.
 
 **Changes to the Rammer**
 - Its front is armored: hit the sides or the back.
+- A charge always runs well past you, so there's room to get back up to speed for the counter-hit.
 - **Joust:** Rip a charge nose to nose at full speed to stop it dead.
 - **Slipstream:** dodge a charge close and its wake lifts you to full speed, ready for the
   counter-hit.
 - A hit knocks your part loose instead of destroying it. Grab it back before a charge runs it over.
 - A tap of Rip is always a Rip. With the Booster, hold Rip to rev a Burn.
 - A Rammer that's lost its booster limps.
+
+**A new look**
+- New pixel art for the arenas: a gritty yard floor, barrier walls, scrap skips, gates, dust and
+  smoke.
+- New art for the Snapper and the new parts, and a matching set of part icons.
 
 **Other**
 - New hints for each part and enemy, shown once each.

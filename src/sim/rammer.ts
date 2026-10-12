@@ -5,7 +5,7 @@
 // Snapper live in enemies.ts.
 import { dirAngle, dirOf, wrapAngle } from '../data/dirs';
 import { lineOfSight } from './arena';
-import { DT, hasBooster, type Enemy, type World } from './world';
+import { DT, hasBooster, radiusOf, type Enemy, type World } from './world';
 
 export const PUSH_HALF = 0.08;
 
@@ -26,6 +26,7 @@ export function beginWindup(w: World, r: Enemy, near: boolean) {
   r.state = 'windup';
   r.t = 0;
   r.locked = false;
+  r.chargeLen = 0;
   r.windup = r.shove ? t.shoveWindup : near ? t.windupNear : t.windupFar;
   r.drafted = false;
   r.lock = r.shove ? t.shoveLock : near ? t.lockNear : t.lockFar;
@@ -95,17 +96,28 @@ export function toSkid(w: World, r: Enemy, slammed: boolean, dur = w.t.skidTime)
  * obstacle in the way, via the corner (pushed out a little) that makes the shorter trip.
  */
 export function pathGoal(w: World, r: Enemy, margin: number): { x: number; y: number } {
-  const p = w.player;
-  if (lineOfSight(w.arena, r.x, r.y, p.x, p.y)) return p;
+  const p = w.player, a = w.arena, rr = radiusOf(w, r);
+  if (lineOfSight(a, r.x, r.y, p.x, p.y)) return p;
   const m = margin;
   let best = { x: p.x, y: p.y }, bd = Infinity;
-  for (const pr of w.arena.pillars)
-    for (const [cx, cy] of [[pr.x - m, pr.y - m], [pr.x + pr.w + m, pr.y - m], [pr.x - m, pr.y + pr.h + m], [pr.x + pr.w + m, pr.y + pr.h + m]]) {
-      if (Math.hypot(cx - r.x, cy - r.y) < 4 || !lineOfSight(w.arena, r.x, r.y, cx, cy)) continue;
-      const d = Math.hypot(cx - r.x, cy - r.y) + Math.hypot(p.x - cx, p.y - cy);
+  for (const pr of a.pillars)
+    for (let [cx, cy] of [[pr.x - m, pr.y - m], [pr.x + pr.w + m, pr.y - m], [pr.x - m, pr.y + pr.h + m], [pr.x + pr.w + m, pr.y + pr.h + m]]) {
+      // a corner it can't stand on (past the ring wall) is moved to where it can
+      cx = Math.max(a.wall + rr + 1, Math.min(a.w - a.wall - rr - 1, cx));
+      cy = Math.max(a.wall + rr + 1, Math.min(a.h - a.wall - rr - 1, cy));
+      if (Math.hypot(cx - r.x, cy - r.y) < 8 || !lineOfSight(a, r.x, r.y, cx, cy)) continue;
+      // a corner that can't see you is a poor bet: without this it dithered between two corners
+      // and stalled (DECISIONS #79)
+      const d = Math.hypot(cx - r.x, cy - r.y) + Math.hypot(p.x - cx, p.y - cy) + (lineOfSight(a, cx, cy, p.x, p.y) ? 0 : 150);
       if (d < bd) { bd = d; best = { x: cx, y: cy }; }
     }
   return best;
+}
+
+/** How far a charge locked now would run: past you by chargeOver, within chargeMin..chargeMax. */
+export function chargeLength(w: World, r: Enemy): number {
+  const t = w.t;
+  return Math.max(t.chargeMin, Math.min(t.chargeMax, Math.hypot(w.player.x - r.x, w.player.y - r.y) + t.chargeOver));
 }
 
 /** One Rammer's brain for one tick; returns how fast it moves along its facing. */
@@ -132,6 +144,7 @@ export function thinkRammer(w: World, r: Enemy): number {
         r.face = turnToward(r.face, Math.atan2(a.y - r.y, a.x - r.x), t.trackTurn * DT);
       } else if (!r.locked) {
         r.locked = true;
+        r.chargeLen = chargeLength(w, r);
         w.events.push({ k: 'lock', id: r.id });
       }
       if (r.t >= r.windup) {
@@ -143,8 +156,10 @@ export function thinkRammer(w: World, r: Enemy): number {
       return 0;
     case 'charge': {
       const sp = r.shove ? t.shoveSpeed : t.chargeSpeed;
+      // a charge that never locked (forced by a test or a scene) measures itself now
+      if (!r.chargeLen) r.chargeLen = chargeLength(w, r);
       r.travelled += sp * DT;
-      if (r.travelled >= (r.shove ? t.shoveDist : t.chargeDist)) toSkid(w, r, false);
+      if (r.travelled >= (r.shove ? t.shoveDist : r.chargeLen)) toSkid(w, r, false);
       return sp;
     }
     case 'skid':

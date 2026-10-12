@@ -351,4 +351,47 @@ a number in the tuning panel, and the M1 rule is one setting away (given with ea
     - **The claw's tier ring** moves to the front edge of a Plow or Jaws and gets an ink edge.
     - **The screenshot scenes don't write to the best record,** and a run counts on its first tick.
     - "SCRAPPED" is lilac, not danger red.
+79. **Fixes from the critic's M3 review.** It measured with a search bot that tries 52 input plans
+    every 0.1 s, with a human reaction delay. That bot is a skill ceiling, not a person. The fixes
+    marked "verified" were tested by the critic in a patched copy, then re-checked with its scripts
+    after landing.
+    - **Rammers no longer stall at corners** (verified: 0 stalls in 2,042 placements, all six
+      layouts).
+      - Before, they never reached a hidden player in 54% of Long Lanes placements and 60% of
+        Jaw Yard ones.
+      - A corner that can't see you now costs +150.
+      - A corner goal is kept inside the walls.
+      - Arrival counts at 8 px.
+    - **A Snapper's treads tear from the back as well as the side** when its rear mount is empty.
+      - *Why:* back hits wrecked it (4 against HP 2), so the Kennel and Jaw Yard handed out almost
+        no parts: 21 of 28 hits wrecked a Snapper still wearing its treads.
+      - Tears in the Kennel went from 0-4 to 7-9.
+    - **A charge runs 120 px past where you were when its lane locked**, within 220-340 px
+      (`chargeOver`, `chargeMin`, `chargeMax`). The lane shows the real length.
+      - *Why:* the flat 260 px charge stopped too close to you after a far launch. The counter-pass
+        tore 0 of 84 times from 190-220 px out; now it's 210 of 210 at every distance.
+      - The critic's floor was 160. At 120 seeds, 160 let the pillar camper clear 41 against
+        hit-and-run's 59: short charges end by its pillar. A 220 floor gives 27 against 76.
+    - **Loose parts are pushed out of pillars, low walls and blocks** (5 of 156 had landed out of
+      reach; 0 now).
+    - **The Jaws:**
+      - Another enemy's lunge can hit you mid-swing; the one you're biting can't.
+      - A joust doesn't bite: you go on to the stunned enemy's open back.
+      - PLAN 8.4 now says what the code does: a full turn round the enemy, not 180°.
+    - **The Plow:** run-up acceleration ×0.65 (was 0.8), and a ram has the Rip's 0.45 s cooldown.
+      *Why:* a ram had no button, no cooldown and no commitment, and its weakness was barely felt.
+    - **Long Lanes:** each wall has a 64 px gap in the middle, so the lanes join. The middle
+      corridor with Rammers at both ends was where players got pinned.
+    - **Exit signs** name the parts in text and show the size of the yard's last wave at that
+      depth. *Why:* the icons mean nothing before you've met a part, and the yards' difficulty
+      didn't show.
+    - **Not changed:** Rammer HP, armor, skid time and the draft gap. The search bot clears every
+      yard in 30-60 s with almost no hits, so the numbers aren't the problem; the rule bots are
+      weaker than a person (#63, #74).
+    - **PLAN 8.3** now says the Snapper punishes stopping and braking, not loops. Measured: a
+      pillar loop is safe from it, because its snap needs a clear line.
+    - **Left for the owner:** whether the Snapper's post-snap slide should be a real opening. The
+      critic got the side showing 52-82% of the time with a 2.5 rad/s slide turn and a 0.9 s
+      slide, but no chase reached it. Flat mode is *easier* for a skilled player, so the A/B
+      question is "which was more fun", not "which was harder".
 

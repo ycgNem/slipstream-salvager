@@ -135,6 +135,8 @@ export function ramHit(w: World, r: Enemy) {
   const tier = tierOf(t, p.speed);
   p.rip = { t: t.plowTime, tier, burn: false, plow: true, hits: [] };
   p.pass = t.plowTime + t.passThrough;
+  // a ram commits like a Rip: the same cooldown before the next ram or Rip
+  p.ripCd = t.ripCooldown;
   w.events.push({ k: 'ram', tier, id: r.id });
   hitEnemy(w, r);
 }
@@ -177,7 +179,9 @@ function hitEnemy(w: World, r: Enemy) {
   rip.hits.push(r.id);
   const hx = (p.x + r.x) / 2, hy = (p.y + r.y) / 2;
   const zone = hitZone(w, r);
-  const mount = ZONE_MOUNT[zone];
+  // side parts (treads) run along the back too: with nothing on its rear, a back hit tears them,
+  // so the efficient kill strips instead of wrecking (DECISIONS #79)
+  const mount = zone === 'rear' && !r.parts.rear && r.parts.sides ? 'sides' : ZONE_MOUNT[zone];
   const part = r.parts[mount];
   const joust = lunging(r) && zone === 'front' && Math.abs(wrapAngle(p.heading - r.face - Math.PI)) <= deg(t.joustDeg);
 
@@ -231,7 +235,8 @@ function hitEnemy(w: World, r: Enemy) {
           w.events.push({ k: 'joust', id: r.id, x: hx, y: hy });
         }
         w.hitstop = Math.max(w.hitstop, t.hitstopTear);
-        latch(w, r);
+        // a joust leaves its back open: the Jaws don't whip you back round to its front
+        if (!joust) latch(w, r);
         break;
       }
       if (part === 'plow') {
@@ -252,7 +257,7 @@ function hitEnemy(w: World, r: Enemy) {
         // a hit the wave 1 safety net absorbs gets a lighter hit-stop: it shouldn't feel like damage
         w.hitstop = Math.max(w.hitstop, dealt > 2 ? t.hitstopTear : dealt > 1 ? t.hitstopSlip : dealt > 0 ? t.hitstopCruise + 1 : t.hitstopCruise);
       }
-      if (alive) latch(w, r);
+      if (alive && !joust) latch(w, r);
       break;
     }
   }
