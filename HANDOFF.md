@@ -7,14 +7,16 @@ Read this first, every session.
 - **Milestone 0 and Milestone 1 are built. Stopped for the owner's playtest.** Nothing past M1 gets
   built until the owner says the core loop works (ROADMAP.md "Scope fence").
 - The owner approved every default in ROADMAP.md section 1 (Q1–Q11). DECISIONS.md runs #1–#53 (#47–#53 are the fixes from the critic's review).
-- Branch `works` has everything; `main` is the planning commit. No GitHub remote (DECISIONS #24).
+- **Live:** https://ycgnem.github.io/slipstream-salvager/ (tuning panel: https://ycgnem.github.io/slipstream-salvager/?debug). Repo: https://github.com/ycgNem/slipstream-salvager (public, like
+  Sprocket & Sprout; DECISIONS #54). `main` and `works` are pushed and identical. Pushing `main`
+  redeploys the site.
 
 ## How to playtest (for the owner)
 
-1. Double-click **`Play.bat`**. It starts the game and opens your browser at `http://localhost:5173`.
-   Keep the black window open while you play.
-2. For the **tuning panel and flat mode**, use `http://localhost:5173/?debug` (in the dev server it's
-   always on). Press **`** (backtick) or **F1** in play to open it. It also has **START WITH THE
+1. Open **https://ycgnem.github.io/slipstream-salvager/** (or double-click **`Play.bat`** to run it locally at
+   `http://localhost:5173`; keep the black window open while you play).
+2. For the **tuning panel and flat mode**, add `?debug`: **https://ycgnem.github.io/slipstream-salvager/?debug** (in the
+   local dev server it's always on). Press **`** (backtick) or **F1** in play to open it. It also has **START WITH THE
    BOOSTER**, so you can play a whole run with the part.
 3. Controls:
 
@@ -124,5 +126,10 @@ read-only). The `art-director` comes with the art overhaul (M4).
 
 ## Releasing
 
-Not set up: there's no GitHub repo (DECISIONS #24). When there is one, pushing `main` deploys the
-website through `.github/workflows/deploy.yml`. Push only when the owner says so.
+- Repo: https://github.com/ycgNem/slipstream-salvager (public). Site: https://ycgnem.github.io/slipstream-salvager/.
+- Pushing `main` runs `.github/workflows/deploy.yml`: `npm ci`, `npm test`, `npm run build`, then
+  deploys `dist/` to GitHub Pages (source: GitHub Actions). Check a run with `gh run list`.
+- Day-to-day work happens on `works`. To release, fast-forward `main` to `works` and push both.
+  **Push only when the owner says so.**
+- The service worker caches the game (`public/sw.js`, cache `salvager-v1`). Bump the cache name when
+  a release must reach players who already have it open.

@@ -193,3 +193,8 @@ as notes in HANDOFF.md):*
     were tuned to their own seeds, nothing covered waves 2-3, and the route flip partly measured
     the top wall.
 
+54. **The repo is on GitHub and the game is live** (https://github.com/ycgNem/slipstream-salvager, public; https://ycgnem.github.io/slipstream-salvager/). This replaces #24.
+    *Why:* the owner asked for it to be committed, pushed and playable from a GitHub link (2026-10-12).
+    It's public like Sprocket & Sprout and Last Watt, because GitHub Pages on a free plan needs a
+    public repo. Pushing `main` deploys.
+

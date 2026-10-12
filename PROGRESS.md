@@ -2,6 +2,11 @@
 
 What's built. Newest first.
 
+## 2026-10-12 — Published for the playtest
+
+- GitHub repo https://github.com/ycgNem/slipstream-salvager (public) with Pages deploying from `main`. Playable at
+  https://ycgnem.github.io/slipstream-salvager/ (DECISIONS #54).
+
 ## 2026-10-12 — M1d: the critic's review, bugs and pillar breaks fixed
 
 - **Softlock fixed:** a Rammer could shove you through the wall and the wave never ended. The walls
