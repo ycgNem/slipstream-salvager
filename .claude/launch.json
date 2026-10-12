@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "game",
+      "runtimeExecutable": "C:/Users/jacks/tools/node-v22.20.0-win-x64/node.exe",
+      "runtimeArgs": ["node_modules/vite/bin/vite.js", "--port", "5190", "--strictPort", "--host", "127.0.0.1"],
+      "port": 5190
+    },
+    {
+      "name": "preview",
+      "runtimeExecutable": "C:/Users/jacks/tools/node-v22.20.0-win-x64/node.exe",
+      "runtimeArgs": ["node_modules/vite/bin/vite.js", "preview", "--port", "4190", "--strictPort", "--host", "127.0.0.1"],
+      "port": 4190
+    }
+  ]
+}

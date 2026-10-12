@@ -72,6 +72,9 @@ export class Input {
     el.addEventListener('mousedown', (e) => {
       gesture();
       if (e.button > 2) return;
+      this.mouse.x = e.offsetX;
+      this.mouse.y = e.offsetY;
+      this.mouse.moved = true;
       this.mouse.down[e.button] = true;
       this.mouse.pressed[e.button] = true;
       this.usingPad = false;

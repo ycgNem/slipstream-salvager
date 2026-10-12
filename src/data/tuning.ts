@@ -1,0 +1,136 @@
+// Every movement and combat number in the slice, in one place, so the dev tuning panel can edit
+// them live (PLAN.md section 4 has the reasoning; DECISIONS.md #29-#32 the review changes).
+// Units: px, seconds, px/s, px/s², rad/s, degrees where the name says Deg.
+
+export const DEFAULT_TUNING = {
+  // ---- the Scrapper's movement ----
+  topSpeed: 240,
+  /** acceleration below accSplit px/s: instant to get moving */
+  accLow: 900,
+  /** acceleration above accSplit: the run-up to Slipstream (~0.8 s, ~90 px) */
+  accHigh: 180,
+  accSplit: 60,
+  /** turn rate at rest and at top speed (rad/s) */
+  turnLow: 14,
+  turnHigh: 4,
+  /** turning faster than this (rad/s) scrubs speed */
+  scrubFree: 5,
+  scrubK: 0.6,
+  /** speed half-life when you let go (s) */
+  coastHalf: 0.3,
+  /** push more than brakeDeg against your motion to brake, then pivot below pivotSpeed */
+  brakeDecel: 900,
+  brakeDeg: 150,
+  brakeHystDeg: 12,
+  pivotSpeed: 60,
+  /** how fast speed above top speed (from a lunge or a burn) falls back (half-life, s) */
+  overspeedHalf: 0.25,
+  playerRadius: 8,
+  /** a wall hit within ~41° of head-on (|cos| above this) is a clank */
+  clankCos: 0.75,
+  clankKeep: 0.2,
+
+  // ---- speed tiers (absolute, the same marks for every body) ----
+  cruiseAt: 110,
+  slipAt: 190,
+
+  // ---- the Rip ----
+  ripTime: 0.16,
+  ripImpulse: 90,
+  ripCooldown: 0.45,
+  ripReach: 12,
+  ripRadius: 11,
+  aimAssistDeg: 12,
+  aimAssistConeDeg: 35,
+  aimAssistRange: 140,
+  slipDamage: 2,
+  /** Cruise rips push the enemy this far and cancel its windup */
+  cruiseShove: 24,
+  cruiseKeep: 0.85,
+  hitstopCrawl: 2,
+  hitstopCruise: 4,
+  hitstopSlip: 7,
+  hitstopTear: 9,
+  /** after a rip ends you still pass through bodies this long (s) */
+  passThrough: 0.08,
+
+  // ---- the Booster and its Burn ----
+  boosterTopMul: 1.125,
+  boosterTurnLowMul: 0.65,
+  boosterTurnHighMul: 0.65,
+  burnAccel: 260,
+  burnMax: 330,
+  burnTime: 0.4,
+  burnCooldown: 0.6,
+  burnWallStun: 0.6,
+
+  // ---- salvage ----
+  boltTime: 0.7,
+  boltSteerMul: 0.5,
+  rearArcDeg: 70,
+  towLen: 14,
+  pickupRadius: 7,
+
+  // ---- the player's hull ----
+  hull: 5,
+  invulnTime: 1.0,
+  knockTime: 0.3,
+  knockSpeed: 160,
+  /** speed kept after bumping an enemy outside a rip */
+  bumpKeep: 0.4,
+
+  // ---- the Rammer ----
+  rammerHp: 4,
+  rammerRadius: 11,
+  stalkSpeed: 45,
+  stalkTurn: 6,
+  strippedSpeed: 35,
+  windupFar: 0.85,
+  lockFar: 0.35,
+  windupNear: 0.45,
+  lockNear: 0.25,
+  nearDist: 80,
+  chargeRange: 230,
+  /** share of your velocity it leads its aim by */
+  leadFrac: 0.5,
+  trackTurn: 10,
+  chargeSpeed: 330,
+  chargeDist: 260,
+  skidTime: 0.9,
+  reboundDist: 24,
+  chargeCdMin: 1.2,
+  chargeCdMax: 2.2,
+  maxWindups: 2,
+  shoveWindup: 0.5,
+  shoveLock: 0.2,
+  shoveDist: 70,
+  shoveSpeed: 220,
+  shoveRange: 90,
+
+  // ---- the encounter ----
+  bannerTime: 1.5,
+  gateWarn: 1.0,
+  enterTime: 0.6,
+  breather: 2.0,
+
+  // ---- flat mode (the removal test as an A/B; DECISIONS #28) ----
+  flatDamage: 2,
+};
+
+export type Tuning = typeof DEFAULT_TUNING;
+export type TuningKey = keyof Tuning;
+
+export function defaultTuning(): Tuning {
+  return { ...DEFAULT_TUNING };
+}
+
+/** Groups for the tuning panel, in display order, with a step for each key. */
+export const TUNING_GROUPS: { title: string; keys: [TuningKey, number][] }[] = [
+  { title: 'Movement', keys: [['topSpeed', 10], ['accLow', 50], ['accHigh', 10], ['accSplit', 5], ['turnLow', 0.5], ['turnHigh', 0.25], ['scrubFree', 0.25], ['scrubK', 0.05], ['coastHalf', 0.05], ['brakeDecel', 50], ['brakeDeg', 5], ['pivotSpeed', 5], ['overspeedHalf', 0.05], ['clankCos', 0.05], ['clankKeep', 0.05]] },
+  { title: 'Tiers', keys: [['cruiseAt', 5], ['slipAt', 5]] },
+  { title: 'Rip', keys: [['ripTime', 0.02], ['ripImpulse', 10], ['ripCooldown', 0.05], ['aimAssistDeg', 1], ['slipDamage', 1], ['cruiseShove', 2], ['cruiseKeep', 0.05], ['hitstopSlip', 1], ['passThrough', 0.02]] },
+  { title: 'Booster', keys: [['boosterTopMul', 0.025], ['boosterTurnLowMul', 0.05], ['boosterTurnHighMul', 0.05], ['burnAccel', 10], ['burnMax', 10], ['burnTime', 0.05], ['burnCooldown', 0.05], ['burnWallStun', 0.05]] },
+  { title: 'Salvage', keys: [['boltTime', 0.05], ['boltSteerMul', 0.05], ['rearArcDeg', 5]] },
+  { title: 'Hull', keys: [['hull', 1], ['invulnTime', 0.1], ['knockSpeed', 10], ['bumpKeep', 0.05]] },
+  { title: 'Rammer', keys: [['rammerHp', 1], ['stalkSpeed', 5], ['stalkTurn', 0.5], ['windupFar', 0.05], ['lockFar', 0.05], ['windupNear', 0.05], ['lockNear', 0.05], ['nearDist', 5], ['chargeRange', 10], ['leadFrac', 0.1], ['chargeSpeed', 10], ['chargeDist', 10], ['skidTime', 0.05], ['chargeCdMin', 0.1], ['chargeCdMax', 0.1], ['maxWindups', 1]] },
+];
