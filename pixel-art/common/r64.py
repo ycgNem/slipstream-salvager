@@ -192,15 +192,19 @@ def _i32(v):
     return v - (1 << 32) if v & 0x80000000 else v
 
 
-def write_recipe(path, name, entries):
+def write_recipe(path, name, entries, keep_strays=False):
     """Write a scripts/sprites-import.mjs recipe: entries = [(sprite name, png relative to the
-    recipe, (w, h), (ox, oy))]. Every PNG is already exactly its frame (place "none", scale 1)."""
+    recipe, (w, h), (ox, oy))]. Every PNG is already exactly its frame (place "none", scale 1).
+    keep_strays: keep isolated single pixels (particles are made of them; the import drops them
+    by default because generators leave noise)."""
     import json
 
     sprites = [{"match": m, "file": f, "frame": list(fr), "origin": list(o)} for m, f, fr, o in entries]
-    body = {"name": name, "kind": "sprites", "scale": 1, "defaults": {"place": "none"}, "sprites": []}
+    defaults = {"place": "none", **({"keepStrays": True} if keep_strays else {})}
+    body = {"name": name, "kind": "sprites", "scale": 1, "defaults": defaults, "sprites": []}
     text = json.dumps(body, indent=1).replace('"sprites": []', '"sprites": [\n' + ",\n".join("  " + json.dumps(s) for s in sprites) + "\n ]")
-    Path(path).write_text(text + "\n", encoding="utf-8")
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
+        f.write(text + "\n")
 
 
 def hash2(x, y, seed=0):

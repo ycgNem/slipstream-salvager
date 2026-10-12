@@ -1,0 +1,23 @@
+{
+ "name": "particles",
+ "kind": "sprites",
+ "file": "particles.png",
+ "palette": "Resurrect 64",
+ "sprites": [
+  {"match":"fx:dust:0","r":[0,0,8,8],"o":[4,4]},
+  {"match":"fx:dust:1","r":[9,0,8,8],"o":[4,4]},
+  {"match":"fx:dust:2","r":[18,0,8,8],"o":[4,4]},
+  {"match":"fx:dust:3","r":[27,0,8,8],"o":[4,4]},
+  {"match":"fx:steam:0","r":[36,0,8,8],"o":[4,4]},
+  {"match":"fx:steam:1","r":[45,0,8,8],"o":[4,4]},
+  {"match":"fx:steam:2","r":[54,0,8,8],"o":[4,4]},
+  {"match":"fx:steam:3","r":[63,0,8,8],"o":[4,4]},
+  {"match":"fx:smoke:0","r":[72,0,8,8],"o":[4,4]},
+  {"match":"fx:smoke:1","r":[81,0,8,8],"o":[4,4]},
+  {"match":"fx:smoke:2","r":[90,0,8,8],"o":[4,4]},
+  {"match":"fx:smoke:3","r":[99,0,8,8],"o":[4,4]},
+  {"match":"fx:spark:0","r":[108,0,8,8],"o":[4,4]},
+  {"match":"fx:spark:1","r":[117,0,8,8],"o":[4,4]},
+  {"match":"fx:spark:2","r":[0,9,8,8],"o":[4,4]}
+ ]
+}

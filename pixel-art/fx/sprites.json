@@ -1,0 +1,26 @@
+{
+ "name": "particles",
+ "kind": "sprites",
+ "scale": 1,
+ "defaults": {
+  "place": "none",
+  "keepStrays": true
+ },
+ "sprites": [
+  {"match": "fx:dust:0", "file": "out/dust_0.png", "frame": [8, 8], "origin": [4, 4]},
+  {"match": "fx:dust:1", "file": "out/dust_1.png", "frame": [8, 8], "origin": [4, 4]},
+  {"match": "fx:dust:2", "file": "out/dust_2.png", "frame": [8, 8], "origin": [4, 4]},
+  {"match": "fx:dust:3", "file": "out/dust_3.png", "frame": [8, 8], "origin": [4, 4]},
+  {"match": "fx:steam:0", "file": "out/steam_0.png", "frame": [8, 8], "origin": [4, 4]},
+  {"match": "fx:steam:1", "file": "out/steam_1.png", "frame": [8, 8], "origin": [4, 4]},
+  {"match": "fx:steam:2", "file": "out/steam_2.png", "frame": [8, 8], "origin": [4, 4]},
+  {"match": "fx:steam:3", "file": "out/steam_3.png", "frame": [8, 8], "origin": [4, 4]},
+  {"match": "fx:smoke:0", "file": "out/smoke_0.png", "frame": [8, 8], "origin": [4, 4]},
+  {"match": "fx:smoke:1", "file": "out/smoke_1.png", "frame": [8, 8], "origin": [4, 4]},
+  {"match": "fx:smoke:2", "file": "out/smoke_2.png", "frame": [8, 8], "origin": [4, 4]},
+  {"match": "fx:smoke:3", "file": "out/smoke_3.png", "frame": [8, 8], "origin": [4, 4]},
+  {"match": "fx:spark:0", "file": "out/spark_0.png", "frame": [8, 8], "origin": [4, 4]},
+  {"match": "fx:spark:1", "file": "out/spark_1.png", "frame": [8, 8], "origin": [4, 4]},
+  {"match": "fx:spark:2", "file": "out/spark_2.png", "frame": [8, 8], "origin": [4, 4]}
+ ]
+}
