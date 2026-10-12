@@ -9,10 +9,10 @@ import type { SimEvent } from '../sim/events';
 import type { UI } from './ui';
 import { textWidth } from './font';
 
-export type HintId = 'speed' | 'tear' | 'bolt' | 'burn' | 'exit' | 'treads' | 'plow' | 'jaws' | 'snapper' | 'plowfoe' | 'jawfoe';
+export type HintId = 'speed' | 'tear' | 'bolt' | 'burn' | 'exit' | 'treads' | 'plow' | 'jaws' | 'snapper' | 'plowfoe' | 'jawfoe' | 'jets' | 'springs' | 'hopper' | 'bouncer';
 
 /** a hint about a part you've bolted on, by part */
-const PART_HINT: Record<PartId, HintId> = { booster: 'burn', treads: 'treads', plow: 'plow', jaws: 'jaws' };
+const PART_HINT: Record<PartId, HintId> = { booster: 'burn', treads: 'treads', plow: 'plow', jaws: 'jaws', jets: 'jets', springs: 'springs' };
 
 export class Hints {
   seen: Record<string, boolean>;
@@ -41,7 +41,12 @@ export class Hints {
       if (e.part === 'treads') this.done('snapper');
       if (e.part === 'plow') this.done('plowfoe');
       if (e.part === 'jaws') this.done('jawfoe');
+      if (e.part === 'jets') this.done('hopper');
+      if (e.part === 'springs') this.done('bouncer');
     }
+    if (e.k === 'leap') this.done('jets');
+    // your own bounce (an enemy's has an id)
+    if (e.k === 'boing' && e.id === undefined) this.done('springs');
     if (e.k === 'joust') this.done('plowfoe');
     if (e.k === 'bolted') this.done('bolt');
     if (e.k === 'rip' && e.burn && e.tier === 'slip') this.done('burn');
@@ -68,6 +73,8 @@ export class Hints {
       : !s.plowfoe && foes('plow') ? 'plowfoe'
       : !s.jawfoe && foes('jaws') ? 'jawfoe'
       : !s.snapper && s.speed && w.enemies.some((e) => e.kind === 'snapper' && e.parts.sides) ? 'snapper'
+      : !s.hopper && s.speed && w.enemies.some((e) => e.kind === 'hopper' && e.parts.rear) ? 'hopper'
+      : !s.bouncer && s.speed && w.enemies.some((e) => e.kind === 'bouncer' && e.parts.sides) ? 'bouncer'
       : !s.tear && s.speed && w.enemies.some((e) => e.parts.rear === 'booster') ? 'tear'
       : null;
     if (want !== this.current) {
@@ -92,9 +99,13 @@ export class Hints {
       snapper: 'GET BEHIND A SNAPPER AT TEAL TO RIP ITS TREADS',
       plowfoe: 'A PLOW TAKES NOTHING - JOUST ITS CHARGE HEAD-ON',
       jawfoe: 'HIT ITS JAWS HEAD-ON AT TEAL TO TEAR THEM OFF',
+      jets: `HOLD ${keys.rip} TO CROUCH, LET GO TO LEAP OVER THEM`,
+      springs: 'DRIVE INTO WALLS HEAD-ON - YOU BOUNCE OFF FAST',
+      hopper: "LEAVE ITS RING, HIT ITS BACK WHILE IT'S STUCK",
+      bouncer: 'CUT ACROSS A BOUNCER AT TEAL TO RIP ITS SPRINGS',
     };
     const text = TEXT[this.current];
-    const speedy = this.current === 'speed' || this.current === 'burn' || this.current === 'treads' || this.current === 'plow' || this.current === 'jaws';
+    const speedy = ['speed', 'burn', 'treads', 'plow', 'jaws', 'jets', 'springs'].includes(this.current);
     const tw = textWidth(text);
     ui.fill(632 - tw - 4, 345, tw + 8, 14, C.ink);
     const blink = this.shownFor < 0.6 && Math.floor(this.shownFor * 10) % 2 === 1;

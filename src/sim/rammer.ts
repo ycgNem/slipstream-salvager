@@ -34,7 +34,7 @@ export function beginWindup(w: World, r: Enemy, near: boolean) {
 }
 
 /** Where you'd be after T seconds if you held your speed and your current turn (an arc or a line). */
-function ahead(w: World, T: number): { x: number; y: number } {
+export function ahead(w: World, T: number): { x: number; y: number } {
   const p = w.player, h = p.heading, om = p.omega, v = p.speed;
   if (Math.abs(om) < 0.05) return { x: p.x + Math.cos(h) * v * T, y: p.y + Math.sin(h) * v * T };
   const R = v / om;
@@ -44,7 +44,7 @@ function ahead(w: World, T: number): { x: number; y: number } {
 /** How fast this enemy's lunge flies (px/s). */
 export function lungeSpeed(w: World, r: Enemy): number {
   const t = w.t;
-  return r.kind === 'snapper' ? t.snapSpeed : r.shove ? t.shoveSpeed : t.chargeSpeed;
+  return r.kind === 'bouncer' ? t.rollSpeed : r.kind === 'snapper' ? t.snapSpeed : r.shove ? t.shoveSpeed : t.chargeSpeed;
 }
 
 /**

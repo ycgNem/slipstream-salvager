@@ -92,6 +92,22 @@ export const CROSS = arena('cross', [
   { x: 464, y: 256, w: 112, h: 64 },
 ]);
 
+/** The Hurdles: staggered rows of short low walls. The Hoppers leap them; you go round (or over,
+ * on Jump Jets). The middle and the gate lanes stay open. */
+const hurdle = (x: number, y: number): Rect => ({ x, y, w: 48, h: 16 });
+export const HURDLES = arena('hurdles', [
+  hurdle(96, 96), hurdle(208, 96), hurdle(384, 96), hurdle(496, 96),
+  hurdle(160, 176), hurdle(432, 176),
+  hurdle(96, 256), hurdle(208, 256), hurdle(384, 256), hurdle(496, 256),
+]);
+
+/** The Pinball: a diamond of pillars round an open middle, posts out at the corners: bumpers for
+ * the Bouncers' rolls, and for your bank shots on Springs. */
+export const PINBALL = arena('pinball', [
+  pillar(320, 100), pillar(224, 180), pillar(416, 180), pillar(320, 260),
+  post(136, 96), post(504, 96), post(136, 264), post(504, 264),
+]);
+
 /** The Heap: a broken ring of scrap piles, pillars and posts, round the middle. */
 export const HEAP = arena('heap', [
   pillar(192, 120), pillar(448, 120), pillar(192, 240), pillar(448, 240),

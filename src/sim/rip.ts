@@ -8,8 +8,9 @@ import type { MountSlot } from '../data/mounts';
 import { attackMode, hasBehavior } from './body';
 import { cancelBolt, grabPart } from './salvage';
 import { toSkid } from './rammer';
+import { pushOut } from './arena';
 import type { Zone } from './events';
-import { boltedCount, hasAnyPart, radiusOf, tierOf, type Enemy, type Tier, type World } from './world';
+import { airborne, boltedCount, hasAnyPart, KINDS, radiusOf, tierOf, type Enemy, type Tier, type World } from './world';
 
 const deg = (d: number) => (d * Math.PI) / 180;
 
@@ -19,7 +20,7 @@ const ZONE_MOUNT: Record<Zone, MountSlot> = { rear: 'rear', side: 'sides', front
 /** Can the player start an attack this tick? */
 function ready(w: World): boolean {
   const p = w.player;
-  return p.ripCd <= 0 && !p.rip && p.rev === null && p.knock <= 0 && p.stun <= 0 && !p.latch;
+  return p.ripCd <= 0 && !p.rip && p.rev === null && p.knock <= 0 && p.stun <= 0 && !p.latch && !p.air && p.recoil <= 0;
 }
 
 /** Rip pressed (or a buffered press fires): start the Rip, or start revving the Burn. */
@@ -27,9 +28,9 @@ export function tryAttack(w: World): boolean {
   if (!ready(w)) return false;
   const p = w.player;
   if (p.bolt !== null) cancelBolt(w);
-  if (attackMode(w) === 'burn') {
-    // a press starts the rev, but nothing locks until it's held past burnTapTime: a tap is a
-    // plain Rip (DECISIONS #57)
+  if (attackMode(w) !== 'rip') {
+    // a press starts the rev (or the crouch), but nothing happens until it's held past
+    // burnTapTime: a tap is a plain Rip (DECISIONS #57)
     p.rev = 0;
     return true;
   }
@@ -49,12 +50,26 @@ function startRip(w: World) {
   w.events.push({ k: 'rip', tier, burn: false });
 }
 
-/** Revving for real: held past the tap window, so the heading is locked and the lane shows. */
+/** Revving (or crouching) for real: held past the tap window, so the lane (or the ring) shows. */
 export function revving(w: World): boolean {
   return w.player.rev !== null && w.player.rev >= w.t.burnTapTime;
 }
 
-/** Let go of the Burn (or touch an enemy while revving): lunge at the tier you reached. */
+/** Crouched on the Jump Jets, the ring showing where you'll land. */
+export function crouched(w: World): boolean {
+  return revving(w) && attackMode(w) === 'leap';
+}
+
+/** Where a leap taken now would come down (the teal ring). */
+export function landingPoint(w: World): { x: number; y: number } {
+  const p = w.player, d = Math.max(p.speed, w.t.leapMin) * w.t.leapAir;
+  return { x: p.x + Math.cos(p.heading) * d, y: p.y + Math.sin(p.heading) * d };
+}
+
+/**
+ * Let go of Rip while holding it (or touch an enemy while revving): the Booster's Burn lunges at
+ * the tier you reached, the Jump Jets leap; a tap is the plain Rip.
+ */
 export function releaseBurn(w: World) {
   const p = w.player, t = w.t;
   if (p.rev === null) return;
@@ -62,6 +77,10 @@ export function releaseBurn(w: World) {
     // a tap: the plain Rip
     p.rev = null;
     startRip(w);
+    return;
+  }
+  if (attackMode(w) === 'leap') {
+    startLeap(w);
     return;
   }
   const tier = tierOf(t, p.speed);
@@ -72,13 +91,61 @@ export function releaseBurn(w: World) {
   w.events.push({ k: 'rip', tier, burn: true });
 }
 
+/**
+ * The Jump Jets' leap (PLAN.md 9.1): into the air along your heading at your speed (at least
+ * leapMin), over everything but the ring wall, untouchable; the tier is the one you leapt at.
+ */
+function startLeap(w: World) {
+  const p = w.player, t = w.t;
+  p.rev = null;
+  p.speed = Math.max(p.speed, t.leapMin);
+  const tier = tierOf(t, p.speed);
+  p.air = { t: 0, dur: t.leapAir, tier };
+  p.ripCd = t.leapAir + t.leapCooldown;
+  p.brake = false;
+  p.slide = false;
+  if (p.bolt !== null) cancelBolt(w);
+  w.events.push({ k: 'leap', tier });
+}
+
+/**
+ * The leap, one tick. Coming down is a hit on every enemy within leapSlamR of where you land, at
+ * the tier you leapt at and on the zone you land on (land behind a Rammer: its booster comes off).
+ * Then the landing sticks you a moment: the Hopper's weakness, inherited.
+ */
+export function updateAir(w: World, dt: number) {
+  const p = w.player, A = p.air, t = w.t;
+  if (!A) return;
+  A.t += dt;
+  if (A.t < A.dur) return;
+  p.air = null;
+  // come down clear of any pillar or low wall you sailed over
+  Object.assign(p, pushOut(w.arena, p.x, p.y, t.playerRadius));
+  w.events.push({ k: 'touchdown', x: p.x, y: p.y, tier: A.tier });
+  const under = w.enemies
+    .filter((e) => !airborne(e) && Math.hypot(e.x - p.x, e.y - p.y) < t.leapSlamR + radiusOf(w, e))
+    .sort((a, b) => Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y));
+  for (const e of under) {
+    if (!w.enemies.includes(e) || p.latch) continue;
+    p.rip = { t: 0.05, tier: A.tier, burn: false, leap: true, hits: [] };
+    hitEnemy(w, e);
+  }
+  p.rip = null;
+  // you come down among them: pass through for a moment rather than bumping straight off
+  p.pass = Math.max(p.pass, 0.2);
+  if (!p.latch) {
+    p.speed *= t.leapKeep;
+    p.recoil = t.leapRecoil;
+  }
+}
+
 /** Up to aimAssistDeg toward the nearest enemy in a cone ahead, so 8-way sprites never cost a pass. */
 function aimAssist(w: World) {
   const p = w.player, t = w.t;
   let best: Enemy | null = null, bestD = t.aimAssistRange;
   for (const r of w.enemies) {
     const d = Math.hypot(r.x - p.x, r.y - p.y);
-    if (d > bestD) continue;
+    if (d > bestD || airborne(r)) continue;
     const off = Math.abs(wrapAngle(Math.atan2(r.y - p.y, r.x - p.x) - p.heading));
     if (off > deg(t.aimAssistConeDeg)) continue;
     best = r;
@@ -97,13 +164,14 @@ export function clawPos(w: World): { x: number; y: number } {
 }
 
 function touches(w: World, r: Enemy): boolean {
+  if (airborne(r)) return false;
   const p = w.player, t = w.t, c = clawPos(w), rr = radiusOf(w, r);
   return Math.hypot(c.x - r.x, c.y - r.y) < t.ripRadius + rr || Math.hypot(p.x - r.x, p.y - r.y) < t.playerRadius + rr;
 }
 
 /** Revving into an enemy releases the Burn on the spot. */
 export function autoRelease(w: World) {
-  if (w.player.rev === null) return;
+  if (w.player.rev === null || attackMode(w) !== 'burn') return;
   if (w.enemies.some((r) => touches(w, r))) releaseBurn(w);
 }
 
@@ -158,9 +226,12 @@ export function hitZone(w: World, r: Enemy): Zone {
   return 'side';
 }
 
-/** Mid-lunge (a Rammer's charge or shove, a Snapper's snap): the moment a joust can stop it. */
+/**
+ * Mid-lunge (a Rammer's charge or shove, a Snapper's snap, a Bouncer's roll while it's still fast):
+ * touching it is a hit, and it's the moment a joust can stop it.
+ */
 export function lunging(r: Enemy): boolean {
-  return r.state === 'charge' || r.state === 'snap';
+  return r.state === 'charge' || r.state === 'snap' || (r.state === 'roll' && r.speed > 80);
 }
 
 /** Stunned on its back foot: the joust's payoff, by kind. */
@@ -214,7 +285,7 @@ function hitEnemy(w: World, r: Enemy) {
       r.vx += Math.cos(p.heading) * push;
       r.vy += Math.sin(p.heading) * push;
       if (r.state === 'windup') {
-        r.state = r.kind === 'rammer' ? 'stalk' : 'hunt';
+        r.state = KINDS[r.kind].state;
         r.t = 0;
         r.cd = 0.8;
         w.events.push({ k: 'cancel', id: r.id });

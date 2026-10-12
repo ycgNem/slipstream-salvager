@@ -1,11 +1,11 @@
 // The yards of a run (PLAN.md 8.1, 8.5): each a layout, the salvage its enemies carry (shown on
 // the exit sign that leads to it), its waves at depth 2, and the one hint it teaches. The Ring is
 // always first and The Heap always last; three of the four middle yards are chosen on the way.
-import { CROSS, HEAP, KENNEL, LANES, PIT, RING, type ArenaDef } from './arena';
+import { CROSS, HEAP, HURDLES, KENNEL, LANES, PINBALL, PIT, RING, type ArenaDef } from './arena';
 import type { PartId } from './parts';
-import { JAW_SNAPPER, PLOW_RAMMER, RAMMER, SNAPPER, WAVES, type EnemySpec, type WaveDef } from './waves';
+import { BOUNCER, HOPPER, JAW_SNAPPER, PLOW_RAMMER, RAMMER, SNAPPER, SPRING_RAMMER, WAVES, type EnemySpec, type WaveDef } from './waves';
 
-export type YardId = 'ring' | 'kennel' | 'lanes' | 'pit' | 'jaws' | 'heap';
+export type YardId = 'ring' | 'kennel' | 'lanes' | 'pit' | 'jaws' | 'hurdles' | 'pinball' | 'heap';
 
 export interface YardDef {
   id: YardId;
@@ -36,17 +36,25 @@ export const YARDS: Record<YardId, YardDef> = {
     id: 'jaws', name: 'JAW YARD', arena: CROSS, salvage: ['jaws', 'treads'], extra: JAW_SNAPPER,
     waves: [{ enemies: [JAW_SNAPPER, JAW_SNAPPER] }, { enemies: [JAW_SNAPPER, JAW_SNAPPER, RAMMER] }, { enemies: [JAW_SNAPPER, JAW_SNAPPER, JAW_SNAPPER, SNAPPER] }],
   },
+  hurdles: {
+    id: 'hurdles', name: 'THE HURDLES', arena: HURDLES, salvage: ['jets'], extra: HOPPER,
+    waves: [{ enemies: [HOPPER, HOPPER] }, { enemies: [HOPPER, HOPPER, SNAPPER] }, { enemies: [HOPPER, HOPPER, HOPPER, RAMMER] }],
+  },
+  pinball: {
+    id: 'pinball', name: 'THE PINBALL', arena: PINBALL, salvage: ['springs', 'booster'], extra: BOUNCER,
+    waves: [{ enemies: [BOUNCER, BOUNCER] }, { enemies: [BOUNCER, BOUNCER, BOUNCER] }, { enemies: [BOUNCER, BOUNCER, SPRING_RAMMER, SNAPPER] }],
+  },
   heap: {
-    id: 'heap', name: 'THE HEAP', arena: HEAP, salvage: ['booster', 'treads', 'plow', 'jaws'], extra: RAMMER,
+    id: 'heap', name: 'THE HEAP', arena: HEAP, salvage: ['booster', 'treads', 'plow', 'jaws', 'jets', 'springs'], extra: RAMMER,
     waves: [
-      { enemies: [RAMMER, SNAPPER, SNAPPER, JAW_SNAPPER] },
+      { enemies: [RAMMER, SNAPPER, HOPPER, JAW_SNAPPER] },
       { enemies: [PLOW_RAMMER, JAW_SNAPPER, JAW_SNAPPER, RAMMER] },
-      { enemies: [RAMMER, RAMMER, PLOW_RAMMER, SNAPPER, SNAPPER, JAW_SNAPPER] },
+      { enemies: [SPRING_RAMMER, RAMMER, PLOW_RAMMER, BOUNCER, SNAPPER, JAW_SNAPPER] },
     ],
   },
 };
 
-export const MIDDLE: YardId[] = ['kennel', 'lanes', 'pit', 'jaws'];
+export const MIDDLE: YardId[] = ['kennel', 'lanes', 'pit', 'jaws', 'hurdles', 'pinball'];
 /** how many yards a run has */
 export const RUN_LENGTH = 5;
 

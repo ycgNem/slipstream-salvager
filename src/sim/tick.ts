@@ -2,7 +2,7 @@
 // input → player movement → rip/burn → enemies → collisions → hits and tear-offs → towed part and
 // pickups → bolting → waves.
 import { drift, movePlayer, settleFacing, steer } from './body';
-import { autoRelease, releaseBurn, resolveRipHits, tryAttack, updateLatch, updateRip } from './rip';
+import { autoRelease, releaseBurn, resolveRipHits, tryAttack, updateAir, updateLatch, updateRip } from './rip';
 import { checkDrafts, resolveContacts, updateEnemies } from './enemies';
 import { startBolt, updateBolt, updatePickups, updateTow } from './salvage';
 import { updateWaves } from './waves';
@@ -30,6 +30,7 @@ export function step(w: World, input: InputFrame): boolean {
   p.knock = Math.max(0, p.knock - DT);
   p.stun = Math.max(0, p.stun - DT);
   p.ripBuf = Math.max(0, p.ripBuf - DT);
+  p.recoil = Math.max(0, p.recoil - DT);
   if (p.rev !== null) {
     const before = p.rev;
     p.rev += DT;
@@ -44,20 +45,23 @@ export function step(w: World, input: InputFrame): boolean {
   p.prevBolt = input.bolt;
   if (ripEdge) p.ripBuf = RIP_BUFFER;
 
-  const control = p.knock <= 0 && p.stun <= 0 && !p.latch;
+  const control = p.knock <= 0 && p.stun <= 0 && !p.latch && !p.air && p.recoil <= 0;
   if (control) {
     if (p.rev !== null && !input.rip) releaseBurn(w);
     // a press a moment too early fires when it can (a tap with the Booster is a plain Rip)
     if (p.ripBuf > 0 && tryAttack(w)) p.ripBuf = 0;
     if (p.rev !== null && !input.rip) releaseBurn(w);
     if (boltEdge) startBolt(w);
-    steer(w, input);
-  } else if (!p.latch) {
+    // a leap that just started has no steering
+    if (!p.air) steer(w, input);
+  } else {
     if (p.rev !== null) p.rev = null;
-    drift(w);
+    // thrown or stunned, you drift; leaping or stuck on landing, your speed holds
+    if (!p.latch && !p.air && p.recoil <= 0) drift(w);
   }
   updateRip(w, DT);
   updateLatch(w, DT);
+  updateAir(w, DT);
   movePlayer(w);
   settleFacing(w, input);
 

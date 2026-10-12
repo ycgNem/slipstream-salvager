@@ -59,7 +59,7 @@ export function updatePickups(w: World) {
     k.y = Math.max(a.wall + 6, Math.min(a.h - a.wall - 6, k.y));
     // and out of pillars, low walls and blocks, where it couldn't be reached
     Object.assign(k, pushOut(a, k.x, k.y, 6));
-    if (!p.tow && k.age > 0.4 && Math.hypot(k.x - p.x, k.y - p.y) < t.playerRadius + t.pickupRadius) {
+    if (!p.tow && !p.air && k.age > 0.4 && Math.hypot(k.x - p.x, k.y - p.y) < t.playerRadius + t.pickupRadius) {
       w.pickups.splice(w.pickups.indexOf(k), 1);
       p.tow = { part: k.part, x: k.x, y: k.y, vx: 0, vy: 0, cracked: k.cracked };
       w.events.push({ k: 'pickup', part: k.part });
@@ -124,7 +124,7 @@ export function armorFor(w: World, from: number): MountSlot | null {
  */
 export function hitPlayer(w: World, angle: number, fling = 1) {
   const p = w.player, t = w.t;
-  if (p.invuln > 0) return;
+  if (p.invuln > 0 || p.air) return;
   w.stats.hitsTaken++;
   const mount = armorFor(w, angle + Math.PI);
   const b = mount ? p.parts[mount] : undefined;

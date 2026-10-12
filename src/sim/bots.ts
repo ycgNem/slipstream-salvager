@@ -4,6 +4,7 @@
 // (tight pillar loops vs long straight lanes) for the Booster's route-flip check.
 import { wrapAngle } from '../data/dirs';
 import { laneOf } from './enemies';
+import { slamRadius } from './hopper';
 import { laneLength, lineOfSight } from './arena';
 import { hasAnyPart, type InputFrame, type Rammer, type World } from './world';
 
@@ -26,8 +27,23 @@ function nearest(w: World): Rammer | null {
 /** Is the player in a winding-up Rammer's lane? Returns the dodge direction, or null. */
 function dodge(w: World, margin = 10): { x: number; y: number } | null {
   const p = w.player;
+  const swerve = (ex: number, ey: number) => {
+    if (p.speed < 120) return { x: ex, y: ey };
+    // at speed, swerve (at most ~45° off your line) instead of turning square to the lane: a
+    // full-lock turn scrubs Slipstream away (DECISIONS #47), and a swerve clears the lane anyway
+    const off = wrapAngle(Math.atan2(ey, ex) - p.heading);
+    const a = p.heading + Math.max(-0.8, Math.min(0.8, off));
+    return { x: Math.cos(a), y: Math.sin(a) };
+  };
   for (const r of w.enemies) {
-    if (r.state !== 'windup' && r.state !== 'charge' && r.state !== 'snap') continue;
+    if (r.kind === 'hopper') {
+      // a Hopper's ring: get out of it, straight away from its middle
+      if (r.state !== 'windup' && r.state !== 'air') continue;
+      const dx = p.x - r.tx, dy = p.y - r.ty, d = Math.hypot(dx, dy);
+      if (d > slamRadius(w, r) + w.t.playerRadius + margin) continue;
+      return d > 1 ? swerve(dx / d, dy / d) : swerve(-Math.sin(p.heading), Math.cos(p.heading));
+    }
+    if (r.state !== 'windup' && r.state !== 'charge' && r.state !== 'snap' && r.state !== 'roll') continue;
     const l = laneOf(w, r);
     const cx = Math.cos(l.angle), cy = Math.sin(l.angle);
     const rx = p.x - r.x, ry = p.y - r.y;
@@ -35,13 +51,7 @@ function dodge(w: World, margin = 10): { x: number; y: number } | null {
     if (u < -10 || u > l.len + 20) continue;
     if (Math.abs(v) > l.width / 2 + w.t.playerRadius + margin) continue;
     const side = v >= 0 ? 1 : -1;
-    const ex = -cy * side, ey = cx * side;
-    if (p.speed < 120) return { x: ex, y: ey };
-    // at speed, swerve (at most ~45° off your line) instead of turning square to the lane: a
-    // full-lock turn scrubs Slipstream away (DECISIONS #47), and a swerve clears the lane anyway
-    const off = wrapAngle(Math.atan2(ey, ex) - p.heading);
-    const a = p.heading + Math.max(-0.8, Math.min(0.8, off));
-    return { x: Math.cos(a), y: Math.sin(a) };
+    return swerve(-cy * side, cx * side);
   }
   return null;
 }
@@ -151,9 +161,9 @@ export function hitAndRunBot(pick = 0): Bot {
     if (!r) return { ...toward(w, center.x + Math.cos(w.tick / 40) * 120, center.y + Math.sin(w.tick / 40) * 90), rip: false, bolt: !!p.tow && w.tick % 20 === 0 };
     const dx = r.x - p.x, dy = r.y - p.y, d = Math.hypot(dx, dy);
     const los = lineOfSight(w.arena, p.x, p.y, r.x, r.y);
-    const recovering = r.state === 'skid' || r.state === 'slide' || r.state === 'stunned';
+    const recovering = r.state === 'skid' || r.state === 'slide' || r.state === 'stunned' || r.state === 'land';
     const bolt = !!p.tow && p.bolt === null && (d > 90 || recovering) && w.tick % 10 === 0;
-    const committed = recovering || r.state === 'charge' || r.state === 'snap' || (r.state === 'windup' && r.locked);
+    const committed = recovering || r.state === 'charge' || r.state === 'snap' || r.state === 'roll' || (r.state === 'windup' && r.locked);
     // under the wave 1 safety net only a tear helps, so only its back is worth a pass
     const capped = hasAnyPart(r) && r.safety && r.hp <= 1;
     const skidOpen = recovering && r.t < r.skidFor - 0.35 && d < 230;
@@ -316,13 +326,15 @@ export function drafterBot(pick = 0): Bot {
     }
     const rel = Math.abs(wrapAngle(Math.atan2(p.y - r.y, p.x - r.x) - r.face));
     const behind = rel > Math.PI - 1.2;
-    const open = r.state === 'skid' || r.state === 'slide' || r.state === 'stunned';
+    const open = r.state === 'skid' || r.state === 'slide' || r.state === 'stunned' || r.state === 'land';
+    const heavy = r.kind === 'rammer' || r.kind === 'hopper';
+    const small = r.kind === 'snapper' || r.kind === 'bouncer';
     // a slow-turning stripped one with its flank to you, and you're fast: cut in
     const flank = (r.state === 'stalk' || r.state === 'hunt') && !hasAnyPart(r) && rel > 1.2 && p.speed > t.slipAt - 30 && d < 180;
     // strike: it's recovering with its back or side to you, or it's a charge that has gone past
-    const snapOpen = r.kind === 'snapper' && (open || (r.state === 'hunt' && rel > 1.0 && rel < 2.2)) && d < 160 && Math.abs(wrapAngle(Math.atan2(r.y - p.y, r.x - p.x) - p.heading)) < 1.0;
-    if ((open && r.kind === 'rammer' && (behind || rel > 1.1)) || snapOpen || (r.state === 'charge' && behind && d < 280) || flank) {
-      const tx = r.x - Math.cos(r.face) * (r.kind === 'rammer' ? 22 : 10), ty = r.y - Math.sin(r.face) * (r.kind === 'rammer' ? 22 : 10);
+    const snapOpen = small && (open || ((r.state === 'hunt' || r.state === 'roll') && rel > 1.0 && rel < 2.2)) && d < 160 && Math.abs(wrapAngle(Math.atan2(r.y - p.y, r.x - p.x) - p.heading)) < 1.0;
+    if ((open && heavy && (behind || rel > 1.1)) || snapOpen || (r.state === 'charge' && behind && d < 280) || flank) {
+      const tx = r.x - Math.cos(r.face) * (heavy ? 22 : 10), ty = r.y - Math.sin(r.face) * (heavy ? 22 : 10);
       const off = Math.abs(wrapAngle(Math.atan2(r.y - p.y, r.x - p.x) - p.heading));
       if (p.speed >= t.slipAt && d < 44 && off < 0.5 && p.ripCd <= 0 && r.state !== 'charge') {
         passT = 14;
@@ -343,7 +355,7 @@ export function drafterBot(pick = 0): Bot {
     }
     // Snappers: stay fast (they can't catch you at Slipstream) on a wide loop round the yard, and
     // cut in on one that's sliding or stunned near your line
-    if (r.kind === 'snapper') {
+    if (small) {
       const c = { x: w.arena.w / 2, y: w.arena.h / 2 };
       const a0 = Math.atan2(p.y - c.y, p.x - c.x) + 0.5 * side;
       let gx = c.x + Math.cos(a0) * 190, gy = c.y + Math.sin(a0) * 110;

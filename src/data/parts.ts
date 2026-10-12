@@ -6,9 +6,9 @@
 import type { TuningKey } from './tuning';
 import type { MountSlot } from './mounts';
 
-export type PartId = 'booster' | 'treads' | 'plow' | 'jaws';
-export type AttackMode = 'rip' | 'burn';
-export type EnemyKind = 'rammer' | 'snapper';
+export type PartId = 'booster' | 'treads' | 'plow' | 'jaws' | 'jets' | 'springs';
+export type AttackMode = 'rip' | 'burn' | 'leap';
+export type EnemyKind = 'rammer' | 'snapper' | 'hopper' | 'bouncer';
 
 /** Which chassis stat a multiplier scales. */
 export type StatKey = 'topSpeed' | 'turnLow' | 'turnHigh' | 'scrubLat' | 'accHigh';
@@ -22,14 +22,16 @@ export interface PartDef {
   /** chassis stat -> the tuning key holding its multiplier */
   stats: Partial<Record<StatKey, TuningKey>>;
   behavior: {
-    /** replaces what holding Rip does (the Booster's Burn) */
-    attack?: AttackMode;
+    /** replaces what holding Rip does (the Booster's Burn, the Jump Jets' leap) */
+    attack?: Exclude<AttackMode, 'rip'>;
     /** replaces the brake: a power-slide that keeps your speed (the Grip Treads) */
     brake?: 'slide';
     /** your front is a ram: contact at speed is a hit, and a charge into it is blocked (the Plow) */
     contact?: 'plow';
     /** a Slipstream hit latches on and slings you round the enemy (the Jaws) */
     onHit?: 'latch';
+    /** a head-on hit on a wall or pillar bounces you off at speed (the Springs) */
+    wall?: 'bounce';
   };
   /** how it comes off an enemy: a Slipstream hit on its mount's zone, or only in a joust */
   tear: 'zone' | 'joust';
@@ -77,6 +79,26 @@ export const PARTS: Record<PartId, PartDef> = {
     behavior: { onHit: 'latch' },
     tear: 'zone',
     blurb: 'A teal hit bites on and slings you round, back the way you came.',
+  },
+  jets: {
+    id: 'jets',
+    name: 'Jump Jets',
+    mount: 'rear',
+    from: 'hopper',
+    stats: {},
+    behavior: { attack: 'leap' },
+    tear: 'zone',
+    blurb: 'Hold Rip to crouch, release to leap over everything; the landing is a hit.',
+  },
+  springs: {
+    id: 'springs',
+    name: 'Springs',
+    mount: 'sides',
+    from: 'bouncer',
+    stats: { turnHigh: 'springsTurnMul', scrubLat: 'springsGripMul' },
+    behavior: { wall: 'bounce' },
+    tear: 'zone',
+    blurb: 'Drive into walls head-on: you bounce off at speed instead of stopping.',
   },
 };
 

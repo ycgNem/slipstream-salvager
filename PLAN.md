@@ -483,15 +483,18 @@ cover doesn't save you, and it punishes **loitering where it will land**.
 
 - Radius 10, **HP 3**, front armored (1), side 2, back 4 or the tear, like the Rammer.
 - **Stalks** slowly (30 px/s), turning to face you (5 rad/s).
-- **The leap:** when you're 70-220 px away, it crouches for 0.6 s. A **red ring** (radius 28) is
+- **The leap:** when you're 44-220 px away, it crouches for 0.6 s. A **red ring** (radius 28) is
   painted on the floor where it will land: it tracks the point you'll be at (the Rammer's lead) for
   0.35 s, then locks for 0.25 s. Then it leaps: 0.55 s in the air, over everything (bodies, pillars,
   low walls; never out of the arena). While airborne it can't be hit and touches nothing. It lands
   with a **slam**: anyone inside the ring takes a hit, loose parts there are crushed, and other
   enemies are shoved out.
-- **Stuck:** after landing it's stuck for 1.0 s, legs buried, steaming: the opening. Its back glints.
-- **Too close** (under 70 px): it stomps where it stands instead (0.45 s crouch, a ring of 30 round
-  itself, locked at once, a little hop and a slam). Lingering by it is punished.
+- **The shockwave:** a slam that only just misses you (within 24 px of the ring) lifts you to
+  Slipstream, like a charge's slipstream. Dodging close pays (DECISIONS #83).
+- **Stuck:** after landing it's stuck for 1.3 s, legs buried, steaming: the opening. Its back glints.
+  It waits 1.6-2.6 s before the next leap.
+- **Too close** (under 44 px), or bumped: it stomps where it stands instead (0.45 s crouch, a ring
+  of 34 round itself, locked at once, a little hop and a slam). Lingering by it is punished.
 - At most two Hoppers crouch at once. A Cruise hit cancels a crouch, like any windup.
 - **Its Jump Jets come off from behind** (a Slipstream hit in its back, best while it's stuck).
   Stripped, it can't leap: it waddles (25 px/s) and only stomps.
@@ -525,7 +528,7 @@ lane you can't see the end of**: its rolls bounce off walls and pillars and come
 - A rolling Bouncer is a lunge: touching it is a hit, a joust stops it, a Plow blocks it, it crushes
   loose parts. At most two wind up at once.
 - **Its Springs come off from the side** (or the back): cut across its roll at Slipstream, or hit it
-  while it's dizzy. Stripped, its first wall stops it dead, stunned for 1.0 s.
+  while it's dizzy. Stripped, its first wall stops it dead, stunned for 0.8 s.
 - Bouncing off another enemy puts both into recovery, like a charge.
 
 **The Springs** (sides; from the Bouncer). They change what walls do to you, so they and the Grip

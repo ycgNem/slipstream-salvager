@@ -72,6 +72,31 @@ export function ring(ctx: Ctx, cx: number, cy: number, r: number, c: number) {
   }
 }
 
+/**
+ * A ring painted on the floor (a Hopper's landing, your leap's): a 1 px circle, dashed or solid,
+ * with a sparse dither inside, like a telegraph lane. Whole pixels, never alpha.
+ */
+export function floorRing(ctx: Ctx, cx: number, cy: number, r: number, edge: number, fill: number, opts: { dash?: number; phase?: number; density?: number } = {}) {
+  cx = Math.round(cx);
+  cy = Math.round(cy);
+  const density = opts.density ?? 0;
+  if (density) {
+    ctx.fillStyle = PALETTE[fill];
+    for (let y = -r + 1; y < r; y++) {
+      if ((cy + y) % 2 !== 0) continue;
+      for (let x = -r + 1; x < r; x++) if ((cx + x + (cy + y) * 2) % density === 0 && x * x + y * y < (r - 1) * (r - 1)) ctx.fillRect(cx + x, cy + y, 1, 1);
+    }
+  }
+  const n = Math.max(12, Math.round(Math.PI * 2 * r));
+  const dash = opts.dash ?? 0, ph = opts.phase ?? 0;
+  ctx.fillStyle = PALETTE[edge];
+  for (let i = 0; i < n; i++) {
+    if (dash && Math.floor((i + ph) / dash) % 2 !== 0) continue;
+    const a = (i / n) * Math.PI * 2;
+    ctx.fillRect(cx + Math.round(Math.cos(a) * r), cy + Math.round(Math.sin(a) * r), 1, 1);
+  }
+}
+
 const silCache = new Map<string, HTMLCanvasElement>();
 
 /**

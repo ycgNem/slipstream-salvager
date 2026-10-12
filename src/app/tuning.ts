@@ -4,13 +4,12 @@
 import { C } from '../data/palette';
 import { DEFAULT_TUNING, TUNING_GROUPS, defaultTuning, type Tuning, type TuningKey } from '../data/tuning';
 import type { UI } from '../ui/ui';
-import { PART_IDS, type PartId } from '../data/parts';
+import { PARTS, PART_IDS, type PartId } from '../data/parts';
 
 /** The numbers new encounters start with (edits here carry over to Again). */
 export const LIVE: { t: Tuning; flat: boolean; parts: PartId[] } = { t: defaultTuning(), flat: false, parts: [] };
 
 const round = (v: number) => Math.round(v * 1000) / 1000;
-const PARTS_MOUNT: Record<PartId, string> = { booster: 'rear', treads: 'sides', plow: 'front', jaws: 'front' };
 
 export class TuningPanel {
   open = false;
@@ -42,8 +41,8 @@ export class TuningPanel {
     ui.text('START WITH', x + 6, y + 31, C.mist);
     PART_IDS.forEach((id, i) => {
       const on = LIVE.parts.includes(id);
-      if (ui.button(`t-part-${id}`, x + 64 + i * 31, y + 29, 29, 11, id.slice(0, 4).toUpperCase(), { active: on })) {
-        LIVE.parts = on ? LIVE.parts.filter((q) => q !== id) : [...LIVE.parts.filter((q) => PARTS_MOUNT[q] !== PARTS_MOUNT[id]), id];
+      if (ui.button(`t-part-${id}`, x + 62 + i * 21, y + 29, 20, 11, id.slice(0, 3).toUpperCase(), { active: on })) {
+        LIVE.parts = on ? LIVE.parts.filter((q) => q !== id) : [...LIVE.parts.filter((q) => PARTS[q].mount !== PARTS[id].mount), id];
         setPart(id, !on);
       }
     });

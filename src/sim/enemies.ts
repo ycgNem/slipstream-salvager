@@ -9,7 +9,9 @@ import { beginWindup, chargeLength, PUSH_HALF, thinkRammer, toSkid, windingUp } 
 import { lunging, ramHit, stunEnemy } from './rip';
 import { hitPlayer } from './salvage';
 import { beginSnap, snapping, thinkSnapper } from './snapper';
-import { DT, radiusOf, tierOf, type Enemy, type World } from './world';
+import { beginCrouch, crouching, thinkHopper } from './hopper';
+import { beginRoll, hasSprings, rollingUp, thinkBouncer } from './bouncer';
+import { airborne, DT, radiusOf, tierOf, type Enemy, type World } from './world';
 
 const deg = (d: number) => (d * Math.PI) / 180;
 
@@ -23,19 +25,33 @@ export function updateEnemies(w: World) {
     if (e.kind === 'rammer') {
       speed = thinkRammer(w, e);
       dir = e.face;
-    } else ({ speed, dir } = thinkSnapper(w, e));
+    } else if (e.kind === 'hopper') ({ speed, dir } = thinkHopper(w, e));
+    else if (e.kind === 'bouncer') ({ speed, dir } = thinkBouncer(w, e));
+    else ({ speed, dir } = thinkSnapper(w, e));
     e.x += (Math.cos(dir) * speed + e.vx) * DT;
     e.y += (Math.sin(dir) * speed + e.vy) * DT;
     const k = Math.pow(0.5, DT / PUSH_HALF);
     e.vx *= k;
     e.vy *= k;
+    // in the air (a Hopper's leap) it sails over everything
+    if (airborne(e)) continue;
     // walls and pillars: a lunge into one stops it (a Rammer rebounds into its skid, a Snapper is
-    // stunned); otherwise it slides along
+    // stunned), unless it's on springs, which bounce it off (a Bouncer's roll every time, faster;
+    // a Spring Rammer's charge once); otherwise it slides along
     const rr = radiusOf(w, e);
     for (const c of contacts(w.arena, e.x, e.y, rr)) {
       e.x += c.nx * c.depth;
       e.y += c.ny * c.depth;
       const into = -(Math.cos(dir) * c.nx + Math.sin(dir) * c.ny);
+      if (lunging(e) && into > 0.05 && springy(e)) {
+        const fx = Math.cos(e.face), fy = Math.sin(e.face), fn = fx * c.nx + fy * c.ny;
+        e.face = Math.atan2(fy - 2 * fn * c.ny, fx - 2 * fn * c.nx);
+        dir = e.face;
+        e.bounces++;
+        if (e.kind === 'bouncer') e.speed = Math.min(t.rollMax, e.speed + t.rollGain);
+        w.events.push({ k: 'boing', x: e.x - c.nx * rr, y: e.y - c.ny * rr, id: e.id });
+        continue;
+      }
       if (lunging(e) && into > 0.3) {
         w.events.push({ k: 'slam', id: e.id, x: e.x - c.nx * rr, y: e.y - c.ny * rr });
         if (e.kind === 'rammer') toSkid(w, e, true);
@@ -45,6 +61,12 @@ export function updateEnemies(w: World) {
   }
   crushLoose(w);
   separate(w);
+}
+
+/** Does this lunge bounce off walls? A Bouncer's roll on its springs; a Spring Rammer's charge, once. */
+function springy(e: Enemy): boolean {
+  if (!hasSprings(e)) return false;
+  return e.kind === 'bouncer' || (e.kind === 'rammer' && e.state === 'charge' && !e.shove && e.bounces < 1);
 }
 
 /** A lunge runs over loose parts and crushes them (DECISIONS #58). */
@@ -67,6 +89,7 @@ function separate(w: World) {
   for (let i = 0; i < es.length; i++)
     for (let j = i + 1; j < es.length; j++) {
       const a = es[i], b = es[j];
+      if (airborne(a) || airborne(b)) continue;
       const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 0.01, min = radiusOf(w, a) + radiusOf(w, b);
       if (d >= min) continue;
       const nx = dx / d, ny = dy / d, o = (min - d) / 2;
@@ -89,7 +112,8 @@ function recoil(w: World, e: Enemy, slammed: boolean) {
 /** The lane a winding-up enemy will lunge along: its angle, how far it runs, and how wide. */
 export function laneOf(w: World, r: Enemy): { angle: number; len: number; width: number } {
   const t = w.t, rr = radiusOf(w, r);
-  const max = r.kind === 'snapper' ? t.snapDist : r.shove ? t.shoveDist : r.locked ? r.chargeLen : chargeLength(w, r);
+  // a Bouncer's roll runs to the first wall (and bounces on: the renderer adds the stub)
+  const max = r.kind === 'bouncer' ? 640 : r.kind === 'snapper' ? t.snapDist : r.shove ? t.shoveDist : r.locked ? r.chargeLen : chargeLength(w, r);
   return { angle: r.face, len: laneLength(w.arena, r.x, r.y, r.face, max, rr), width: rr * 2 };
 }
 
@@ -106,9 +130,11 @@ function inPlowCone(w: World, e: Enemy): boolean {
  */
 export function resolveContacts(w: World) {
   const p = w.player, t = w.t;
+  // in the air on the Jump Jets nothing touches you
+  if (p.air) return;
   const plow = hasBehavior(w, 'contact', 'plow');
   for (const r of [...w.enemies]) {
-    if (!w.enemies.includes(r)) continue;
+    if (!w.enemies.includes(r) || airborne(r)) continue;
     const rr = radiusOf(w, r);
     const dx = p.x - r.x, dy = p.y - r.y, d = Math.hypot(dx, dy) || 0.01, min = t.playerRadius + rr;
     if (d >= min) continue;
@@ -129,7 +155,7 @@ export function resolveContacts(w: World) {
         w.hitstop = Math.max(w.hitstop, t.hitstopSlip);
         continue;
       }
-      if (p.invuln <= 0) hitPlayer(w, r.face, r.parts.front === 'jaws' ? t.jawFling : 1);
+      if (p.invuln <= 0) hitPlayer(w, r.face, r.parts.front === 'jaws' ? t.jawFling : r.kind === 'bouncer' ? 1.2 : 1);
       continue;
     }
     if (p.pass > 0 || p.latch) continue;
@@ -155,11 +181,17 @@ export function resolveContacts(w: World) {
       vx -= 2 * vn * nx;
       vy -= 2 * vn * ny;
       p.heading = Math.atan2(vy, vx);
-      p.speed *= t.bumpKeep;
+      // on Springs you bounce off at full speed (PLAN.md 9.2); otherwise a bump costs most of it
+      const springs = hasBehavior(w, 'wall', 'bounce');
+      p.speed *= springs ? t.springKeep : t.bumpKeep;
       w.events.push({ k: 'bump', id: r.id, x: r.x + nx * rr, y: r.y + ny * rr });
+      if (springs) w.events.push({ k: 'boing', x: r.x + nx * rr, y: r.y + ny * rr });
       if (w.result) continue;
       if (r.kind === 'rammer' && r.state === 'stalk' && windingUp(w) < t.maxWindups) beginWindup(w, r, true);
       if (r.kind === 'snapper' && r.state === 'hunt' && r.cd <= 0 && snapping(w) < t.maxSnaps) beginSnap(w, r);
+      if (r.kind === 'bouncer' && r.state === 'stalk' && r.cd <= 0 && rollingUp(w) < t.maxRolls) beginRoll(w, r);
+      // a Hopper you bump stomps where it stands
+      if (r.kind === 'hopper' && r.state === 'stalk' && crouching(w) < t.maxCrouch) beginCrouch(w, r, true);
     }
   }
 }

@@ -94,6 +94,30 @@ export const DEFAULT_TUNING = {
   latchTime: 0.2,
   slingBoost: 40,
 
+  // ---- the Jump Jets (PLAN.md 9.1) ----
+  /** seconds in the air, and the least speed a leap goes at (a standing leap still clears a lane) */
+  leapAir: 0.4,
+  leapMin: 120,
+  /** how high the arc is drawn (px; the sim is flat) */
+  leapHeight: 20,
+  /** the landing hits every enemy within this of where you land (plus its radius) */
+  leapSlamR: 24,
+  /** inherited weakness: the landing sticks you this long, keeping this share of your speed */
+  leapRecoil: 0.25,
+  leapKeep: 0.85,
+  /** no leap (or Rip) for this long after landing */
+  leapCooldown: 0.5,
+  /** crouched, you steer at this share of your turn rate */
+  crouchSteerMul: 0.5,
+
+  // ---- the Springs (PLAN.md 9.2) ----
+  /** a head-on wall hit keeps this share of your speed, plus springKick */
+  springKeep: 1,
+  springKick: 25,
+  /** inherited weakness: springy, not grippy */
+  springsTurnMul: 0.85,
+  springsGripMul: 0.8,
+
   // ---- salvage ----
   boltTime: 0.7,
   boltSteerMul: 0.5,
@@ -180,6 +204,52 @@ export const DEFAULT_TUNING = {
   /** a Jaw Snapper's bite throws you this much harder */
   jawFling: 1.7,
 
+  // ---- the Hopper (PLAN.md 9.1) ----
+  hopperHp: 3,
+  hopperRadius: 10,
+  hopperSpeed: 30,
+  hopperTurn: 5,
+  hopperStrippedSpeed: 25,
+  /** closer than hopMin it stomps where it stands; out to hopMax it leaps at you */
+  hopMin: 44,
+  hopMax: 220,
+  hopWindup: 0.6,
+  hopLock: 0.25,
+  hopAir: 0.55,
+  hopHeight: 24,
+  /** the ring it lands in: anyone inside takes a hit */
+  hopSlamR: 28,
+  /** stuck after landing: the opening */
+  hopStuck: 1.3,
+  stompWindup: 0.45,
+  stompR: 34,
+  stompAir: 0.22,
+  stompStuck: 0.6,
+  hopCdMin: 1.6,
+  hopCdMax: 2.6,
+  maxCrouch: 2,
+
+  // ---- the Bouncer (PLAN.md 9.2) ----
+  bouncerHp: 2,
+  bouncerRadius: 9,
+  bouncerDrift: 40,
+  bouncerTurn: 4,
+  rollRange: 260,
+  rollWindup: 0.6,
+  rollLock: 0.25,
+  rollSpeed: 230,
+  /** each wall or pillar it bounces off adds this, up to rollMax */
+  rollGain: 30,
+  rollMax: 330,
+  rollBounces: 3,
+  rollTime: 2.4,
+  /** the bounce stub drawn past the first wall on its telegraph */
+  rollStub: 60,
+  dizzyTime: 0.9,
+  rollCdMin: 1.4,
+  rollCdMax: 2.4,
+  maxRolls: 2,
+
   // ---- the encounter ----
   bannerTime: 1.5,
   gateWarn: 1.0,
@@ -206,10 +276,13 @@ export const TUNING_GROUPS: { title: string; keys: [TuningKey, number][] }[] = [
   { title: 'Tiers', keys: [['cruiseAt', 5], ['slipAt', 5]] },
   { title: 'Rip', keys: [['ripTime', 0.02], ['ripImpulse', 10], ['ripCooldown', 0.05], ['aimAssistDeg', 1], ['slipDamage', 1], ['frontDamage', 1], ['rearDamage', 1], ['frontArcDeg', 5], ['cruiseShove', 2], ['cruiseKeep', 0.05], ['hitstopSlip', 1], ['passThrough', 0.02]] },
   { title: 'Booster', keys: [['boosterTopMul', 0.025], ['boosterTurnLowMul', 0.05], ['boosterTurnHighMul', 0.05], ['burnAccel', 10], ['burnMax', 10], ['burnTime', 0.05], ['burnCooldown', 0.05], ['burnWallStun', 0.05], ['burnTapTime', 0.01]] },
+  { title: 'Jump Jets, Springs', keys: [['leapAir', 0.05], ['leapMin', 10], ['leapSlamR', 2], ['leapRecoil', 0.05], ['leapKeep', 0.05], ['leapCooldown', 0.05], ['crouchSteerMul', 0.05], ['springKeep', 0.05], ['springKick', 5], ['springsTurnMul', 0.05], ['springsGripMul', 0.05]] },
   { title: 'Treads, Plow, Jaws', keys: [['treadsTopMul', 0.02], ['treadsTurnMul', 0.05], ['treadsGripMul', 0.05], ['slideTurn', 0.5], ['slideKeep', 0.02], ['plowAccMul', 0.05], ['plowConeDeg', 5], ['latchTime', 0.02], ['slingBoost', 5]] },
   { title: 'Salvage', keys: [['boltTime', 0.05], ['boltSteerMul', 0.05], ['rearArcDeg', 5], ['partLives', 1]] },
   { title: 'Hull', keys: [['hull', 1], ['invulnTime', 0.1], ['knockSpeed', 10], ['bumpKeep', 0.05]] },
   { title: 'Snapper', keys: [['snapperHp', 1], ['snapperTop', 5], ['snapperAcc', 20], ['snapperTurn', 0.5], ['snapRange', 5], ['snapCircle', 4], ['snapConeDeg', 5], ['snapWindup', 0.05], ['snapLock', 0.05], ['snapSpeed', 10], ['snapDist', 5], ['snapSlide', 0.05], ['snapCdMin', 0.1], ['snapCdMax', 0.1], ['maxSnaps', 1], ['jawFling', 0.1]] },
+  { title: 'Hopper', keys: [['hopperHp', 1], ['hopperSpeed', 5], ['hopMin', 5], ['hopMax', 10], ['hopWindup', 0.05], ['hopLock', 0.05], ['hopAir', 0.05], ['hopSlamR', 2], ['hopStuck', 0.1], ['stompWindup', 0.05], ['stompR', 2], ['hopCdMin', 0.1], ['hopCdMax', 0.1], ['maxCrouch', 1]] },
+  { title: 'Bouncer', keys: [['bouncerHp', 1], ['bouncerDrift', 5], ['rollRange', 10], ['rollWindup', 0.05], ['rollLock', 0.05], ['rollSpeed', 10], ['rollGain', 5], ['rollMax', 10], ['rollBounces', 1], ['rollTime', 0.1], ['dizzyTime', 0.1], ['rollCdMin', 0.1], ['rollCdMax', 0.1], ['maxRolls', 1]] },
   { title: 'Flat mode', keys: [['flatDamage', 1], ['flatPartDamage', 1]] },
   { title: 'Rammer', keys: [['rammerHp', 1], ['stalkSpeed', 5], ['stalkTurn', 0.5], ['strippedTurn', 0.25], ['windupFar', 0.05], ['lockFar', 0.05], ['windupNear', 0.05], ['lockNear', 0.05], ['nearDist', 5], ['chargeRange', 10], ['leadFrac', 0.05], ['chargeSpeed', 10], ['chargeOver', 10], ['chargeMin', 10], ['chargeMax', 10], ['skidTime', 0.05], ['joustStun', 0.1], ['joustDeg', 5], ['draftGap', 1], ['draftBoost', 5], ['chargeCdMin', 0.1], ['chargeCdMax', 0.1], ['maxWindups', 1]] },
 ];

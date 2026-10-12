@@ -33,7 +33,7 @@ export function circleRect(x: number, y: number, r: number, rc: Rect): Contact |
  * push inward, so nothing shoved deep into a wall can come out on the far side (the critic's
  * softlock); pillars are rectangles.
  */
-export function contacts(a: ArenaDef, x: number, y: number, r: number, open: Gate[] = []): Contact[] {
+export function contacts(a: ArenaDef, x: number, y: number, r: number, open: Gate[] = [], obstacles = true): Contact[] {
   const out: Contact[] = [];
   const lo = a.wall + r, hx = a.w - a.wall - r, hy = a.h - a.wall - r;
   // an open exit gate lets you out through its span of the wall
@@ -42,6 +42,7 @@ export function contacts(a: ArenaDef, x: number, y: number, r: number, open: Gat
   if (x > hx && !through('e')) out.push({ nx: -1, ny: 0, depth: x - hx });
   if (y < lo && !through('n')) out.push({ nx: 0, ny: 1, depth: lo - y });
   if (y > hy && !through('s')) out.push({ nx: 0, ny: -1, depth: y - hy });
+  if (!obstacles) return out;
   for (const s of a.pillars) {
     const c = circleRect(x, y, r, s);
     if (c) out.push(c);
@@ -81,6 +82,25 @@ export function segmentHitsRect(x0: number, y0: number, x1: number, y1: number, 
 export function lineOfSight(a: ArenaDef, x0: number, y0: number, x1: number, y1: number): boolean {
   for (const p of a.pillars) if (segmentHitsRect(x0, y0, x1, y1, p, 2)) return false;
   return true;
+}
+
+/**
+ * The way a body of radius r rolling along `angle` comes off the solid it meets at (x, y) (the
+ * Bouncer's telegraph stub): the angle reflected about the contact normal.
+ */
+export function reflectAt(a: ArenaDef, x: number, y: number, angle: number, r: number): number {
+  const cx = Math.cos(angle), cy = Math.sin(angle);
+  let nx = 0, ny = 0;
+  for (const c of contacts(a, x + cx * 3, y + cy * 3, r)) {
+    nx += c.nx;
+    ny += c.ny;
+  }
+  const n = Math.hypot(nx, ny);
+  if (n < 1e-6) return angle;
+  nx /= n;
+  ny /= n;
+  const d = cx * nx + cy * ny;
+  return Math.atan2(cy - 2 * d * ny, cx - 2 * d * nx);
 }
 
 /** How far a body of radius r can travel from (x, y) along an angle before touching a solid. */

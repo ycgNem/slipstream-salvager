@@ -10,12 +10,13 @@ import type { PartId } from '../data/parts';
 import { hash2 } from '../engine/rng';
 import { drawSprite, sprite } from './atlas';
 import { makeCanvas, ctx2d } from './art/pixel';
-import { crack, dot, lane, outline, pline, ring, silhouette } from './pixgeom';
+import { crack, dot, floorRing, lane, outline, pline, ring, silhouette } from './pixgeom';
 import type { Fx } from './fx';
 import { laneOf } from '../sim/enemies';
-import { revving } from '../sim/rip';
-import { laneLength } from '../sim/arena';
-import type { Enemy, World } from '../sim/world';
+import { crouched, landingPoint, revving } from '../sim/rip';
+import { hopProgress, slamRadius } from '../sim/hopper';
+import { laneLength, reflectAt } from '../sim/arena';
+import { airborne, type Enemy, type World } from '../sim/world';
 import { drawText, FONT_H, textWidth } from '../ui/font';
 
 type Ctx = CanvasRenderingContext2D;
@@ -76,6 +77,22 @@ function dirOfFace(a: number): number {
 /** An enemy's body sprite name this frame. */
 export function enemySprite(r: Enemy, time: number): string {
   const d = DIRS[dirOfFace(r.face)];
+  if (r.kind === 'hopper') {
+    switch (r.state) {
+      case 'windup': return `en:hopper:crouch:${d}:${Math.floor(time * 12) % 2}`;
+      case 'air': return `en:hopper:air:${d}`;
+      case 'land': case 'stunned': return `en:hopper:land:${d}`;
+      default: return `en:hopper:stalk:${d}:${Math.floor(time * 6) % 2}`;
+    }
+  }
+  if (r.kind === 'bouncer') {
+    switch (r.state) {
+      case 'windup': return `en:bouncer:windup:${d}:${Math.floor(time * 12) % 2}`;
+      case 'roll': return `en:bouncer:roll:${d}:${Math.floor(time * Math.max(4, r.speed / 12)) % 2}`;
+      case 'stunned': return `en:bouncer:stunned:${d}:${Math.floor(time * 4) % 2}`;
+      default: return `en:bouncer:idle:${d}:${Math.floor(time * 3) % 2}`;
+    }
+  }
   if (r.kind === 'snapper') {
     const f = Math.floor(time * (r.state === 'snap' ? 16 : 8)) % 2;
     switch (r.state) {
@@ -106,8 +123,26 @@ function tearable(r: Enemy, part: PartId): boolean {
     case 'plow': return r.state === 'charge';
     case 'treads': return r.state === 'slide' || r.state === 'stunned';
     case 'jaws': return r.state === 'windup' || r.state === 'stunned';
+    case 'jets': return r.state === 'land' || r.state === 'stunned';
+    case 'springs': return r.kind === 'bouncer' ? r.state === 'roll' || r.state === 'stunned' : r.state === 'charge' || r.state === 'skid';
   }
 }
+
+/** How high an enemy is drawn off the floor (a Hopper's leap): an arc over the flight. */
+function liftOf(w: World, r: Enemy): number {
+  if (!airborne(r)) return 0;
+  return Math.round(Math.sin(Math.PI * hopProgress(w, r)) * (r.stomp ? w.t.hopHeight * 0.35 : w.t.hopHeight));
+}
+
+/** How high you're drawn off the floor on a Jump Jets leap. */
+function playerLift(w: World): number {
+  const A = w.player.air;
+  return A ? Math.round(Math.sin(Math.PI * Math.min(1, A.t / A.dur)) * w.t.leapHeight) : 0;
+}
+
+const SHADOW: Record<Enemy['kind'], string> = { rammer: 'fx:shadow:l', hopper: 'fx:shadow:l', snapper: 'fx:shadow:m', bouncer: 'fx:shadow:m' };
+/** where the stun stars sit above each kind's anchor */
+const STARS_Y: Record<Enemy['kind'], number> = { rammer: 22, hopper: 20, snapper: 16, bouncer: 20 };
 
 export interface DrawOpts {
   time: number;
@@ -129,22 +164,46 @@ export function drawWorld(ctx: Ctx, w: World, fx: Fx, o: DrawOpts) {
   // telegraphs: under bodies, over the floor
   for (const r of w.enemies) {
     if (r.state !== 'windup') continue;
+    const hot = Math.floor(o.time * 12) % 2 === 0;
+    if (r.kind === 'hopper') {
+      // where it will land: a ring, dashed while it tracks you, solid and flashing once locked
+      const R = slamRadius(w, r);
+      if (r.locked) floorRing(ctx, r.tx, r.ty, R, hot ? C.danger3 : C.danger2, C.danger1, { density: 4 });
+      else floorRing(ctx, r.tx, r.ty, R, C.danger1, C.danger0, { dash: 4, phase: Math.floor(o.time * 30) });
+      continue;
+    }
     const l = laneOf(w, r);
     const rr = l.width / 2;
     const sx = r.x + Math.cos(l.angle) * rr, sy = r.y + Math.sin(l.angle) * rr;
-    if (r.locked) {
-      const hot = Math.floor(o.time * 12) % 2 === 0;
-      lane(ctx, sx, sy, l.angle, l.len, l.width, hot ? C.danger3 : C.danger2, C.danger1, { density: 2 });
-    } else lane(ctx, sx, sy, l.angle, l.len, l.width, C.danger1, C.danger0, { dash: 4, phase: Math.floor(o.time * 30), density: 4 });
+    const draw = (x0: number, y0: number, a: number, len: number) => {
+      if (r.locked) lane(ctx, x0, y0, a, len, l.width, hot ? C.danger3 : C.danger2, C.danger1, { density: 2 });
+      else lane(ctx, x0, y0, a, len, l.width, C.danger1, C.danger0, { dash: 4, phase: Math.floor(o.time * 30), density: 4 });
+    };
+    draw(sx, sy, l.angle, l.len);
+    if (r.kind === 'bouncer' && r.parts.sides === 'springs') {
+      // the first bounce's stub, so you can see where the roll comes back
+      const ex = r.x + Math.cos(l.angle) * l.len, ey = r.y + Math.sin(l.angle) * l.len;
+      const a2 = reflectAt(w.arena, ex, ey, l.angle, rr);
+      draw(ex, ey, a2, Math.min(w.t.rollStub, laneLength(w.arena, ex, ey, a2, w.t.rollStub, rr)));
+    }
   }
   const p = w.player;
-  if (revving(w)) {
+  if (crouched(w)) {
+    // crouched on the Jump Jets: where you'll come down
+    const L = landingPoint(w);
+    floorRing(ctx, L.x, L.y, w.t.leapSlamR, C.speed2, C.speed0, { dash: 3, phase: -Math.floor(o.time * 40), density: 6 });
+  } else if (revving(w)) {
     const len = laneLength(w.arena, p.x, p.y, p.heading, 420, w.t.playerRadius);
     lane(ctx, p.x, p.y, p.heading, len, w.t.playerRadius * 2, C.speed2, C.speed0, { dash: 3, phase: -Math.floor(o.time * 40), density: 3 });
   }
+  if (p.air) {
+    // in the air: where you'll land
+    const rest = p.speed * Math.max(0, p.air.dur - p.air.t);
+    floorRing(ctx, p.x + Math.cos(p.heading) * rest, p.y + Math.sin(p.heading) * rest, w.t.leapSlamR, C.speed1, C.speed0, { dash: 2 });
+  }
 
   // shadows
-  for (const r of w.enemies) drawSprite(ctx, sprite(r.kind === 'rammer' ? 'fx:shadow:l' : 'fx:shadow:m'), Math.round(r.x), Math.round(r.y) + 1);
+  for (const r of w.enemies) drawSprite(ctx, sprite(SHADOW[r.kind]), Math.round(r.x), Math.round(r.y) + 1);
   for (const k of w.pickups) drawSprite(ctx, sprite('fx:shadow:s'), Math.round(k.x), Math.round(k.y) + 1);
   drawSprite(ctx, sprite('fx:shadow:m'), Math.round(p.x), Math.round(p.y) + 1);
 
@@ -161,8 +220,9 @@ export function drawWorld(ctx: Ctx, w: World, fx: Fx, o: DrawOpts) {
       if (k.cracked) crack(ctx, Math.round(k.x), Math.round(k.y) - bob - 5);
     } });
   }
-  for (const r of w.enemies) items.push({ y: r.y, draw: () => drawEnemy(ctx, r, fx, o.time) });
-  items.push({ y: p.y, draw: () => drawPlayer(ctx, w, fx, o.time) });
+  // airborne bodies are drawn over everything on the ground
+  for (const r of w.enemies) items.push({ y: airborne(r) ? 1e4 + r.y : r.y, draw: () => drawEnemy(ctx, r, fx, o.time, liftOf(w, r)) });
+  items.push({ y: p.air ? 1e4 + p.y : p.y, draw: () => drawPlayer(ctx, w, fx, o.time) });
   if (p.tow) {
     const tw = p.tow;
     items.push({ y: tw.y, draw: () => {
@@ -175,7 +235,7 @@ export function drawWorld(ctx: Ctx, w: World, fx: Fx, o: DrawOpts) {
 
   // stun stars
   for (const r of w.enemies)
-    if ((r.state === 'skid' && r.slammed) || r.state === 'stunned') drawSprite(ctx, sprite(`fx:stars:${Math.floor(o.time * 10) % 4}`), Math.round(r.x), Math.round(r.y) - (r.kind === 'rammer' ? 22 : 16));
+    if ((r.state === 'skid' && r.slammed) || r.state === 'stunned') drawSprite(ctx, sprite(`fx:stars:${Math.floor(o.time * 10) % 4}`), Math.round(r.x), Math.round(r.y) - STARS_Y[r.kind]);
   if (p.stun > 0) drawSprite(ctx, sprite(`fx:stars:${Math.floor(o.time * 10) % 4}`), Math.round(p.x), Math.round(p.y) - 18);
 
   fx.draw(ctx);
@@ -192,23 +252,24 @@ function drawMounted(ctx: Ctx, name: string, x: number, y: number, m: MountPos, 
   if (cracked) crack(ctx, x + m.dx, y + m.dy);
 }
 
-function drawEnemy(ctx: Ctx, r: Enemy, fx: Fx, time: number) {
+function drawEnemy(ctx: Ctx, r: Enemy, fx: Fx, time: number, lift = 0) {
   const d = dirOfFace(r.face), dn = DIRS[d];
   const shake = r.state === 'windup' ? (Math.floor(time * 30) % 2 ? 1 : -1) * (r.locked ? 1 : 0) : 0;
-  const x = Math.round(r.x) + shake, y = Math.round(r.y);
+  const x = Math.round(r.x) + shake, y = Math.round(r.y) - lift;
   const name = enemySprite(r, time);
   const blink = Math.floor(time * 10) % 2 === 0;
-  const rm = rearMount(d, r.kind === 'rammer' ? MOUNT_DIST.rammer : MOUNT_DIST.snapper);
+  const rm = rearMount(d, MOUNT_DIST[r.kind]);
   // the Snapper's head lunges 3 px out on a snap and dips 1 px in its windup and when stunned,
   // and the jaws stay on it
-  const fm = r.kind === 'rammer'
-    ? frontMount(d, FRONT_DIST.rammer)
+  const fm = r.kind !== 'snapper'
+    ? frontMount(d, FRONT_DIST[r.kind])
     : frontMount(d, FRONT_DIST.snapper + (r.state === 'snap' ? 3 : 0), r.state === 'windup' || r.state === 'stunned' ? 2 : 3);
   const rear = () => {
     const part = r.parts.rear;
     if (!part) return;
-    // the flame shares the booster's anchor and goes under it (it starts at the nozzle)
-    if (part === 'booster' && r.state === 'charge') drawSprite(ctx, sprite(`fx:plume:${dn}:${Math.floor(time * 20) % 2}`), x + rm.dx, y + rm.dy);
+    // the flame shares the booster's anchor and goes under it (it starts at the nozzle); the jets
+    // fire on take-off and in the air
+    if ((part === 'booster' && r.state === 'charge') || (part === 'jets' && (r.state === 'air' || (r.state === 'windup' && r.locked)))) drawSprite(ctx, sprite(`fx:plume:${dn}:${Math.floor(time * 20) % 2}`), x + rm.dx, y + rm.dy);
     drawMounted(ctx, `part:${part}:${dn}`, x, y, rm, tearable(r, part) && blink, false);
   };
   const front = () => {
@@ -240,7 +301,7 @@ function nearTrack(ctx: Ctx, name: string, x: number, y: number, dn: string) {
 function drawPlayer(ctx: Ctx, w: World, fx: Fx, time: number) {
   const p = w.player;
   const d = p.face, dn = DIRS[d];
-  const x = Math.round(p.x), y = Math.round(p.y);
+  const x = Math.round(p.x), y = Math.round(p.y) - playerLift(w);
   // afterimages at Slipstream: teal silhouettes, thinning out
   for (const a of fx.after) {
     const s = sprite(a.name);
@@ -256,7 +317,7 @@ function drawPlayer(ctx: Ctx, w: World, fx: Fx, time: number) {
   if (p.invuln > 0 && p.knock <= 0 && Math.floor(time * 20) % 2 === 0) return;
   const name = playerSprite(w, time);
   const rearPart = p.parts.rear, frontPart = p.parts.front, sides = p.parts.sides;
-  const thrust = rearPart?.id === 'booster' && (revving(w) || p.rip?.burn || p.speed > 60);
+  const thrust = (rearPart?.id === 'booster' && (revving(w) || p.rip?.burn || p.speed > 60)) || (rearPart?.id === 'jets' && (crouched(w) || !!p.air));
   const rear = () => {
     if (!rearPart) return;
     if (thrust) drawSprite(ctx, sprite(`fx:plume:${dn}:${Math.floor(time * 24) % 2}`), x + m.dx, y + m.dy);

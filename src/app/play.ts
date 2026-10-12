@@ -6,7 +6,7 @@ import { DEBUG_KEYS, keyLabel, type Input } from '../engine/input';
 import type { Audio } from '../engine/audio/audio';
 import { Fx } from '../render/fx';
 import { drawWorld, playerSprite } from '../render/renderer';
-import { giveBolted, hasBooster, type Bolted, type InputFrame, type World } from '../sim/world';
+import { giveBolted, hasBooster, maxHpOf, type Bolted, type InputFrame, type World } from '../sim/world';
 import { finishYard, newRun, yardWorld, type Run } from '../sim/run';
 import { RUN_LENGTH, YARDS, type YardId } from '../data/yards';
 import { signLayout } from '../ui/signs';
@@ -170,8 +170,11 @@ export class Play {
         fx.mark(r.x - Math.sin(r.face) * 4, r.y + Math.cos(r.face) * 4 + 3);
       }
       if (r.kind === 'snapper' && r.state === 'snap' && this.afterTick % 2 === 0) fx.puff('dust', r.x - Math.cos(r.face) * 6, r.y + 3, 0, 0, 0.25);
+      // a Hopper stuck after landing steams; a rolling Bouncer kicks up dust
+      if (r.kind === 'hopper' && r.state === 'land' && this.afterTick % 4 === 0) fx.puff('steam', r.x, r.y - 8);
+      if (r.kind === 'bouncer' && r.state === 'roll' && this.afterTick % 3 === 0) fx.puff('dust', r.x - Math.cos(r.face) * 6, r.y + 3, 0, 0, 0.25);
       // badly damaged: it crackles (faster at 1 HP), so "one more pass" reads without an HP bar
-      const maxHp = r.kind === 'rammer' ? this.world.t.rammerHp : this.world.t.snapperHp;
+      const maxHp = maxHpOf(this.world, r);
       if (r.hp < maxHp && this.afterTick % (r.hp <= 1 ? 10 : 20) === 0) fx.sparks(r.x + ((this.afterTick * 7) % 11) - 5, r.y - 8, 2, -Math.PI / 2, 1.2, 50);
     }
   }
@@ -241,6 +244,38 @@ export class Play {
       case 'slide': a.sfx('skid', 0.8, 1.3); break;
       case 'slide-e': a.sfx('skid', 0.5, 1.6); break;
       case 'snap': a.sfx('charge', 0.5, 1.6); break;
+      case 'hop': {
+        const r = this.world.enemies.find((q) => q.id === e.id);
+        if (r) for (let i = 0; i < 4; i++) fx.puff('dust', r.x + (i - 1.5) * 5, r.y + 3, (i - 1.5) * 12, 0, 0.35);
+        a.sfx('hop');
+        break;
+      }
+      case 'land':
+        for (let i = 0; i < 10; i++) {
+          const ang = (i / 10) * Math.PI * 2;
+          fx.puff('dust', e.x + Math.cos(ang) * e.r * 0.7, e.y + Math.sin(ang) * e.r * 0.7, Math.cos(ang) * 30, Math.sin(ang) * 30, 0.4);
+        }
+        fx.sparks(e.x, e.y, 6);
+        fx.addShake(2);
+        a.sfx('land');
+        break;
+      case 'leap':
+        for (let i = 0; i < 4; i++) fx.puff('dust', p.x + (i - 1.5) * 4, p.y + 3, (i - 1.5) * 10, 0, 0.3);
+        a.sfx('leap');
+        break;
+      case 'touchdown':
+        for (let i = 0; i < 6; i++) {
+          const ang = (i / 6) * Math.PI * 2;
+          fx.puff('dust', e.x + Math.cos(ang) * 8, e.y + 3 + Math.sin(ang) * 5, Math.cos(ang) * 25, Math.sin(ang) * 15, 0.35);
+        }
+        fx.addShake(1);
+        a.sfx('touchdown', e.tier === 'slip' ? 1 : 0.7);
+        break;
+      case 'roll': a.sfx('roll'); break;
+      case 'boing':
+        fx.sparks(e.x, e.y, 4, 0, Math.PI * 2, 70);
+        a.sfx('boing', e.id === undefined ? 1 : 0.6);
+        break;
       case 'joust':
         fx.sparks(e.x, e.y, 16, 0, Math.PI * 2, 170);
         fx.dots(e.x, e.y, 10, [C.white, C.frost, C.mist], 130);
@@ -416,7 +451,7 @@ export class Play {
       ui.fill(s.x, s.y, s.w, s.h, C.ink);
       ui.fill(s.x, s.y, s.w, 1, blink ? C.gold3 : C.gold);
       ui.text(s.name, s.x + 4, s.y + 4, C.white);
-      s.icons.forEach((id, i) => drawSprite(ui.ctx, sprite(`icon:part:${id}`), s.x + 4 + i * 18, s.y + 14));
+      s.icons.forEach((id, i) => drawSprite(ui.ctx, sprite(`icon:part:${id}`), s.x + 4 + i * s.iconStep, s.y + 14));
       ui.text(s.parts, s.x + 4, s.y + 33, C.gold2);
       ui.text(s.wave, s.x + 4, s.y + 43, C.mist);
       // an arrow toward the gate

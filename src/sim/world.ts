@@ -28,6 +28,8 @@ export interface RipState {
   burn: boolean;
   /** a ram hit with the Plow (contact, not the button) */
   plow?: boolean;
+  /** the landing of a Jump Jets leap */
+  leap?: boolean;
   /** enemies already hit by this rip */
   hits: number[];
 }
@@ -80,6 +82,10 @@ export interface Player {
   slide: boolean;
   /** swinging round a bitten enemy with the Jaws */
   latch: Latch | null;
+  /** in the air on the Jump Jets' leap: seconds in, how long, and the tier you leapt at */
+  air: { t: number; dur: number; tier: Tier } | null;
+  /** stuck after a landing (the Jump Jets' inherited weakness): no control (s) */
+  recoil: number;
   /** the part towed behind on the cable */
   tow: { part: PartId; x: number; y: number; vx: number; vy: number; cracked: boolean } | null;
   /** seconds into bolting, or null */
@@ -92,8 +98,12 @@ export interface Player {
   lastHeading: number;
 }
 
-/** Rammer: enter, stalk, windup, charge, skid. Snapper: enter, hunt, windup, snap, slide, stunned. */
-export type EnemyState = 'enter' | 'stalk' | 'windup' | 'charge' | 'skid' | 'hunt' | 'snap' | 'slide' | 'stunned';
+/**
+ * Rammer: enter, stalk, windup, charge, skid. Snapper: enter, hunt, windup, snap, slide, stunned.
+ * Hopper: enter, stalk, windup (the crouch), air, land (stuck), stunned. Bouncer: enter, stalk,
+ * windup, roll, stunned (dizzy).
+ */
+export type EnemyState = 'enter' | 'stalk' | 'windup' | 'charge' | 'skid' | 'hunt' | 'snap' | 'slide' | 'stunned' | 'air' | 'land' | 'roll';
 
 export interface Enemy {
   id: number;
@@ -136,6 +146,15 @@ export interface Enemy {
   speed: number;
   /** a sliding Snapper's line of travel (it faces round while it slides) */
   slideDir?: number;
+  /** a Hopper's leap: where it lands (the ring) and where it took off */
+  tx: number;
+  ty: number;
+  sx: number;
+  sy: number;
+  /** this crouch is the stomp where it stands, not the leap */
+  stomp: boolean;
+  /** walls and pillars this roll (or charge) has bounced off */
+  bounces: number;
 }
 /** The slice's name for an enemy; every enemy is a Rammer or a Snapper. */
 export type Rammer = Enemy;
@@ -231,7 +250,7 @@ export function createWorld(opts: WorldOpts = {}): World {
       x: s.x, y: s.y, heading: s.heading, speed: 0, face: 0,
       hull: t.hull, invuln: 0, knock: 0, stun: 0, brake: false,
       rip: null, ripCd: 0, ripBuf: 0, rev: null, pass: 0,
-      parts: {}, slide: false, latch: null, tow: null, bolt: null, prevRip: false, prevBolt: false, tier: 'crawl', omega: 0, lastHeading: s.heading,
+      parts: {}, slide: false, latch: null, air: null, recoil: 0, tow: null, bolt: null, prevRip: false, prevBolt: false, tier: 'crawl', omega: 0, lastHeading: s.heading,
     },
     enemies: [],
     pickups: [],
@@ -252,6 +271,14 @@ export function createWorld(opts: WorldOpts = {}): World {
   };
 }
 
+/** What each kind of enemy starts as: its own part, HP and radius (tuning keys), first state. */
+export const KINDS: Record<EnemyKind, { part: PartId; hp: 'rammerHp' | 'snapperHp' | 'hopperHp' | 'bouncerHp'; radius: 'rammerRadius' | 'snapperRadius' | 'hopperRadius' | 'bouncerRadius'; state: EnemyState }> = {
+  rammer: { part: 'booster', hp: 'rammerHp', radius: 'rammerRadius', state: 'stalk' },
+  snapper: { part: 'treads', hp: 'snapperHp', radius: 'snapperRadius', state: 'hunt' },
+  hopper: { part: 'jets', hp: 'hopperHp', radius: 'hopperRadius', state: 'stalk' },
+  bouncer: { part: 'springs', hp: 'bouncerHp', radius: 'bouncerRadius', state: 'stalk' },
+};
+
 export interface EnemyOpts {
   /** the parts it wears; default: its kind's own part (a Rammer's booster, a Snapper's treads) */
   parts?: PartId[];
@@ -262,12 +289,13 @@ export interface EnemyOpts {
 /** Add an enemy (waves use this; so do tests in sandbox mode). */
 export function addEnemy(w: World, kind: EnemyKind, x: number, y: number, face = 0, opts: EnemyOpts = {}): Enemy {
   const parts: Partial<Record<MountSlot, PartId>> = {};
-  for (const id of opts.parts ?? [kind === 'rammer' ? 'booster' : 'treads']) parts[PARTS[id].mount] = id;
+  const K = KINDS[kind];
+  for (const id of opts.parts ?? [K.part]) parts[PARTS[id].mount] = id;
   const e: Enemy = {
-    id: w.nextId++, kind, x, y, face, hp: kind === 'rammer' ? w.t.rammerHp : w.t.snapperHp, parts, safety: !!opts.safety,
-    state: opts.state ?? (kind === 'rammer' ? 'stalk' : 'hunt'), t: 0, windup: 0, lock: 0, shove: false, locked: false, travelled: 0, chargeLen: 0,
+    id: w.nextId++, kind, x, y, face, hp: w.t[K.hp], parts, safety: !!opts.safety,
+    state: opts.state ?? K.state, t: 0, windup: 0, lock: 0, shove: false, locked: false, travelled: 0, chargeLen: 0,
     cd: w.rng.range(0.6, 1.2), vx: 0, vy: 0, enter: { x: Math.cos(face), y: Math.sin(face) }, slammed: false, skidFor: w.t.skidTime, drafted: false, shaken: 0,
-    speed: 0,
+    speed: 0, tx: x, ty: y, sx: x, sy: y, stomp: false, bounces: 0,
   };
   w.enemies.push(e);
   return e;
@@ -304,7 +332,17 @@ export function boltedCount(p: Player): number {
 
 /** Collision radius by kind. */
 export function radiusOf(w: World, e: Enemy): number {
-  return e.kind === 'rammer' ? w.t.rammerRadius : w.t.snapperRadius;
+  return w.t[KINDS[e.kind].radius];
+}
+
+/** Max HP by kind (the crackle of a damaged enemy is relative to it). */
+export function maxHpOf(w: World, e: Enemy): number {
+  return w.t[KINDS[e.kind].hp];
+}
+
+/** In the air (a Hopper's leap): it can't be hit and touches nothing. */
+export function airborne(e: Enemy): boolean {
+  return e.state === 'air';
 }
 
 /** The tier a speed falls in (absolute marks; PLAN.md 4.2). */

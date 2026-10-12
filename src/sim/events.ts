@@ -18,6 +18,12 @@ export type SimEvent =
   | { k: 'slide' }
   | { k: 'snap'; id: number }
   | { k: 'slide-e'; id: number }
+  | { k: 'hop'; id: number }
+  | { k: 'land'; id: number; x: number; y: number; r: number }
+  | { k: 'leap'; tier: Tier }
+  | { k: 'touchdown'; x: number; y: number; tier: Tier }
+  | { k: 'roll'; id: number }
+  | { k: 'boing'; x: number; y: number; id?: number }
   | { k: 'joust'; id: number; x: number; y: number }
   | { k: 'draft'; id: number; x: number; y: number }
   | { k: 'shove'; id: number; x: number; y: number }

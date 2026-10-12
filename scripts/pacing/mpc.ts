@@ -16,6 +16,7 @@ export function cloneWorld(w: World): World {
       rip: p.rip ? { ...p.rip, hits: [...p.rip.hits] } : null,
       parts: { ...p.parts },
       latch: p.latch ? { ...p.latch } : null,
+      air: p.air ? { ...p.air } : null,
       tow: p.tow ? { ...p.tow } : null,
     },
     enemies: w.enemies.map((e) => ({ ...e, parts: { ...e.parts }, enter: { ...e.enter } })),
@@ -39,7 +40,8 @@ export function autoRip(w: World): boolean {
     const d = Math.hypot(e.x - p.x, e.y - p.y);
     if (d > 44) continue;
     if (Math.abs(wrapAngle(Math.atan2(e.y - p.y, e.x - p.x) - p.heading)) > 0.5) continue;
-    if (hitZone(w, e) === 'front' && !e.parts.front && !(e.state === 'charge' || e.state === 'snap')) { if (e.hp > 1) continue; }
+    if (e.state === 'air') continue;
+    if (hitZone(w, e) === 'front' && !e.parts.front && !(e.state === 'charge' || e.state === 'snap' || e.state === 'roll')) { if (e.hp > 1) continue; }
     return true;
   }
   return false;
@@ -61,7 +63,7 @@ function value(w0: World, w: World): number {
   if (m < 30) v -= (30 - m) * 0.08;
   for (const e of w.enemies) {
     const d = Math.hypot(e.x - p.x, e.y - p.y);
-    const open = e.state === 'skid' || e.state === 'stunned' || e.state === 'slide';
+    const open = e.state === 'skid' || e.state === 'stunned' || e.state === 'slide' || e.state === 'land';
     if (open) {
       // a back or flank you can reach at speed is worth most
       const off = Math.abs(((Math.atan2(p.y - e.y, p.x - e.x) - e.face + 3 * Math.PI) % (2 * Math.PI)) - Math.PI);

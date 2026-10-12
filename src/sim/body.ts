@@ -45,7 +45,7 @@ export function playerStats(w: World): BodyStats {
 
 /** How holding Rip attacks right now: the Booster's Burn, or the plain Rip (always in flat mode). */
 export function attackMode(w: World): AttackMode {
-  return hasBehavior(w, 'attack', 'burn') ? 'burn' : 'rip';
+  return hasBehavior(w, 'attack', 'burn') ? 'burn' : hasBehavior(w, 'attack', 'leap') ? 'leap' : 'rip';
 }
 
 /** Turn rate (rad/s) at a speed. */
@@ -61,6 +61,17 @@ export function steer(w: World, input: InputFrame) {
   const st = playerStats(w);
   const m = Math.min(1, Math.hypot(input.x, input.y));
 
+  if (p.rev !== null && p.rev >= t.burnTapTime && attackMode(w) === 'leap') {
+    // crouched on the Jump Jets: your speed holds (no thrust, no coasting) and you steer at half
+    // rate while the ring shows where you'll land
+    if (m > 0.05) {
+      const delta = wrapAngle(Math.atan2(input.y, input.x) - p.heading);
+      const rate = turnRate(st, p.speed) * t.crouchSteerMul;
+      p.heading = wrapAngle(p.heading + clamp(delta, -rate * DT, rate * DT));
+    }
+    decayOverspeed(w, st);
+    return;
+  }
   if (p.rev !== null && p.rev >= t.burnTapTime) {
     // revving the Burn: heading locked, thrust climbs past top speed toward burnMax
     const a = p.speed < t.accSplit ? t.accLow : t.burnAccel;
@@ -150,6 +161,25 @@ export function movePlayer(w: World) {
     Object.assign(p, pushOut(w.arena, p.x, p.y, t.playerRadius));
     return;
   }
+  if (p.air) {
+    // leaping: over pillars and low walls, sliding along the ring wall if you meet it
+    p.x += Math.cos(p.heading) * p.speed * DT;
+    p.y += Math.sin(p.heading) * p.speed * DT;
+    const open = w.arena.gates.filter((g) => w.exits.some((e) => e.gate === g.id));
+    for (const c of contacts(w.arena, p.x, p.y, t.playerRadius, open, false)) {
+      p.x += c.nx * c.depth;
+      p.y += c.ny * c.depth;
+      let vx = Math.cos(p.heading) * p.speed, vy = Math.sin(p.heading) * p.speed;
+      const vn = vx * c.nx + vy * c.ny;
+      if (vn >= 0) continue;
+      vx -= vn * c.nx;
+      vy -= vn * c.ny;
+      const s = Math.hypot(vx, vy);
+      if (s > 0.01) p.heading = Math.atan2(vy, vx);
+      p.speed = s;
+    }
+    return;
+  }
   p.x += Math.cos(p.heading) * p.speed * DT;
   p.y += Math.sin(p.heading) * p.speed * DT;
   for (let pass = 0; pass < 2; pass++) {
@@ -161,6 +191,16 @@ export function movePlayer(w: World) {
       const vn = vx * c.nx + vy * c.ny;
       if (vn >= 0) continue;
       const headOn = -vn / Math.max(p.speed, 1e-6);
+      if (headOn > t.clankCos && p.speed > 40 && hasBehavior(w, 'wall', 'bounce')) {
+        // the Springs: bounce off at speed instead of clanking, and a Rip, a rev or a Burn keeps
+        // going on the new line (no wall stun; PLAN.md 9.2)
+        vx -= 2 * vn * c.nx;
+        vy -= 2 * vn * c.ny;
+        p.heading = Math.atan2(vy, vx);
+        p.speed = Math.min(t.burnMax, p.speed * t.springKeep + t.springKick);
+        w.events.push({ k: 'boing', x: p.x - c.nx * t.playerRadius, y: p.y - c.ny * t.playerRadius });
+        continue;
+      }
       if (headOn > t.clankCos && p.speed > 40) {
         w.events.push({ k: 'clank', x: p.x - c.nx * t.playerRadius, y: p.y - c.ny * t.playerRadius, wall: true });
         if ((p.rev !== null && p.rev >= t.burnTapTime) || p.rip?.burn) {

@@ -442,3 +442,44 @@ a number in the tuning panel, and the M1 rule is one setting away (given with ea
       A scrolling camera, currency, shops and stat upgrades stay out.
     - Each milestone's new sprites are code-drawn first, then drawn with pixel-art-studio in
       background agents while the next milestone is built. Publishing 0.3.0 waits for the owner.
+83. **The Hopper, as built** (PLAN.md 9.1).
+    - It leaps at you from 44-220 px: a 0.6 s crouch with a red ring (radius 28) that leads you like
+      the Rammer's lane, then locks; 0.55 s in the air, over obstacles, untouchable; a slam in the
+      ring; stuck 1.3 s. Closer than 44 px, or bumped, it stomps where it stands (ring 34).
+    - **The shockwave** (new): a slam that only just misses you (within 24 px of the ring) lifts you
+      to Slipstream, like the Rammer's slipstream (#61).
+    - *Why:* the search bot (`scripts/pacing/`) dodged every ring but almost never got a pass in:
+      a dodged slam left it slow and heading away, and The Hurdles timed out on 2 of 4 seeds with
+      0% of the time at Slipstream. With the shockwave, a 1.3 s stuck window and 1.6-2.6 s between
+      leaps, it clears 6 of 6 in about 64 s (the Ring: ~50 s), 9-23 shockwaves a yard.
+    - The stomp's trigger is 44 px, not PLAN's first 70: a 30 px ring round itself could never
+      reach a player 70 px away.
+84. **The Jump Jets, as built** (PLAN.md 9.1).
+    - The rear mount's second choice: they replace what holding Rip does, like the Booster. A tap
+      is a plain Rip. Held: crouched, speed held, steering ×0.5, a teal ring where you'll land.
+      Let go: 0.4 s in the air along your heading (at least 120 px/s), untouchable, over pillars and
+      low walls; the ring wall still stops you (you slide along it).
+    - The landing is a hit at the tier you leapt at, on every enemy within 24 px (plus its radius),
+      by the zone you land on, so landing behind a Rammer tears its booster. Then 0.25 s stuck and
+      15% of your speed gone; no leap or Rip for 0.5 s after.
+    - Code: `p.air` and `p.recoil` on the player; airborne bodies skip contacts, hits, aim assist,
+      slams and pickups (`airborne()` for enemies). The leap's release tick doesn't steer.
+85. **The Bouncer, the Springs and the Spring Rammer, as built** (PLAN.md 9.2).
+    - The Bouncer winds up 0.6 s (a lane to the first wall plus the first bounce's 60 px stub, from
+      `reflectAt`), rolls at 230, +30 a bounce up to 330, slows after 3 bounces or 2.4 s and is
+      dizzy 0.9 s. A roll is a lunge while it's faster than 80 px/s.
+    - Springs on you: a head-on wall or pillar hit reflects you at full speed +25 (no clank, and a
+      Rip, rev or Burn keeps going; no wall stun); an enemy bump keeps all your speed. Weakness:
+      turning ×0.85 at speed, turn scrub from ×0.8 the pull. The route test: pushing on into walls
+      holds Slipstream over 60% of the time with Springs, far less without.
+    - Springs on a Rammer: its charge bounces once. On a Bouncer: every bounce. Bumping a Bouncer
+      starts its roll, like the others' bump reactions.
+86. **M6's yards and the run.**
+    - **The Hurdles:** ten 48×16 low walls in three staggered rows; the gate lanes, the middle and
+      the sign areas are open. **The Pinball:** a diamond of four pillars and four corner posts.
+    - The middle pool is six yards; a run still visits three. The Heap's first wave has a Hopper,
+      its last a Spring Rammer and a Bouncer; its sign says "ALL SIX PARTS" with the icons packed
+      at 16 px so it stays within 104 px.
+    - The tuning panel's START WITH row has six 3-letter buttons.
+    - The search bot (`scripts/pacing/mpc.ts`) now clones the leap and counts a landed Hopper as
+      open.

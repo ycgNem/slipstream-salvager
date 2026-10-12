@@ -45,7 +45,7 @@ describe('the run', () => {
     expect(w2.player.x).toBeLessThan(80);
   });
 
-  it('visits three of the four middle yards, then The Heap, with no repeats', () => {
+  it('visits three of the middle yards, then The Heap, with no repeats', () => {
     const r = newRun(11);
     while (r.depth < RUN_LENGTH) {
       const w = yardWorld(r);

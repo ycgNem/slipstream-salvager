@@ -18,6 +18,9 @@ export const RAMMER: EnemySpec = { kind: 'rammer' };
 export const SNAPPER: EnemySpec = { kind: 'snapper' };
 export const PLOW_RAMMER: EnemySpec = { kind: 'rammer', parts: ['booster', 'plow'] };
 export const JAW_SNAPPER: EnemySpec = { kind: 'snapper', parts: ['treads', 'jaws'] };
+export const HOPPER: EnemySpec = { kind: 'hopper' };
+export const BOUNCER: EnemySpec = { kind: 'bouncer' };
+export const SPRING_RAMMER: EnemySpec = { kind: 'rammer', parts: ['booster', 'springs'] };
 
 export const WAVES: WaveDef[] = [
   { enemies: [RAMMER], safety: true },

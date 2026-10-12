@@ -3,6 +3,8 @@
 import { addEnemy, addRammer, giveBolted, type World } from '../sim/world';
 import type { YardId } from '../data/yards';
 import { beginWindup } from '../sim/rammer';
+import { beginCrouch } from '../sim/hopper';
+import { beginRoll } from '../sim/bouncer';
 import { step } from '../sim/tick';
 import { NO_INPUT, type InputFrame } from '../sim/world';
 import type { App } from './app';
@@ -13,7 +15,12 @@ export const SCENES = [
   'towing', 'bolting', 'booster', 'burn', 'pause', 'tuning', 'cleared', 'scrapped', 'flat',
   // M3: the Snapper and the new parts, the exits, the wipe, every yard
   'snapper', 'parts', 'exits', 'wipe', 'yard-kennel', 'yard-lanes', 'yard-pit', 'yard-jaws', 'yard-heap',
+  // M6: the Hopper and the Bouncer, the Jump Jets and the Springs, their yards
+  'hopper', 'bouncer', 'jets', 'leap', 'springs', 'yard-hurdles', 'yard-pinball',
 ] as const;
+
+/** The yard a scene that isn't `yard-*` is set in (default: The Ring). */
+const SCENE_YARD: Partial<Record<string, YardId>> = { snapper: 'kennel', hopper: 'hurdles', jets: 'hurdles', leap: 'hurdles', bouncer: 'pinball', springs: 'pinball' };
 export type SceneName = (typeof SCENES)[number];
 
 /** Run the sim n ticks with an input, feeding its events to the effects like play does. */
@@ -47,7 +54,7 @@ export function scene(app: App, name: SceneName) {
     app.toTitle();
     return app.openSettings();
   }
-  app.startPlay(3, name.startsWith('yard-') ? (name.slice(5) as YardId) : name === 'snapper' ? 'kennel' : 'ring');
+  app.startPlay(3, name.startsWith('yard-') ? (name.slice(5) as YardId) : SCENE_YARD[name] ?? 'ring');
   const play = app.play!;
   // scripted scenes never touch the player's best record
   play.record = false;
@@ -149,6 +156,55 @@ export function scene(app: App, name: SceneName) {
       run(play, 50, { x: 1, y: 0, rip: false, bolt: false });
       break;
     }
+    case 'hopper': {
+      quiet(play);
+      play.hints.seen = { ...play.hints.seen, hopper: false };
+      place(w, 320, 300, 0, 150);
+      const a = addEnemy(w, 'hopper', 470, 220, Math.PI);
+      beginCrouch(w, a, false);
+      const b = addEnemy(w, 'hopper', 200, 150, 0);
+      b.cd = 99;
+      run(play, 30, { x: 1, y: 0, rip: false, bolt: false });
+      // the second one mid-leap, high over the floor
+      Object.assign(b, { state: 'air', t: w.t.hopAir / 2, sx: 160, sy: 140, tx: 240, ty: 200, stomp: false, x: 200, y: 170 });
+      break;
+    }
+    case 'bouncer': {
+      quiet(play);
+      play.hints.seen = { ...play.hints.seen, bouncer: false };
+      place(w, 140, 300, 0, 150);
+      const a = addEnemy(w, 'bouncer', 320, 180, Math.PI);
+      beginRoll(w, a);
+      const b = addEnemy(w, 'bouncer', 520, 300, Math.PI);
+      Object.assign(b, { state: 'roll', speed: 280, cd: 99 });
+      run(play, 30, { x: 1, y: 0, rip: false, bolt: false });
+      break;
+    }
+    case 'jets':
+      quiet(play);
+      giveBolted(w, 'jets');
+      play.hints.seen = { ...play.hints.seen, jets: false };
+      place(w, 300, 180, 0, 200);
+      run(play, 20, { x: 1, y: 0, rip: true, bolt: false });
+      break;
+    case 'leap': {
+      quiet(play);
+      giveBolted(w, 'jets');
+      const r = addRammer(w, 320, 140, Math.PI);
+      r.cd = 99;
+      place(w, 250, 140, 0, 230);
+      w.player.rev = w.t.burnTapTime;
+      run(play, 1, { x: 1, y: 0, rip: false, bolt: false });
+      run(play, 12);
+      break;
+    }
+    case 'springs':
+      quiet(play);
+      giveBolted(w, 'springs');
+      play.hints.seen = { ...play.hints.seen, springs: false };
+      place(w, 300, 40, -Math.PI / 2, 230);
+      run(play, 6, { x: 0, y: -1, rip: false, bolt: false });
+      break;
     case 'exits':
       w.wave.index = w.waves.length - 1;
       w.wave.phase = 'fight';
@@ -170,6 +226,8 @@ export function scene(app: App, name: SceneName) {
     case 'yard-lanes':
     case 'yard-pit':
     case 'yard-jaws':
+    case 'yard-hurdles':
+    case 'yard-pinball':
     case 'yard-heap':
       run(play, 240);
       break;

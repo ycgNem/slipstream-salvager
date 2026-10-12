@@ -252,6 +252,36 @@ export class Audio {
         this.tone(55, 'sine', { a: 0.002, d: 0.3 }, 0.35 * v, 0, 0.5);
         this.noise(0.3, 0.5 * v, 'lowpass', 900, 0.8);
         break;
+      // ---- the Hopper, the Bouncer and their parts ----
+      case 'hop':
+        // jets firing: a hiss and a rising whoop
+        this.noise(0.22, 0.3 * v, 'bandpass', 1600, 2, 0, 1.8);
+        this.tone(160, 'triangle', { a: 0.01, d: 0.25 }, 0.09 * v, 0, 2.8);
+        break;
+      case 'land':
+        // a heavy thud with a metal ring
+        this.tone(48, 'sine', { a: 0.002, d: 0.35 }, 0.4 * v, 0, 0.6);
+        this.noise(0.25, 0.45 * v, 'lowpass', 700, 0.8);
+        this.tone(260, 'square', { a: 0.001, d: 0.1 }, 0.05 * v, 0.01, 0.8);
+        break;
+      case 'leap':
+        this.noise(0.18, 0.3 * v, 'bandpass', 2000, 2, 0, 2);
+        this.tone(220, 'triangle', { a: 0.005, d: 0.2 }, 0.08 * v, 0, 2.4);
+        break;
+      case 'touchdown':
+        this.tone(70, 'sine', { a: 0.002, d: 0.2 }, 0.3 * v, 0, 0.6);
+        this.noise(0.15, 0.3 * v, 'lowpass', 1200);
+        break;
+      case 'roll':
+        // a ball bearing rumble
+        this.noise(0.5, 0.25 * v, 'lowpass', 500, 1, 0, 1.5);
+        this.tone(90, 'triangle', { a: 0.02, d: 0.45 }, 0.08 * v, 0, 1.3);
+        break;
+      case 'boing':
+        // a spring: a quick wobbly up-down
+        this.tone(330, 'triangle', { a: 0.002, d: 0.16 }, 0.09 * v, 0, 1.9);
+        this.tone(500, 'triangle', { a: 0.002, d: 0.1 }, 0.05 * v, 0.05, 0.7);
+        break;
       case 'cancel':
         this.tone(400, 'square', { a: 0.002, d: 0.12 }, 0.06 * v, 0, 0.4);
         break;

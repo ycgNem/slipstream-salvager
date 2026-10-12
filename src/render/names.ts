@@ -4,7 +4,7 @@ import { DIRS } from '../data/dirs';
 
 export const TIERS = ['crawl', 'cruise', 'slip'] as const;
 /** every part, in HUD slot order (rear, sides, front) */
-export const PART_NAMES = ['booster', 'treads', 'plow', 'jaws'] as const;
+export const PART_NAMES = ['booster', 'treads', 'plow', 'jaws', 'jets', 'springs'] as const;
 
 export function allSpriteNames(): string[] {
   const out: string[] = [];
@@ -20,6 +20,9 @@ export function allSpriteNames(): string[] {
     out.push(`en:rammer:skid:${d}`);
     for (const f of R(2)) out.push(`en:snapper:hunt:${d}:${f}`, `en:snapper:windup:${d}:${f}`, `en:snapper:snap:${d}:${f}`, `en:snapper:stunned:${d}:${f}`);
     out.push(`en:snapper:slide:${d}`);
+    for (const f of R(2)) out.push(`en:hopper:stalk:${d}:${f}`, `en:hopper:crouch:${d}:${f}`);
+    out.push(`en:hopper:air:${d}`, `en:hopper:land:${d}`);
+    for (const f of R(2)) out.push(`en:bouncer:idle:${d}:${f}`, `en:bouncer:windup:${d}:${f}`, `en:bouncer:roll:${d}:${f}`, `en:bouncer:stunned:${d}:${f}`);
     for (const part of PART_NAMES) out.push(`part:${part}:${d}`);
     for (const f of R(2)) out.push(`fx:plume:${d}:${f}`);
     for (const t of TIERS) for (const f of R(3)) out.push(`fx:slash:${t}:${d}:${f}`);
@@ -41,13 +44,14 @@ export function spriteSpec(name: string): { w: number; h: number; ox: number; oy
     case 'ob:pillar': return { w: 32, h: 40, ox: 0, oy: 8 };
     case 'ob:post': return { w: 16, h: 24, ox: 0, oy: 8 };
     case 'ob:tower': return { w: 48, h: 56, ox: 0, oy: 8 };
-    case 'en:snapper': return { w: 32, h: 32, ox: 16, oy: 20 };
+    case 'en:snapper': case 'en:bouncer': return { w: 32, h: 32, ox: 16, oy: 20 };
+    case 'en:hopper': return { w: 40, h: 40, ox: 20, oy: 26 };
     case 'ob:gate': return p[2] === 'h' ? { w: 32, h: 16, ox: 0, oy: 0 } : { w: 16, h: 32, ox: 0, oy: 0 };
     case 'pl:scrapper': return { w: 32, h: 32, ox: 16, oy: 20 };
     case 'en:rammer': return { w: 40, h: 40, ox: 20, oy: 26 };
-    case 'part:booster': case 'part:plow': case 'part:jaws': return { w: 16, h: 16, ox: 8, oy: 8 };
-    case 'part:treads': return { w: 32, h: 32, ox: 16, oy: 20 };
-    case 'pickup:booster': case 'pickup:treads': case 'pickup:plow': case 'pickup:jaws': return { w: 16, h: 16, ox: 8, oy: 12 };
+    case 'part:booster': case 'part:plow': case 'part:jaws': case 'part:jets': return { w: 16, h: 16, ox: 8, oy: 8 };
+    case 'part:treads': case 'part:springs': return { w: 32, h: 32, ox: 16, oy: 20 };
+    case 'pickup:booster': case 'pickup:treads': case 'pickup:plow': case 'pickup:jaws': case 'pickup:jets': case 'pickup:springs': return { w: 16, h: 16, ox: 8, oy: 12 };
     case 'icon:part': return { w: 16, h: 16, ox: 0, oy: 0 };
     case 'fx:plume': return { w: 16, h: 16, ox: 8, oy: 8 };
     case 'fx:slash': return { w: 32, h: 32, ox: 16, oy: 16 };
