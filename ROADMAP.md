@@ -7,7 +7,9 @@ call and why, `PROGRESS.md` what's built, `HANDOFF.md` where the last session st
 owner said M1 "looks good, continue as planned" (2026-10-12), which lifted the scope fence: M2 took
 the critic's open points as defaults, M3 (the short run, PLAN.md section 8) and M4 (the
 pixel-art-studio art) are built, and both reviews are fixed. M5: 0.2.0 is live on GitHub Pages
-(2026-10-12). The next milestone isn't planned yet: plan it from the owner's notes on 0.2.0.
+(2026-10-12). After 0.2.0 the owner said "looks good get started on next milestones so we can make
+this game more expansive" (2026-10-12): **M6-M9 are planned in PLAN.md section 9 and section 6
+below**, and M6 is being built.
 
 **How every session runs:** start with *"Read ROADMAP.md and HANDOFF.md"*, then paste the phase's
 prompt. Build the phase, deciding small things alone and logging them in `DECISIONS.md`. Run the
@@ -233,3 +235,33 @@ stop for the owner's playtest.
 5. No text overlaps (the overlap audit must report zero).
 6. No feature that would make sense unchanged in a stand-and-swing roguelike without a note in
    DECISIONS.md explaining how it serves the one thing.
+
+---
+
+## 6. The expansion: Milestones 6-9 (PLAN.md section 9)
+
+Planned 2026-10-12 after the owner asked to "make this game more expansive". Each milestone is
+built in phases, each a commit or a few, with the same checks as before: typecheck, every test,
+smoke, the screenshot sweep with zero overlaps, coverage. Each ends with the `qa-screens` and
+`indie-critic` agents and their fixes. New sprites are code-drawn first; the pixel-art-studio pass
+for them runs in background agents (in worktrees) while the next milestone is built, and goes in
+family by family when it beats the placeholder.
+
+- **M6 — New salvage** (PLAN.md 9.1-9.3).
+  - **6a — The Hopper and the Jump Jets.** Airborne bodies (the enemy's leap, your leap), the ring
+    telegraph, the landing slam as a hit by zone, stuck and stomp. Checks: unit tests (leap, ring,
+    slam, untouchable in the air, stuck, Cruise cancels the crouch, stripped), the player's leap
+    (over a charge unhurt, landing behind a Rammer tears its booster, the recoil).
+  - **6b — The Bouncer, the Springs and the Spring Rammer.** The roll with reflections, the bounce
+    stub on the telegraph, dizzy, the player's bounce off walls and bumps. Checks: unit tests and a
+    route test (a pinball line holds Slipstream with the Springs and doesn't without).
+  - **6c — The yards.** The Hurdles and The Pinball, the Heap's new waves, signs, hints, code art,
+    sounds, scenes. Checks: the run test plays all eight yards; signs clear of every wall.
+  - **6d — Verify.** Both agents, fixes, docs. Then the art agents start on the M6 sprites.
+- **M7 — Terrain** (PLAN.md 9.4): boost strips, oil, ramps, crusher plates, three yards. Detailed in
+  PLAN.md when it starts.
+- **M8 — The Compactor** (PLAN.md 9.5): the boss and the six-yard run.
+- **M9 — The Garage** (PLAN.md 9.6): two chassis, unlocks, the Log, the daily run.
+- **0.3.0** is published only when the owner says so (HANDOFF "Releasing").
+
+Prompt: *"Read ROADMAP.md, HANDOFF.md and PLAN.md section 9. Build the next unfinished phase."*

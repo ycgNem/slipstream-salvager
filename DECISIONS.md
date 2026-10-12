@@ -427,3 +427,18 @@ a number in the tuning panel, and the M1 rule is one setting away (given with ea
       deploy.yml --ref main`, run 38282185933, success). The live bundle has "0.2.0" and the
       service worker is `salvager-v2`.
 
+82. **The expansion plan, M6-M9** (2026-10-12; the owner after 0.2.0: "looks good get started on
+    next milestones so we can make this game more expansive"). PLAN.md section 9, ROADMAP section 6.
+    - **M6:** two enemies and two parts, so the rear and side mounts each have a second choice. The
+      Hopper (it leaps over cover and slams where it lands) gives the Jump Jets (hold Rip to crouch,
+      let go to leap over everything; the landing is a hit by zone). The Bouncer (rolls that
+      ricochet and speed up) gives the Springs (walls bounce you off at speed).
+    - **M7:** terrain that changes how every body moves (boost strips, oil, ramps, crusher plates).
+    - **M8:** a boss you take apart, The Compactor; its parts are its moves.
+    - **M9:** the Garage: chassis as movement models, unlocks of variety (never power), a log, a
+      daily seed.
+    - *Why:* "more expansive" read as more build variety (RoR2, the plan's feel reference), more
+      yards that play differently, a climax and reasons to replay, each held to the removal test.
+      A scrolling camera, currency, shops and stat upgrades stay out.
+    - Each milestone's new sprites are code-drawn first, then drawn with pixel-art-studio in
+      background agents while the next milestone is built. Publishing 0.3.0 waits for the owner.

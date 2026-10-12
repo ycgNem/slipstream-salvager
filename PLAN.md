@@ -452,3 +452,138 @@ bolted on.
 
 A boss, more than two enemy types, currency, shops, meta-progression between runs, healing beyond
 the yard patch, story, a map screen, key rebinding in the UI and the art overhaul (M4).
+
+---
+
+## 9. The expansion (Milestones 6-9)
+
+Written 2026-10-12 after 0.2.0 went live. The owner: "looks good get started on next milestones so
+we can make this game more expansive". So the game grows in four milestones, each held to the
+removal test like everything before it:
+
+| | What grows | Why it passes the removal test |
+|---|---|---|
+| **M6** | Two new enemies and two new parts, a second choice on the rear and side mounts, two new yards | Each part changes a verb (what holding Rip does, what a wall does to you), and each comes off an enemy that visibly moves that way |
+| **M7** | Terrain: boost strips, oil slicks, jump ramps and crusher plates; three new yards | The floor changes how everything moves, so a yard's layout is a set of lines, not just obstacles |
+| **M8** | A boss you dismantle, The Compactor, at the end of a six-yard run | Its parts are its moves: tear one off and that move is gone, and it's yours to bolt on mid-fight |
+| **M9** | The Garage: two more chassis, unlocks, a log of what you've met | A chassis is a different movement model, not a stat bonus; unlocks add variety, never power |
+
+The art for each milestone's new sprites is code-drawn first (at the final names and sizes) and
+then drawn with the pixel-art-studio skill by background agents while the next milestone is built.
+A public release (0.3.0) happens only when the owner says so.
+
+**Still out, on purpose:** a scrolling camera (one screen is a pillar), currency and shops, stat
+upgrades, healing beyond the yard patch, story.
+
+### 9.1 M6: the Hopper and the Jump Jets
+
+**The Hopper.** A squat scrap frog with jump jets on its back. The Rammer punishes straight lines and
+the Snapper punishes stopping; the Hopper punishes **hiding**: it leaps over pillars and walls, so
+cover doesn't save you, and it punishes **loitering where it will land**.
+
+- Radius 10, **HP 3**, front armored (1), side 2, back 4 or the tear, like the Rammer.
+- **Stalks** slowly (30 px/s), turning to face you (5 rad/s).
+- **The leap:** when you're 70-220 px away, it crouches for 0.6 s. A **red ring** (radius 28) is
+  painted on the floor where it will land: it tracks the point you'll be at (the Rammer's lead) for
+  0.35 s, then locks for 0.25 s. Then it leaps: 0.55 s in the air, over everything (bodies, pillars,
+  low walls; never out of the arena). While airborne it can't be hit and touches nothing. It lands
+  with a **slam**: anyone inside the ring takes a hit, loose parts there are crushed, and other
+  enemies are shoved out.
+- **Stuck:** after landing it's stuck for 1.0 s, legs buried, steaming: the opening. Its back glints.
+- **Too close** (under 70 px): it stomps where it stands instead (0.45 s crouch, a ring of 30 round
+  itself, locked at once, a little hop and a slam). Lingering by it is punished.
+- At most two Hoppers crouch at once. A Cruise hit cancels a crouch, like any windup.
+- **Its Jump Jets come off from behind** (a Slipstream hit in its back, best while it's stuck).
+  Stripped, it can't leap: it waddles (25 px/s) and only stomps.
+
+**The Jump Jets** (rear; from the Hopper). They replace what holding Rip does, so they and the
+Booster are the rear mount's two choices.
+
+- A tap is still a plain Rip. **Hold Rip to crouch:** you keep your speed (no thrust, no coasting)
+  and steer at half rate, and a **teal ring** shows where you'll land: ahead of you, your speed ×
+  the air time.
+- **Let go to leap:** 0.4 s in the air along your heading (at least 120 px/s, so a standing leap
+  still clears a lane). In the air you can't steer, and nothing can touch you: charges, snaps, bites
+  and slams pass under you, and you sail over pillars and low walls (never the ring wall).
+- **The landing is a hit:** every enemy within 24 px of where you land takes a hit at your tier (the
+  tier you leapt at), on the zone you land on. Land behind a Rammer and you tear its booster off.
+- **Inherited weakness:** the landing sticks you, like the Hopper. For 0.25 s you have no control and
+  lose 15% of your speed, and you can't leap again for 0.5 s after landing.
+- The line it gives you: over the top. The Booster goes *through* a lane, the jets go *over* it.
+
+### 9.2 M6: the Bouncer and the Springs
+
+**The Bouncer.** A round pinball of a bot in a ring of coil springs. It punishes **standing in a
+lane you can't see the end of**: its rolls bounce off walls and pillars and come back faster.
+
+- Radius 9, **HP 2**. It faces the way it rolls; front 1 (glances), side 2, back 4.
+- **Drifts** toward you slowly (40 px/s) between rolls.
+- **The roll:** within 260 px and in sight, it winds up for 0.6 s: a red lane to the first wall or
+  pillar, **plus the first bounce's stub** (60 px), tracking for 0.35 s, locked for 0.25 s. Then it
+  rolls at 230 px/s. Each wall or pillar it hits **reflects** it and adds 30 px/s (up to 330). After
+  3 bounces or 2.4 s it slows to a stop and is **dizzy** for 0.9 s: the opening.
+- A rolling Bouncer is a lunge: touching it is a hit, a joust stops it, a Plow blocks it, it crushes
+  loose parts. At most two wind up at once.
+- **Its Springs come off from the side** (or the back): cut across its roll at Slipstream, or hit it
+  while it's dizzy. Stripped, its first wall stops it dead, stunned for 1.0 s.
+- Bouncing off another enemy puts both into recovery, like a charge.
+
+**The Springs** (sides; from the Bouncer). They change what walls do to you, so they and the Grip
+Treads are the side mount's two choices.
+
+- A **head-on hit on a wall or pillar bounces you off** instead of clanking: you keep all your speed
+  plus 25 px/s (up to 330). A Rip or a Burn that hits a wall bounces and **keeps going** on the new
+  line; the Booster's wall stun is gone (the springs take it).
+- Bumping an enemy outside a Rip bounces you off at full speed (instead of losing 60%), but it still
+  starts its quick windup.
+- **Inherited weakness:** springy, not grippy. Turning ×0.85 at speed and turn scrub starts at ×0.8
+  the sideways pull: you corner badly, and the walls are how you turn.
+- The line it gives you: the bank shot. The treads turn round anywhere; the springs need a wall.
+
+**Spring Rammer** (a variant): a Rammer with Springs on its sides. Its charge bounces off the first
+wall or pillar and carries on for the rest of its length. Its springs tear from the side.
+
+### 9.3 M6: the yards
+
+| Yard | Layout | Salvage | Waves (at depth 2) |
+|---|---|---|---|
+| **The Hurdles** | rows of short low walls (hurdles) | Jump Jets | 2 Hoppers; 2 Hoppers + 1 Snapper; 3 Hoppers + 1 Rammer |
+| **The Pinball** | a diamond of pillars and posts (bumpers) | Springs | 2 Bouncers; 3 Bouncers; 2 Bouncers + Spring Rammer + 1 Snapper |
+
+The middle pool is now six yards; a run still visits three of them, two choices at each exit. The
+Heap gains a Hopper in its first wave and a Bouncer and a Spring Rammer in its last, and its sign
+says "ALL SIX PARTS". Each new enemy and part gets one hint.
+
+### 9.4 M7: terrain (outline; detailed when M7 starts)
+
+Floor features that change how **every** body moves, drawn on the floor under everything:
+- **Boost strips** (teal chevrons): driving over one roughly along its arrow lifts you to Slipstream
+  (and a Snapper or Bouncer too). Yards get fast lines you can plan round.
+- **Oil slicks:** no grip. On oil you can't steer, thrust or brake; you keep your line. A charging
+  Rammer that hits oil slides further; a Snapper on oil can't turn.
+- **Jump ramps:** drive over one at Cruise or faster and you're airborne for a moment (the Jump
+  Jets' air, without the slam).
+- **Crusher plates** (danger red): every few seconds a plate flashes, then slams. Whatever is on it
+  takes a hit, enemies included: bait a charge onto one.
+- Three new yards built round them (for example *The Slick*, *The Ramps*, *The Press*), and the
+  middle pool grows to nine.
+
+### 9.5 M8: The Compactor and a six-yard run (outline)
+
+- **The Compactor:** a boss 64 px across that wears a Plow (front), Springs (sides) and a Booster
+  (rear). Each part is one of its moves: the Booster gives it a huge charge, the Springs make the
+  charge ricochet, the Plow makes its front take nothing and block. Tear a part off and that move is
+  gone, and the part is yours to bolt on mid-fight. Once all three are off its core opens and it
+  stomps like a Hopper; three hits to its back finish it.
+- It calls in a Snapper or two through the gates every so often, so you're never without spares.
+- The run becomes six yards: The Ring, three middle yards, The Heap, then The Compactor's yard.
+
+### 9.6 M9: The Garage (outline)
+
+- **Two more chassis**, each its own movement model (the removal test: different lines, not bigger
+  numbers): the **Skiff** (light: faster, turns tighter, 3 hull, parts weigh it down more) and the
+  **Hauler** (heavy: slower to build speed, 7 hull, bumps shove enemies like a Cruise hit).
+- **Unlocks** by playing (clear a run, tear 25 parts off, joust 10 charges...): chassis and run
+  modifiers. Never stat upgrades.
+- **The Log:** every enemy and part you've met, with its line.
+- **Daily run:** one seed a day, the same for everyone.
