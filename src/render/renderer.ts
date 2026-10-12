@@ -12,10 +12,9 @@ import { drawSprite, sprite } from './atlas';
 import { makeCanvas, ctx2d } from './art/pixel';
 import { crack, dot, floorRing, lane, outline, pline, ring, silhouette } from './pixgeom';
 import type { Fx } from './fx';
-import { laneOf } from '../sim/enemies';
-import { chargeLength } from '../sim/rammer';
+import { chargeLenOf, laneOf } from '../sim/enemies';
 import { crouched, landingPoint, revving } from '../sim/rip';
-import { hopProgress, slamRadius } from '../sim/hopper';
+import { hopProgress, leapSpec, slamRadius } from '../sim/hopper';
 import { FLOOR_ANGLE, laneLength, reflectAt } from '../sim/arena';
 import { crusherState } from '../sim/terrain';
 import { airborne, type Enemy, type World } from '../sim/world';
@@ -106,6 +105,18 @@ function dirOfFace(a: number): number {
 /** An enemy's body sprite name this frame. */
 export function enemySprite(r: Enemy, time: number): string {
   const d = DIRS[dirOfFace(r.face)];
+  if (r.kind === 'compactor') {
+    const f = Math.floor(time * (r.state === 'charge' ? 12 : r.state === 'windup' ? 12 : 4)) % 2;
+    switch (r.state) {
+      case 'windup': return r.leap ? `bo:compactor:crouch:${d}:${f}` : `bo:compactor:windup:${d}:${f}`;
+      case 'charge': return `bo:compactor:charge:${d}:${f}`;
+      case 'skid': return `bo:compactor:skid:${d}`;
+      case 'stunned': return `bo:compactor:stunned:${d}:${f}`;
+      case 'air': return `bo:compactor:air:${d}`;
+      case 'land': return `bo:compactor:land:${d}`;
+      default: return `bo:compactor:stalk:${d}:${r.speed > 5 ? f : 0}`;
+    }
+  }
   if (r.kind === 'hopper') {
     switch (r.state) {
       case 'windup': return `en:hopper:crouch:${d}:${Math.floor(time * 12) % 2}`;
@@ -148,19 +159,19 @@ export function enemySprite(r: Enemy, time: number): string {
  */
 function tearable(r: Enemy, part: PartId): boolean {
   switch (part) {
-    case 'booster': return r.state === 'skid' || r.state === 'charge' || (r.state === 'windup' && r.locked);
+    case 'booster': return r.state === 'skid' || r.state === 'stunned' || r.state === 'charge' || (r.state === 'windup' && r.locked);
     case 'plow': return r.state === 'charge';
     case 'treads': return r.state === 'slide' || r.state === 'stunned';
     case 'jaws': return r.state === 'windup' || r.state === 'stunned';
     case 'jets': return r.state === 'land' || r.state === 'stunned';
-    case 'springs': return r.kind === 'bouncer' ? r.state === 'roll' || r.state === 'stunned' : r.state === 'charge' || r.state === 'skid';
+    case 'springs': return r.kind === 'bouncer' ? r.state === 'roll' || r.state === 'stunned' : r.state === 'charge' || r.state === 'skid' || r.state === 'stunned';
   }
 }
 
 /** How high an enemy is drawn off the floor (a Hopper's leap): an arc over the flight. */
 function liftOf(w: World, r: Enemy): number {
   if (!airborne(r)) return 0;
-  return Math.round(Math.sin(Math.PI * hopProgress(w, r)) * (r.stomp ? w.t.hopHeight * 0.35 : w.t.hopHeight));
+  return Math.round(Math.sin(Math.PI * hopProgress(w, r)) * leapSpec(w, r).height);
 }
 
 /** How high you're drawn off the floor on a Jump Jets leap. */
@@ -169,9 +180,9 @@ function playerLift(w: World): number {
   return A ? Math.round(Math.sin(Math.PI * Math.min(1, A.t / A.dur)) * w.t.leapHeight) : 0;
 }
 
-const SHADOW: Record<Enemy['kind'], string> = { rammer: 'fx:shadow:l', hopper: 'fx:shadow:l', snapper: 'fx:shadow:m', bouncer: 'fx:shadow:m' };
+const SHADOW: Record<Enemy['kind'], string> = { rammer: 'fx:shadow:l', hopper: 'fx:shadow:l', snapper: 'fx:shadow:m', bouncer: 'fx:shadow:m', compactor: 'fx:shadow:xl' };
 /** where the stun stars sit above each kind's anchor */
-const STARS_Y: Record<Enemy['kind'], number> = { rammer: 22, hopper: 20, snapper: 16, bouncer: 20 };
+const STARS_Y: Record<Enemy['kind'], number> = { rammer: 22, hopper: 20, snapper: 16, bouncer: 20, compactor: 42 };
 
 export interface DrawOpts {
   time: number;
@@ -194,9 +205,9 @@ export function drawWorld(ctx: Ctx, w: World, fx: Fx, o: DrawOpts) {
   // telegraphs: under bodies, over the floor
   for (const r of w.enemies) {
     const hot = Math.floor(o.time * 12) % 2 === 0;
-    if (r.kind === 'hopper') {
-      // where it will land: a ring, dashed while it tracks you, solid and flashing once locked and
-      // all through the flight
+    if (r.leap || r.state === 'air') {
+      // where it will land (a Hopper, or The Compactor with its core open): a ring, dashed while it
+      // tracks you, solid and flashing once locked and all through the flight
       if (r.state !== 'windup' && r.state !== 'air') continue;
       const R = slamRadius(w, r);
       if (r.locked || r.state === 'air') floorRing(ctx, r.tx, r.ty, R, hot ? C.danger3 : C.danger2, C.danger1, { density: 4 });
@@ -215,7 +226,7 @@ export function drawWorld(ctx: Ctx, w: World, fx: Fx, o: DrawOpts) {
     // on springs the lunge bounces off the wall it meets: the first bounce's stub shows where it
     // comes back (a Bouncer's roll; a Spring Rammer's charge, for the rest of its length), dim and
     // dashed so a near head-on bounce doesn't tangle with the lane
-    const rest = r.kind === 'bouncer' ? w.t.rollStub : r.kind === 'rammer' && !r.shove ? (r.locked ? r.chargeLen : chargeLength(w, r)) - l.len : 0;
+    const rest = r.kind === 'bouncer' ? w.t.rollStub : r.kind !== 'snapper' && !r.shove ? chargeLenOf(w, r) - l.len : 0;
     if (r.parts.sides === 'springs' && rest > 8) {
       const ex = r.x + Math.cos(l.angle) * l.len, ey = r.y + Math.sin(l.angle) * l.len;
       const a2 = reflectAt(w.arena, ex, ey, l.angle, rr);
@@ -289,31 +300,33 @@ function drawMounted(ctx: Ctx, name: string, x: number, y: number, m: MountPos, 
 
 function drawEnemy(ctx: Ctx, r: Enemy, fx: Fx, time: number, lift = 0) {
   const d = dirOfFace(r.face), dn = DIRS[d];
-  const shake = r.state === 'windup' ? (Math.floor(time * 30) % 2 ? 1 : -1) * (r.locked || r.kind === 'hopper' ? 1 : 0) : 0;
+  const shake = r.state === 'windup' ? (Math.floor(time * 30) % 2 ? 1 : -1) * (r.locked || r.leap ? 1 : 0) : 0;
   const x = Math.round(r.x) + shake, y = Math.round(r.y) - lift;
   const name = enemySprite(r, time);
   const blink = Math.floor(time * 10) % 2 === 0;
-  const rm = rearMount(d, MOUNT_DIST[r.kind]);
+  // The Compactor wears its parts at 2x (`bo:part:*`), bolted higher up its hull
+  const boss = r.kind === 'compactor', pre = boss ? 'bo:part' : 'part';
+  const rm = rearMount(d, MOUNT_DIST[r.kind], boss ? 7 : 3);
   // the Snapper's head lunges 3 px out on a snap and dips 1 px in its windup and when stunned,
   // and the jaws stay on it
   const fm = r.kind !== 'snapper'
-    ? frontMount(d, FRONT_DIST[r.kind])
+    ? frontMount(d, FRONT_DIST[r.kind], boss ? 7 : 3)
     : frontMount(d, FRONT_DIST.snapper + (r.state === 'snap' ? 3 : 0), r.state === 'windup' || r.state === 'stunned' ? 2 : 3);
   const rear = () => {
     const part = r.parts.rear;
     if (!part) return;
     // the flame shares the booster's anchor and goes under it (it starts at the nozzle); the jets
     // fire on take-off and in the air
-    if ((part === 'booster' && r.state === 'charge') || (part === 'jets' && (r.state === 'air' || (r.state === 'windup' && r.locked)))) drawSprite(ctx, sprite(`fx:plume:${dn}:${Math.floor(time * 20) % 2}`), x + rm.dx, y + rm.dy);
-    drawMounted(ctx, `part:${part}:${dn}`, x, y, rm, tearable(r, part) && blink, false);
+    if ((part === 'booster' && r.state === 'charge') || (part === 'jets' && (r.state === 'air' || (r.state === 'windup' && r.locked)))) drawSprite(ctx, sprite(`${boss ? 'bo' : 'fx'}:plume:${dn}:${Math.floor(time * 20) % 2}`), x + rm.dx, y + rm.dy);
+    drawMounted(ctx, `${pre}:${part}:${dn}`, x, y, rm, tearable(r, part) && blink, false);
   };
   const front = () => {
     const part = r.parts.front;
-    if (part) drawMounted(ctx, `part:${part}:${dn}`, x, y, fm, tearable(r, part) && blink, false);
+    if (part) drawMounted(ctx, `${pre}:${part}:${dn}`, x, y, fm, tearable(r, part) && blink, false);
   };
   // the treads go under the body, sticking out either side
   // a Rammer's hull is wider: its springs are the wide pair
-  const sideName = r.parts.sides === 'springs' && r.kind === 'rammer' ? `part:bigsprings:${dn}` : `part:${r.parts.sides}:${dn}`;
+  const sideName = r.parts.sides === 'springs' && r.kind === 'rammer' ? `part:bigsprings:${dn}` : `${pre}:${r.parts.sides}:${dn}`;
   if (r.parts.sides) drawMounted(ctx, sideName, x, y, { dx: 0, dy: 0, behind: true }, tearable(r, r.parts.sides) && blink, false);
   if (rm.behind) rear();
   if (fm.behind) front();

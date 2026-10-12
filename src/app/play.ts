@@ -285,6 +285,13 @@ export class Play {
         a.sfx('land', 0.8, 0.8);
         break;
       case 'pressed': break;
+      case 'call': {
+        // The Compactor calls a Snapper in: a horn, and a word over it
+        const b = this.world.enemies.find((q) => q.id === e.id);
+        if (b) fx.text(b.x, b.y - 46, 'CALLS FOR HELP', C.mist);
+        a.sfx('wave', 0.7, 0.6);
+        break;
+      }
       case 'boing':
         fx.sparks(e.x, e.y, 4, 0, Math.PI * 2, 70);
         a.sfx('boing', e.id === undefined ? 1 : 0.6);
@@ -317,6 +324,13 @@ export class Play {
         a.sfx('tear');
         break;
       case 'wreck':
+        if (e.kind === 'compactor') {
+          // the boss comes apart: a bigger burst, smoke and a long shake
+          fx.dots(e.x, e.y, 40, [C.steel1, C.steel3, C.violet, C.mist, C.white], 220, 1.0);
+          fx.sparks(e.x, e.y, 24, 0, Math.PI * 2, 200);
+          for (let i = 0; i < 10; i++) fx.puff('smoke', e.x + ((i % 5) - 2) * 8, e.y - 8, ((i % 5) - 2) * 10, -20, 1.2);
+          fx.addShake(8);
+        }
         fx.dots(e.x, e.y, 24, [C.steel0, C.steel1, C.steel2, C.violet, C.mist], 160, 0.7);
         fx.sparks(e.x, e.y, 10);
         for (let i = 0; i < 5; i++) fx.puff('smoke', e.x, e.y - 4, 0, -14, 0.8);
@@ -377,7 +391,7 @@ export class Play {
       case 'bolt-cancel': a.sfx('bolt_cancel'); break;
       case 'wave': {
         const r = this.run, y = YARDS[r.yard], last = e.n === this.world.waves.length;
-        if (e.n === 1) fx.showBanner(y.name, r.yard === 'ring' ? 'TEAR OFF A BOOSTER, BOLT IT ON' : `YARD ${r.depth} OF ${RUN_LENGTH}`, this.world.t.bannerTime + 0.4);
+        if (e.n === 1) fx.showBanner(y.name, r.yard === 'ring' ? 'TEAR OFF A BOOSTER, BOLT IT ON' : r.yard === 'compactor' ? 'THE LAST YARD - TAKE IT APART' : `YARD ${r.depth} OF ${RUN_LENGTH}`, this.world.t.bannerTime + 0.4);
         else fx.showBanner(`WAVE ${e.n}`, last ? 'LAST WAVE' : '', this.world.t.bannerTime);
         a.sfx('wave');
         break;
@@ -515,7 +529,7 @@ export class Play {
     const x = 200, y = 60, pw = 240, ph = 236;
     ui.panel(x, y, pw, ph, 'dark');
     ui.text(won ? 'RUN CLEARED' : 'SCRAPPED', x + pw / 2, y + 10, won ? C.white : C.mist, { align: 'center', scale: 2 });
-    ui.text(won ? 'ALL FIVE YARDS' : `IN ${YARDS[r.yard].name}, YARD ${r.depth} OF ${RUN_LENGTH}`, x + pw / 2, y + 30, C.mist, { align: 'center' });
+    ui.text(won ? 'ALL SIX YARDS - COMPACTOR WRECKED' : `IN ${YARDS[r.yard].name}, YARD ${r.depth} OF ${RUN_LENGTH}`, x + pw / 2, y + 30, C.mist, { align: 'center' });
     const secs = T.ticks / 60;
     const rows: [string, string][] = [
       ['TIME', `${Math.floor(secs / 60)}:${String(Math.floor(secs % 60)).padStart(2, '0')}`],

@@ -4,13 +4,13 @@
 import { C } from '../data/palette';
 import { MOUNTS } from '../data/mounts';
 import type { PartId } from '../data/parts';
-import type { World } from '../sim/world';
+import { hasAnyPart, type World } from '../sim/world';
 import { onOil } from '../sim/arena';
 import type { SimEvent } from '../sim/events';
 import type { UI } from './ui';
 import { textWidth } from './font';
 
-export type HintId = 'speed' | 'tear' | 'bolt' | 'burn' | 'exit' | 'treads' | 'plow' | 'jaws' | 'snapper' | 'plowfoe' | 'jawfoe' | 'jets' | 'springs' | 'hopper' | 'bouncer' | 'boost' | 'oil' | 'ramp' | 'crusher';
+export type HintId = 'speed' | 'tear' | 'bolt' | 'burn' | 'exit' | 'treads' | 'plow' | 'jaws' | 'snapper' | 'plowfoe' | 'jawfoe' | 'jets' | 'springs' | 'hopper' | 'bouncer' | 'boost' | 'oil' | 'ramp' | 'crusher' | 'boss';
 
 /** a hint about a part you've bolted on, by part */
 const PART_HINT: Record<PartId, HintId> = { booster: 'burn', treads: 'treads', plow: 'plow', jaws: 'jaws', jets: 'jets', springs: 'springs' };
@@ -45,6 +45,8 @@ export class Hints {
       if (e.part === 'jets') this.done('hopper');
       if (e.part === 'springs') this.done('bouncer');
     }
+    // the boss hint goes once you've torn something off it
+    if (e.k === 'tear' && this.current === 'boss') this.done('boss');
     if (e.k === 'leap' && !e.ramp) this.done('jets');
     if (e.k === 'leap' && e.ramp) this.done('ramp');
     if (e.k === 'boost') this.done('boost');
@@ -80,6 +82,7 @@ export class Hints {
       : !s.boost && floor('boost') ? 'boost'
       : !s.oil && floor('oil') ? 'oil'
       : !s.ramp && floor('ramp') ? 'ramp'
+      : !s.boss && w.enemies.some((e) => e.kind === 'compactor' && e.state !== 'enter' && hasAnyPart(e)) ? 'boss'
       : !s.crusher && floor('crusher') && w.enemies.length ? 'crusher'
       : !s.plowfoe && foes('plow') ? 'plowfoe'
       : !s.jawfoe && foes('jaws') ? 'jawfoe'
@@ -118,6 +121,7 @@ export class Hints {
       oil: 'NO GRIP ON OIL - LINE UP BEFORE YOU HIT IT',
       ramp: 'HIT A RAMP AT SPEED TO JUMP THE WALL',
       crusher: 'LURE THEM ONTO THE PLATES BEFORE THEY SLAM',
+      boss: 'EACH PART IS ONE OF ITS MOVES - TEAR THEM OFF',
     };
     const text = TEXT[this.current];
     const speedy = ['speed', 'burn', 'treads', 'plow', 'jaws', 'jets', 'springs', 'boost', 'ramp'].includes(this.current);

@@ -588,15 +588,34 @@ New yards (the middle pool becomes nine):
 | **The Jumps** | three low walls across the yard with a ramp in front of each, both ways | Booster, Jump Jets | 2 Rammers; 1 Rammer + 1 Hopper; 2 Rammers + 2 Hoppers |
 | **The Press** | a grid of six crusher plates, posts at the corners | Plow, Booster | 1 Plow Rammer + 1 Rammer; 2 Rammers + 1 Snapper; 2 Plow Rammers + 2 Snappers |
 
-### 9.5 M8: The Compactor and a six-yard run (outline)
+### 9.5 M8: The Compactor and a six-yard run
 
-- **The Compactor:** a boss 64 px across that wears a Plow (front), Springs (sides) and a Booster
-  (rear). Each part is one of its moves: the Booster gives it a huge charge, the Springs make the
-  charge ricochet, the Plow makes its front take nothing and block. Tear a part off and that move is
-  gone, and the part is yours to bolt on mid-fight. Once all three are off its core opens and it
-  stomps like a Hopper; three hits to its back finish it.
-- It calls in a Snapper or two through the gates every so often, so you're never without spares.
-- The run becomes six yards: The Ring, three middle yards, The Heap, then The Compactor's yard.
+**The Compactor** is the run's last yard: a boss you take apart. It's a crusher truck 64 px across
+(radius 20, **HP 18**) that wears three parts, and **each part is one of its moves**:
+
+| Part (mount) | Its move | How it comes off | Without it |
+|---|---|---|---|
+| **Booster** (rear) | a huge charge: a 1.0 s windup (tracks 0.6 s, locks 0.4 s), a 40 px lane, 300 px/s, running 140 px past you (260-460) | a Slipstream hit in its back (best while it skids) | it can't charge; it shoves (0.6 s windup, 90 px) |
+| **Springs** (sides) | its charge **bounces** off walls and pillars, twice, and carries on | a Slipstream hit on its side (or its back once the booster's gone) | a charge into a wall stops it dead, **stunned 1.8 s** |
+| **Plow** (front) | its front takes nothing ("CLANG") | **only a joust**: a Slipstream Rip into its charging (or shoving) front | its front glances for 1 |
+
+- Like every enemy, a hit on a zone with a part tears the part (no damage) and your claw keeps it:
+  **you can bolt the boss's own parts on mid-fight.** A zone whose part is gone takes damage as
+  usual: front 1, side 2, back 4.
+- It's slow (40 px/s) and turns slowly (3 rad/s), so a fast circle gets behind it, but its charge
+  reads your line like the Rammer's. After a charge it skids for 1.2 s, back open.
+- **Core open:** with all three parts off it can only **leap like a Hopper**: a 0.8 s crouch with a
+  ring of 44 that tracks you then locks, 0.7 s in the air, a slam, stuck 1.6 s. The shockwave rule
+  holds (a near miss lifts you to Slipstream).
+- **It calls for help:** every 16 s, if fewer than two others are in the yard, a Snapper comes in
+  through the farthest gate. More spares, and more trouble.
+- The yard: **The Compactor**, an open floor round two pillars (to bounce off and to hide behind)
+  with a crusher plate in each corner. The plates hit it too.
+- A boss bar on the top wall band, left of the north gate: its name and a pip per hull point.
+- It ploughs through other enemies: a charge that meets one makes *it* recoil, not the boss.
+
+**The run becomes six yards:** The Ring, three middle yards (from nine), The Heap, The Compactor.
+The Heap has one exit, to the Compactor. Clearing it wins the run.
 
 ### 9.6 M9: The Garage (outline)
 

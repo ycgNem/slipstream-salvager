@@ -11,7 +11,8 @@ import { hitPlayer } from './salvage';
 import { beginSnap, snapping, thinkSnapper } from './snapper';
 import { beginCrouch, crouching, thinkHopper } from './hopper';
 import { beginRoll, hasSprings, rollingUp, thinkBouncer } from './bouncer';
-import { airborne, DT, radiusOf, tierOf, type Enemy, type World } from './world';
+import { beginBossWindup, bossChargeLength, thinkCompactor } from './compactor';
+import { airborne, DT, hasAnyPart, radiusOf, tierOf, type Enemy, type World } from './world';
 
 const deg = (d: number) => (d * Math.PI) / 180;
 
@@ -28,6 +29,7 @@ export function updateEnemies(w: World) {
       dir = e.face;
     } else if (e.kind === 'hopper') ({ speed, dir } = thinkHopper(w, e));
     else if (e.kind === 'bouncer') ({ speed, dir } = thinkBouncer(w, e));
+    else if (e.kind === 'compactor') ({ speed, dir } = thinkCompactor(w, e));
     else ({ speed, dir } = thinkSnapper(w, e));
     if (oil && (e.state === 'stalk' || e.state === 'hunt')) {
       // on oil it can't turn (PLAN.md 9.4): it keeps the line it came in on
@@ -58,7 +60,7 @@ export function updateEnemies(w: World) {
       e.x += c.nx * c.depth;
       e.y += c.ny * c.depth;
       const into = -(Math.cos(dir) * c.nx + Math.sin(dir) * c.ny);
-      if (lunging(e) && into > 0.05 && springy(e)) {
+      if (lunging(e) && into > 0.05 && springy(w, e)) {
         const fx = Math.cos(e.face), fy = Math.sin(e.face), fn = fx * c.nx + fy * c.ny;
         e.face = Math.atan2(fy - 2 * fn * c.ny, fx - 2 * fn * c.nx);
         dir = e.face;
@@ -70,7 +72,8 @@ export function updateEnemies(w: World) {
       if (lunging(e) && into > 0.3) {
         w.events.push({ k: 'slam', id: e.id, x: e.x - c.nx * rr, y: e.y - c.ny * rr });
         if (e.kind === 'rammer') toSkid(w, e, true);
-        else stunEnemy(w, e, 0.8);
+        // The Compactor without its springs stops dead: the big opening
+        else stunEnemy(w, e, e.kind === 'compactor' ? t.bossWallStun : 0.8);
       } else if (e.kind === 'snapper' && into > 0.3) e.speed *= 0.6;
     }
   }
@@ -78,10 +81,15 @@ export function updateEnemies(w: World) {
   separate(w);
 }
 
-/** Does this lunge bounce off walls? A Bouncer's roll on its springs; a Spring Rammer's charge, once. */
-function springy(e: Enemy): boolean {
+/**
+ * Does this lunge bounce off walls? A Bouncer's roll on its springs; a Spring Rammer's charge, once;
+ * The Compactor's charge, bossBounces times.
+ */
+function springy(w: World, e: Enemy): boolean {
   if (!hasSprings(e)) return false;
-  return e.kind === 'bouncer' || (e.kind === 'rammer' && e.state === 'charge' && !e.shove && e.bounces < 1);
+  if (e.kind === 'bouncer') return true;
+  if (e.state !== 'charge' || e.shove) return false;
+  return e.kind === 'rammer' ? e.bounces < 1 : e.kind === 'compactor' && e.bounces < w.t.bossBounces;
 }
 
 /** A lunge runs over loose parts and crushes them (DECISIONS #58). */
@@ -113,7 +121,8 @@ function separate(w: World) {
       for (const e of [a, b]) Object.assign(e, pushOut(w.arena, e.x, e.y, radiusOf(w, e)));
       if (lunging(a) || lunging(b)) {
         w.events.push({ k: 'slam', id: a.id, x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
-        for (const e of [a, b]) recoil(w, e, lunging(e));
+        // The Compactor ploughs on through: only the other one recoils
+        for (const e of [a, b]) if (e.kind !== 'compactor') recoil(w, e, lunging(e));
       }
     }
 }
@@ -128,8 +137,15 @@ function recoil(w: World, e: Enemy, slammed: boolean) {
 export function laneOf(w: World, r: Enemy): { angle: number; len: number; width: number } {
   const t = w.t, rr = radiusOf(w, r);
   // a Bouncer's roll runs to the first wall (and bounces on: the renderer adds the stub)
-  const max = r.kind === 'bouncer' ? 640 : r.kind === 'snapper' ? t.snapDist : r.shove ? t.shoveDist : r.locked ? r.chargeLen : chargeLength(w, r);
+  const max = r.kind === 'bouncer' ? 640 : r.kind === 'snapper' ? t.snapDist : chargeLenOf(w, r);
   return { angle: r.face, len: laneLength(w.arena, r.x, r.y, r.face, max, rr), width: rr * 2 };
+}
+
+/** How far a Rammer's (or The Compactor's) charge or shove runs: fixed once its lane locks. */
+export function chargeLenOf(w: World, r: Enemy): number {
+  const t = w.t, boss = r.kind === 'compactor';
+  if (r.shove) return boss ? t.bossShoveDist : t.shoveDist;
+  return r.locked ? r.chargeLen : boss ? bossChargeLength(w, r) : chargeLength(w, r);
 }
 
 /** Is this enemy in front of the player, within the Plow's cone? */
@@ -203,6 +219,7 @@ export function resolveContacts(w: World) {
       if (springs) w.events.push({ k: 'boing', x: r.x + nx * rr, y: r.y + ny * rr });
       if (w.result) continue;
       if (r.kind === 'rammer' && r.state === 'stalk' && windingUp(w) < t.maxWindups) beginWindup(w, r, true);
+      if (r.kind === 'compactor' && r.state === 'stalk' && hasAnyPart(r)) beginBossWindup(w, r, true);
       if (r.kind === 'snapper' && r.state === 'hunt' && r.cd <= 0 && snapping(w) < t.maxSnaps) beginSnap(w, r);
       if (r.kind === 'bouncer' && r.state === 'stalk' && r.cd <= 0 && rollingUp(w) < t.maxRolls) beginRoll(w, r);
       // a Hopper you bump stomps where it stands
@@ -217,11 +234,11 @@ export function resolveContacts(w: World) {
  */
 export function checkDrafts(w: World) {
   const p = w.player, t = w.t;
-  if (p.invuln > 0 || p.knock > 0 || p.stun > 0 || w.result) return;
+  if (p.air || p.invuln > 0 || p.knock > 0 || p.stun > 0 || w.result) return;
   for (const r of w.enemies) {
-    if (r.kind !== 'rammer' || r.state !== 'charge' || r.shove || r.drafted) continue;
+    if ((r.kind !== 'rammer' && r.kind !== 'compactor') || r.state !== 'charge' || r.shove || r.drafted) continue;
     const dx = p.x - r.x, dy = p.y - r.y, d = Math.hypot(dx, dy);
-    const touch = t.playerRadius + t.rammerRadius;
+    const touch = t.playerRadius + radiusOf(w, r);
     // it has gone past you (you're beside or behind its nose), close but not touching
     if (d <= touch || d > touch + t.draftGap || dx * Math.cos(r.face) + dy * Math.sin(r.face) > 4) continue;
     r.drafted = true;

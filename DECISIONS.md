@@ -517,3 +517,29 @@ a number in the tuning panel, and the M1 rule is one setting away (given with ea
     - A crouching Hopper sits lower and wider and shakes for its whole windup.
     - No speed blue on the Bouncer's visor. The tuning panel underlines the START WITH parts that
       are on, in gold.
+90. **M8, The Compactor, as built** (PLAN.md 9.5).
+    - A fifth enemy kind, `compactor` (`src/sim/compactor.ts`), wearing Booster, Springs and Plow.
+      Each part is a move: the Booster its charge (a Rammer's lane at 40 px wide and 300 px/s,
+      locked 0.4 s), the Springs bounce that charge off walls and pillars twice, the Plow makes its
+      front take nothing. Without the Booster it shoves; without the Springs a charge into a wall
+      stuns it 1.8 s; with nothing left its core is open and it leaps like a Hopper (ring 44).
+    - The Hopper's leap became shared code (`hopper.ts` `stepLeap`, `leapSpec`), flagged by a new
+      `leap` on the enemy so a crouch can't be confused with a charge's windup.
+    - Its charge ploughs through other enemies (they recoil, it doesn't), its slipstream lifts you
+      like a Rammer's, and every 16 s it calls a Snapper in through the farthest gate if fewer than
+      two others are in the yard.
+    - **HP 18, not the plan's 12.** With 12 the search bot wrecked it in ~30 s, quicker than The
+      Ring (50 s) or The Heap (60 s); hull barely moved the strip phase (plow by joust ~11 s,
+      springs ~13 s, booster 16-32 s) but stretches the core-open act. At 18: 35-38 s for the bot,
+      every seed, about two minutes for a person.
+    - The yard (`FOUNDRY`, "THE COMPACTOR"): two pillars to bounce it off, a crusher plate in each
+      corner. The run is six yards: The Heap's one exit leads to it; clearing it wins.
+    - Its art is code-drawn at 2 px per unit (`m8.ts`); its parts are the small parts' models at
+      2x, so the booster you tear off it is the booster you bolt on. A boss bar sits on the top
+      wall band left of the north gate. A first-time hint: "EACH PART IS ONE OF ITS MOVES".
+91. **The critic's M6 review** (the agent's report, 2026-10-12). Fixed with M8: a Spring Rammer's
+    bounce count now resets every windup (it only ever bounced once), and nothing lifts you in the
+    air, a charge's slipstream included. The rest (Bouncers parking and cancelling each other,
+    holding Rip with Springs + Booster, the Hopper's ring missing a fast straight line, the
+    Bouncer dying fastest head-on, a leap landing behind anything, a standing leap making speed,
+    the new yards playing alike, the new parts being sidegrades) is the next phase, 8b.

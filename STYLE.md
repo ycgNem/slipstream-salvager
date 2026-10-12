@@ -38,6 +38,8 @@ The game draws on a **640 × 360** logical canvas, scaled by whole numbers only.
 | **Snapper** (M3) | **32 × 32** | (16, 20) | 16–20 wide, 12–16 tall, low and wide | circle r = 8 at the anchor |
 | **Hopper** (M6) | **40 × 40** | (20, 26) | 22–26 wide, 16–20 tall: a squat frog, big haunches | circle r = 10 at the anchor |
 | **Bouncer** (M6) | **32 × 32** | (16, 20) | 15–17 across, round, 16–18 tall | circle r = 9 at the anchor |
+| **The Compactor** (M8 boss) | **64 × 64** | (32, 44) | 44–56 wide, 36–40 tall; sculpted at 2 px per unit | circle r = 20 at the anchor |
+| The Compactor's parts (`bo:part:*`) | rear and front 32 × 32, anchor (16, 16); springs 64 × 64, anchor (32, 44) | — | the small parts' models at 2x | none |
 | Mounted part overlay (rear and front mounts) | 16 × 16 | (8, 8) | ≤ 14 × 14 | none (part of the body) |
 | Treads overlay (sides mount, M3) | 32 × 32 | (16, 20) | the two tread guards either side of the body's footprint | none |
 | Springs overlay (sides mount, M6) | 32 × 32 | (16, 20) | a gold coil bumper either side of the body's footprint | none |
@@ -53,7 +55,7 @@ The game draws on a **640 × 360** logical canvas, scaled by whole numbers only.
 | Claw slash | 32 × 32 | (16, 16) | — | — |
 | Booster plume | 16 × 16 | (8, 8) | — | — |
 | Stun stars | 16 × 8 | (8, 8) | — | — |
-| Shadow | 16 × 6, 24 × 8, 32 × 10 | center | — | — |
+| Shadow | 16 × 6, 24 × 8, 32 × 10, 56 × 16 (the boss) | center | — | — |
 | Hull pip | 8 × 8 | (0, 0) | — | — |
 
 The **anchor** is the point drawn at the object's world position: for bodies, the center of the
@@ -102,6 +104,11 @@ Grammar: `group:thing[:state][:dir][:frame]`.
 | `part:jets:<dir>` | 1 | M6. Rear overlay (16 × 16, like the booster): two upright gold jet canisters on a strap; the plume fires under it on a leap |
 | `part:springs:<dir>` | 1 | M6. Sides overlay (32 × 32, like the treads): a gold coil bumper either side |
 | `part:bigsprings:<dir>` | 1 | M6. The Springs on a Rammer (40 × 40, anchor (20, 26)): the pair set wide enough to show past its hull |
+| `bo:compactor:<stalk\|windup\|charge\|stunned\|crouch>:<dir>:<0-1>` | 2 | M8. The Compactor, drawn *without* its parts: a plum hull on heavy treads, a ribbed steel bin on its back, a slate cab with a lit visor (white-hot winding up and charging, dim stunned). `crouch` is its core-open leap: the bin lid thrown open, the pale core glowing |
+| `bo:compactor:<skid\|air\|land>:<dir>` | 1 | M8. Skidding nose up; in the air (lid open); landed and stuck |
+| `bo:part:<booster\|plow>:<dir>` | 1 | M8. Its booster and plow, the small parts' models at 2x (32 × 32, anchor (16, 16)) at its rear and front mounts (20 and 22 px out, 7 px up) |
+| `bo:part:springs:<dir>` | 1 | M8. Its springs at 2x, in the body frame (64 × 64, anchor (32, 44)) |
+| `bo:plume:<dir>:<0-1>` | 2 | M8. Its booster's flame at 2x (32 × 32, anchor (16, 16)) |
 | `fl:boost:<e\|s\|w\|n>:<0-2>` | 3 | M7. A boost strip tile: a dark teal deck, bright teal chevrons pointing its way; the frames scroll them forward (teal: it's speed) |
 | `fl:oil:<mask>` | 1 | M7. Oil, a 4-bit neighbor mask like the walls: near-black with a blue-violet sheen, its open edges rounded off |
 | `fl:ramp:<e\|s\|w\|n>` | 1 | M7. A jump ramp: a steel wedge, darker at its foot, lighter up the slope to its lip, a teal arrow |
@@ -112,7 +119,7 @@ Grammar: `group:thing[:state][:dir][:frame]`.
 | `fx:slash:<tier>:<dir>:<0-2>` | 3 | tier = `crawl`, `cruise`, `slip` |
 | `fx:spark:<0-2>`, `fx:dust:<0-3>`, `fx:steam:<0-3>`, `fx:smoke:<0-3>` | — | |
 | `fx:stars:<0-3>` | 4 | stun |
-| `fx:shadow:<s\|m\|l>` | 1 | |
+| `fx:shadow:<s\|m\|l\|xl>` | 1 | `xl` under The Compactor |
 | `ui:hull:<full\|empty>` | 1 | |
 
 The coverage script (`npm run coverage`) lists every name the game asks for and fails if one has no

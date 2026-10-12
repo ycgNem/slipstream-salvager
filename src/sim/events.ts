@@ -24,6 +24,7 @@ export type SimEvent =
   | { k: 'boost'; x: number; y: number }
   | { k: 'press'; x: number; y: number }
   | { k: 'pressed'; id: number }
+  | { k: 'call'; id: number }
   | { k: 'touchdown'; x: number; y: number; tier: Tier }
   | { k: 'roll'; id: number }
   | { k: 'boing'; x: number; y: number; id?: number }

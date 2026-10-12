@@ -297,6 +297,7 @@ function hitEnemy(w: World, r: Enemy) {
       r.vy += Math.sin(p.heading) * push;
       if (r.state === 'windup') {
         r.state = KINDS[r.kind].state;
+        r.leap = false;
         r.t = 0;
         r.cd = 0.8;
         w.events.push({ k: 'cancel', id: r.id });

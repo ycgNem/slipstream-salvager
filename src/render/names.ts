@@ -29,6 +29,10 @@ export function allSpriteNames(): string[] {
     for (const f of R(2)) out.push(`en:hopper:stalk:${d}:${f}`, `en:hopper:crouch:${d}:${f}`);
     out.push(`en:hopper:air:${d}`, `en:hopper:land:${d}`);
     for (const f of R(2)) out.push(`en:bouncer:idle:${d}:${f}`, `en:bouncer:windup:${d}:${f}`, `en:bouncer:roll:${d}:${f}`, `en:bouncer:stunned:${d}:${f}`);
+    for (const f of R(2)) for (const s of ['stalk', 'windup', 'charge', 'stunned', 'crouch']) out.push(`bo:compactor:${s}:${d}:${f}`);
+    for (const s of ['skid', 'air', 'land']) out.push(`bo:compactor:${s}:${d}`);
+    for (const part of ['booster', 'plow', 'springs']) out.push(`bo:part:${part}:${d}`);
+    for (const f of R(2)) out.push(`bo:plume:${d}:${f}`);
     for (const part of PART_NAMES) out.push(`part:${part}:${d}`);
     out.push(`part:bigsprings:${d}`);
     for (const f of R(2)) out.push(`fx:plume:${d}:${f}`);
@@ -37,7 +41,7 @@ export function allSpriteNames(): string[] {
   for (const part of PART_NAMES) out.push(`pickup:${part}`, `icon:part:${part}`);
   for (const f of R(3)) out.push(`fx:spark:${f}`);
   for (const k of ['dust', 'steam', 'smoke', 'stars']) for (const f of R(4)) out.push(`fx:${k}:${f}`);
-  for (const s of ['s', 'm', 'l']) out.push(`fx:shadow:${s}`);
+  for (const s of ['s', 'm', 'l', 'xl']) out.push(`fx:shadow:${s}`);
   out.push('ui:hull:full', 'ui:hull:empty');
   return out;
 }
@@ -57,6 +61,9 @@ export function spriteSpec(name: string): { w: number; h: number; ox: number; oy
     case 'ob:gate': return p[2] === 'h' ? { w: 32, h: 16, ox: 0, oy: 0 } : { w: 16, h: 32, ox: 0, oy: 0 };
     case 'pl:scrapper': return { w: 32, h: 32, ox: 16, oy: 20 };
     case 'en:rammer': return { w: 40, h: 40, ox: 20, oy: 26 };
+    case 'bo:compactor': return { w: 64, h: 64, ox: 32, oy: 44 };
+    case 'bo:part': return p[2] === 'springs' ? { w: 64, h: 64, ox: 32, oy: 44 } : { w: 32, h: 32, ox: 16, oy: 16 };
+    case 'bo:plume': return { w: 32, h: 32, ox: 16, oy: 16 };
     case 'part:booster': case 'part:plow': case 'part:jaws': case 'part:jets': return { w: 16, h: 16, ox: 8, oy: 8 };
     case 'part:treads': case 'part:springs': return { w: 32, h: 32, ox: 16, oy: 20 };
     case 'part:bigsprings': return { w: 40, h: 40, ox: 20, oy: 26 };
@@ -66,7 +73,7 @@ export function spriteSpec(name: string): { w: number; h: number; ox: number; oy
     case 'fx:slash': return { w: 32, h: 32, ox: 16, oy: 16 };
     case 'fx:spark': case 'fx:dust': case 'fx:steam': case 'fx:smoke': return { w: 8, h: 8, ox: 4, oy: 4 };
     case 'fx:stars': return { w: 16, h: 8, ox: 8, oy: 8 };
-    case 'fx:shadow': return p[2] === 's' ? { w: 16, h: 6, ox: 8, oy: 3 } : p[2] === 'm' ? { w: 24, h: 8, ox: 12, oy: 4 } : { w: 32, h: 10, ox: 16, oy: 5 };
+    case 'fx:shadow': return p[2] === 's' ? { w: 16, h: 6, ox: 8, oy: 3 } : p[2] === 'm' ? { w: 24, h: 8, ox: 12, oy: 4 } : p[2] === 'l' ? { w: 32, h: 10, ox: 16, oy: 5 } : { w: 56, h: 16, ox: 28, oy: 8 };
     case 'ui:hull': return { w: 8, h: 8, ox: 0, oy: 0 };
   }
   throw new Error('no spec for sprite ' + name);

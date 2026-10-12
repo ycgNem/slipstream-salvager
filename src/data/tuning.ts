@@ -250,6 +250,45 @@ export const DEFAULT_TUNING = {
   rollCdMax: 2.4,
   maxRolls: 2,
 
+  // ---- The Compactor (PLAN.md 9.5) ----
+  compactorHp: 18,
+  compactorRadius: 20,
+  bossSpeed: 40,
+  bossTurn: 3,
+  /** its charge (with the Booster): windup, the locked part of it, speed, how far past you it runs */
+  bossChargeRange: 300,
+  bossWindup: 1.0,
+  bossLock: 0.4,
+  bossNearWindup: 0.6,
+  bossNearLock: 0.3,
+  bossChargeSpeed: 300,
+  bossChargeOver: 140,
+  bossChargeMin: 260,
+  bossChargeMax: 460,
+  /** on Springs its charge bounces this many times */
+  bossBounces: 2,
+  bossSkid: 1.2,
+  /** without Springs, a charge into a wall stuns it this long */
+  bossWallStun: 1.8,
+  /** without the Booster it shoves */
+  bossShoveRange: 160,
+  bossShoveWindup: 0.6,
+  bossShoveDist: 90,
+  bossShoveSpeed: 240,
+  bossCdMin: 1.2,
+  bossCdMax: 2.0,
+  /** core open (no parts): it leaps like a Hopper */
+  bossLeapWindup: 0.8,
+  bossLeapLock: 0.3,
+  bossLeapAir: 0.7,
+  bossLeapHeight: 30,
+  bossLeapMax: 260,
+  bossSlamR: 44,
+  bossStuck: 1.6,
+  /** it calls a Snapper in this often, if fewer than bossHelpers others are in the yard */
+  bossCall: 16,
+  bossHelpers: 2,
+
   // ---- terrain (PLAN.md 9.4) ----
   /** a boost strip lifts you to this while you drive along it (within boostConeDeg of its arrow) */
   boostTo: 250,
@@ -301,6 +340,7 @@ export const TUNING_GROUPS: { title: string; keys: [TuningKey, number][] }[] = [
   { title: 'Snapper', keys: [['snapperHp', 1], ['snapperTop', 5], ['snapperAcc', 20], ['snapperTurn', 0.5], ['snapRange', 5], ['snapCircle', 4], ['snapConeDeg', 5], ['snapWindup', 0.05], ['snapLock', 0.05], ['snapSpeed', 10], ['snapDist', 5], ['snapSlide', 0.05], ['snapCdMin', 0.1], ['snapCdMax', 0.1], ['maxSnaps', 1], ['jawFling', 0.1]] },
   { title: 'Hopper', keys: [['hopperHp', 1], ['hopperSpeed', 5], ['hopMin', 5], ['hopMax', 10], ['hopWindup', 0.05], ['hopLock', 0.05], ['hopAir', 0.05], ['hopSlamR', 2], ['hopStuck', 0.1], ['stompWindup', 0.05], ['stompR', 2], ['hopCdMin', 0.1], ['hopCdMax', 0.1], ['maxCrouch', 1]] },
   { title: 'Bouncer', keys: [['bouncerHp', 1], ['bouncerDrift', 5], ['rollRange', 10], ['rollWindup', 0.05], ['rollLock', 0.05], ['rollSpeed', 10], ['rollGain', 5], ['rollMax', 10], ['rollBounces', 1], ['rollTime', 0.1], ['dizzyTime', 0.1], ['rollCdMin', 0.1], ['rollCdMax', 0.1], ['maxRolls', 1]] },
+  { title: 'The Compactor', keys: [['compactorHp', 1], ['bossSpeed', 5], ['bossTurn', 0.25], ['bossWindup', 0.05], ['bossLock', 0.05], ['bossChargeSpeed', 10], ['bossChargeOver', 10], ['bossBounces', 1], ['bossSkid', 0.1], ['bossWallStun', 0.1], ['bossShoveDist', 5], ['bossLeapWindup', 0.05], ['bossLeapAir', 0.05], ['bossSlamR', 2], ['bossStuck', 0.1], ['bossCall', 1]] },
   { title: 'Terrain', keys: [['boostTo', 10], ['boostConeDeg', 5], ['boostEnemy', 10], ['boostRoll', 10], ['oilHalf', 0.25], ['rampAir', 0.05], ['rampConeDeg', 5], ['crusherPeriod', 0.25], ['crusherWarn', 0.05], ['crusherDamage', 1]] },
   { title: 'Flat mode', keys: [['flatDamage', 1], ['flatPartDamage', 1]] },
   { title: 'Rammer', keys: [['rammerHp', 1], ['stalkSpeed', 5], ['stalkTurn', 0.5], ['strippedTurn', 0.25], ['windupFar', 0.05], ['lockFar', 0.05], ['windupNear', 0.05], ['lockNear', 0.05], ['nearDist', 5], ['chargeRange', 10], ['leadFrac', 0.05], ['chargeSpeed', 10], ['chargeOver', 10], ['chargeMin', 10], ['chargeMax', 10], ['skidTime', 0.05], ['joustStun', 0.1], ['joustDeg', 5], ['draftGap', 1], ['draftBoost', 5], ['chargeCdMin', 0.1], ['chargeCdMax', 0.1], ['maxWindups', 1]] },

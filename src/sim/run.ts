@@ -1,5 +1,5 @@
-// A run (PLAN.md 8.1): five yards in a row. The Ring first, three of the four middle yards chosen
-// by driving out through one of two exit gates, The Heap last. Your hull, your bolted parts and
+// A run (PLAN.md 8.1, 9.5): six yards in a row. The Ring first, three of the nine middle yards
+// chosen by driving out through one of two exit gates, The Heap, then The Compactor's yard. Your hull, your bolted parts and
 // the part on your cable carry from yard to yard; loose parts stay behind. Pure and deterministic
 // (seeded), so bots can play whole runs headless.
 import { Rng } from '../engine/rng';
@@ -30,7 +30,7 @@ export interface RunTotals {
 export interface Run {
   seed: number;
   rng: Rng;
-  /** which yard of the run (1 = The Ring .. RUN_LENGTH = The Heap) */
+  /** which yard of the run (1 = The Ring .. RUN_LENGTH - 1 = The Heap, RUN_LENGTH = The Compactor) */
   depth: number;
   yard: YardId;
   /** the yards visited so far, this one included */
@@ -50,14 +50,15 @@ const OPPOSITE: Record<Gate['id'], Gate['id']> = { w: 'e', e: 'w', n: 's', s: 'n
 
 function nextOptions(run: Run): YardId[] {
   if (run.depth >= RUN_LENGTH) return [];
-  if (run.depth + 1 === RUN_LENGTH) return ['heap'];
+  if (run.depth + 1 === RUN_LENGTH) return ['compactor'];
+  if (run.depth + 2 === RUN_LENGTH) return ['heap'];
   const left = MIDDLE.filter((y) => !run.path.includes(y));
   return run.rng.shuffle([...left]).slice(0, 2);
 }
 
 export function newRun(seed: number, start: YardId = 'ring'): Run {
   const run: Run = {
-    seed, rng: new Rng(seed ^ 0x5eed), depth: start === 'ring' ? 1 : start === 'heap' ? RUN_LENGTH : 2, yard: start, path: [start], options: [], entry: null, loadout: null,
+    seed, rng: new Rng(seed ^ 0x5eed), depth: start === 'ring' ? 1 : start === 'compactor' ? RUN_LENGTH : start === 'heap' ? RUN_LENGTH - 1 : 2, yard: start, path: [start], options: [], entry: null, loadout: null,
     totals: { ticks: 0, tears: 0, wrecks: 0, slipHits: 0, hitsTaken: 0, jousts: 0, partsShattered: 0, topSpeed: 0 },
     over: null,
   };

@@ -36,8 +36,8 @@ function dodge(w: World, margin = 10): { x: number; y: number } | null {
     return { x: Math.cos(a), y: Math.sin(a) };
   };
   for (const r of w.enemies) {
-    if (r.kind === 'hopper') {
-      // a Hopper's ring: get out of it, straight away from its middle
+    if (r.leap || r.state === 'air') {
+      // a leaper's ring (a Hopper's, The Compactor's): get out of it, straight away from its middle
       if (r.state !== 'windup' && r.state !== 'air') continue;
       const dx = p.x - r.tx, dy = p.y - r.ty, d = Math.hypot(dx, dy);
       if (d > slamRadius(w, r) + w.t.playerRadius + margin) continue;
@@ -327,7 +327,7 @@ export function drafterBot(pick = 0): Bot {
     const rel = Math.abs(wrapAngle(Math.atan2(p.y - r.y, p.x - r.x) - r.face));
     const behind = rel > Math.PI - 1.2;
     const open = r.state === 'skid' || r.state === 'slide' || r.state === 'stunned' || r.state === 'land';
-    const heavy = r.kind === 'rammer' || r.kind === 'hopper';
+    const heavy = r.kind === 'rammer' || r.kind === 'hopper' || r.kind === 'compactor';
     const small = r.kind === 'snapper' || r.kind === 'bouncer';
     // a slow-turning stripped one with its flank to you, and you're fast: cut in
     const flank = (r.state === 'stalk' || r.state === 'hunt') && !hasAnyPart(r) && rel > 1.2 && p.speed > t.slipAt - 30 && d < 180;
@@ -347,7 +347,7 @@ export function drafterBot(pick = 0): Bot {
     const locked = r.state === 'windup' && r.locked;
     if (dg && (locked || r.state === 'charge' || r.state === 'snap' || (r.state === 'windup' && r.t > r.windup - r.lock - 0.1))) return { ...dg, rip: false, bolt: false };
     // out of the lane with the charge coming: hold still and let it pass close
-    if ((locked || r.state === 'charge') && r.kind === 'rammer' && d < 200) return { x: 0, y: 0, rip: false, bolt: false };
+    if ((locked || r.state === 'charge') && (r.kind === 'rammer' || r.kind === 'compactor') && d < 200) return { x: 0, y: 0, rip: false, bolt: false };
     // a part on the floor nearby, and it's not winding up at you: get it
     if (!p.tow && r.state !== 'windup') {
       const k = w.pickups.find((k) => Math.hypot(k.x - p.x, k.y - p.y) < 200 && Math.hypot(k.x - r.x, k.y - r.y) > 60);
@@ -369,7 +369,7 @@ export function drafterBot(pick = 0): Bot {
     // bait: hold ~150 px off it (a Snapper or a stripped Rammer: ~110), drifting slowly sideways so
     // the lead is small; round a stripped one fast, to get at its flank
     const stripped = !hasAnyPart(r);
-    const want = r.kind === 'rammer' && !stripped ? 150 : 110;
+    const want = r.kind === 'compactor' ? 170 : r.kind === 'rammer' && !stripped ? 150 : 110;
     const a = Math.atan2(p.y - r.y, p.x - r.x);
     const swing = stripped ? 0.7 : 0.25;
     let gx = r.x + Math.cos(a + side * swing) * want, gy = r.y + Math.sin(a + side * swing) * want;

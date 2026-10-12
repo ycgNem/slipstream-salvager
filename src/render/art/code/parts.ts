@@ -16,7 +16,7 @@ const GOLD = 0, NOZZLE = 1, THROAT = 2, STRAP = 3, BOLT = 4;
  */
 export const NOZZLE_EXIT = -3.7;
 
-const boosterScene: Scene = (h: Hit, x: number, y: number, z: number) => {
+export const boosterScene: Scene = (h: Hit, x: number, y: number, z: number) => {
   // can with a rounded nose
   h.add(sdCyl(x - 1.2, y, z, 3.4, 2.6, 1.2), GOLD, x, y, z);
   h.add(sdEllipsoid(x - 3.5, y, z, 1.5, 3.0, 3.0), GOLD, x, y, z);
@@ -36,6 +36,7 @@ MATS[NOZZLE] = { ramp: [2, 6, 7, 8], ink: 2 };
 MATS[THROAT] = { ramp: [0, 1, 1, 1], ink: 0, group: NOZZLE };
 MATS[STRAP] = { ramp: [2, 6, 7, 8], ink: 2 };
 MATS[BOLT] = { ramp: [7, 8, 9, 9], noInk: true };
+export const BOOSTER_MATS: readonly Mat[] = MATS;
 
 function mounted(d: number) {
   return {
@@ -77,11 +78,13 @@ const icon = {
 /**
  * The plume: flame out of the nozzle, pointing opposite the facing. Anchor (8,8) is the same
  * mount point as the booster's, so the renderer draws it at the same spot (under the booster).
- * Two flicker frames. Orange outside, pale yellow inside, a white core at the nozzle.
+ * Two flicker frames. Orange outside, pale yellow inside, a white core at the nozzle. k scales it
+ * (The Compactor's booster is drawn at 2x).
  */
-function plume(d: number, f: number) {
+export function plumeGen(d: number, f: number, scale = 1) {
+  const k = scale, S = 16 * k, H = 8 * k;
   return {
-    w: 16, h: 16, ox: 8, oy: 8,
+    w: S, h: S, ox: H, oy: H,
     draw: (ctx: CanvasRenderingContext2D) => {
       const a = dirAngle(d);
       // the flame axis on screen: back along the carrier's facing, with the 3/4 squash
@@ -89,28 +92,28 @@ function plume(d: number, f: number) {
       const bl = Math.hypot(bx, by);
       const ux = bx / bl, uy = by / bl;
       // nozzle exit on screen, relative to the anchor
-      const ex = Math.cos(a) * NOZZLE_EXIT, ey = Math.sin(a) * NOZZLE_EXIT * SQ;
+      const ex = Math.cos(a) * NOZZLE_EXIT * k, ey = Math.sin(a) * NOZZLE_EXIT * SQ * k;
       // as long as fits inside the frame from the nozzle (foreshortened end-on), shorter on frame 1
-      let room = 99;
-      if (ux) room = Math.min(room, ux > 0 ? (8 - ex) / ux : (8 + ex) / -ux);
-      if (uy) room = Math.min(room, uy > 0 ? (8 - ey) / uy : (8 + ey) / -uy);
-      const len = Math.min(6.5 * Math.max(0.8, bl), room - 0.3) * (f ? 0.78 : 1);
-      const r0 = 2.6 * (1 - 0.15 * Math.abs(Math.sin(a))) + (f ? 0.3 : 0);
-      for (let yy = 0; yy < 16; yy++) for (let xx = 0; xx < 16; xx++) {
-        const sx = xx + 0.5 - 8 - ex, sy = yy + 0.5 - 8 - ey;
+      let room = 99 * k;
+      if (ux) room = Math.min(room, ux > 0 ? (H - ex) / ux : (H + ex) / -ux);
+      if (uy) room = Math.min(room, uy > 0 ? (H - ey) / uy : (H + ey) / -uy);
+      const len = Math.min(6.5 * k * Math.max(0.8, bl), room - 0.3) * (f ? 0.78 : 1);
+      const r0 = (2.6 * (1 - 0.15 * Math.abs(Math.sin(a))) + (f ? 0.3 : 0)) * k;
+      for (let yy = 0; yy < S; yy++) for (let xx = 0; xx < S; xx++) {
+        const sx = xx + 0.5 - H - ex, sy = yy + 0.5 - H - ey;
         const s = sx * ux + sy * uy; // along the flame
         const q = -sx * uy + sy * ux; // across it
         if (s < -0.6 || s > len) continue;
         const tt = Math.max(0, s) / len;
         // teardrop: full width near the nozzle, tapering to a point, with a 1 px wobble
-        const wob = f ? Math.sin(s * 1.7) * 0.35 : Math.sin(s * 1.7 + 1.5) * 0.35;
+        const wob = (f ? Math.sin((s / k) * 1.7) : Math.sin((s / k) * 1.7 + 1.5)) * 0.35 * k;
         const half = r0 * (1 - tt * tt) * (1 - 0.35 * tt) + wob * tt;
         if (Math.abs(q) > half) continue;
-        const k = Math.abs(q) / Math.max(half, 0.01);
+        const e = Math.abs(q) / Math.max(half, 0.01);
         let c: number;
-        if (tt < 0.28 && k < 0.45) c = 9;
-        else if (tt < 0.6 && k < 0.6) c = 28;
-        else if (k < 0.85 && tt < 0.85) c = 17;
+        if (tt < 0.28 && e < 0.45) c = 9;
+        else if (tt < 0.6 && e < 0.6) c = 28;
+        else if (e < 0.85 && tt < 0.85) c = 17;
         else c = 16;
         px(ctx, xx, yy, c);
       }
@@ -121,7 +124,7 @@ function plume(d: number, f: number) {
 export function registerParts() {
   DIRS.forEach((dn, d) => {
     defSprite(`part:booster:${dn}`, mounted(d));
-    for (const f of [0, 1]) defSprite(`fx:plume:${dn}:${f}`, plume(d, f));
+    for (const f of [0, 1]) defSprite(`fx:plume:${dn}:${f}`, plumeGen(d, f));
   });
   defSprite('pickup:booster', pickup);
   defSprite('icon:part:booster', icon);

@@ -158,6 +158,10 @@ export interface Enemy {
   stomp: boolean;
   /** walls and pillars this roll (or charge) has bounced off */
   bounces: number;
+  /** this windup is a leap's crouch (a Hopper's, or The Compactor's once its core is open) */
+  leap: boolean;
+  /** The Compactor: seconds until it calls a Snapper in */
+  aux: number;
 }
 /** The slice's name for an enemy; every enemy is a Rammer or a Snapper. */
 export type Rammer = Enemy;
@@ -275,11 +279,12 @@ export function createWorld(opts: WorldOpts = {}): World {
 }
 
 /** What each kind of enemy starts as: its own part, HP and radius (tuning keys), first state. */
-export const KINDS: Record<EnemyKind, { part: PartId; hp: 'rammerHp' | 'snapperHp' | 'hopperHp' | 'bouncerHp'; radius: 'rammerRadius' | 'snapperRadius' | 'hopperRadius' | 'bouncerRadius'; state: EnemyState }> = {
+export const KINDS: Record<EnemyKind, { part: PartId; hp: 'rammerHp' | 'snapperHp' | 'hopperHp' | 'bouncerHp' | 'compactorHp'; radius: 'rammerRadius' | 'snapperRadius' | 'hopperRadius' | 'bouncerRadius' | 'compactorRadius'; state: EnemyState }> = {
   rammer: { part: 'booster', hp: 'rammerHp', radius: 'rammerRadius', state: 'stalk' },
   snapper: { part: 'treads', hp: 'snapperHp', radius: 'snapperRadius', state: 'hunt' },
   hopper: { part: 'jets', hp: 'hopperHp', radius: 'hopperRadius', state: 'stalk' },
   bouncer: { part: 'springs', hp: 'bouncerHp', radius: 'bouncerRadius', state: 'stalk' },
+  compactor: { part: 'booster', hp: 'compactorHp', radius: 'compactorRadius', state: 'stalk' },
 };
 
 export interface EnemyOpts {
@@ -298,7 +303,7 @@ export function addEnemy(w: World, kind: EnemyKind, x: number, y: number, face =
     id: w.nextId++, kind, x, y, face, hp: w.t[K.hp], parts, safety: !!opts.safety,
     state: opts.state ?? K.state, t: 0, windup: 0, lock: 0, shove: false, locked: false, travelled: 0, chargeLen: 0,
     cd: w.rng.range(0.6, 1.2), vx: 0, vy: 0, enter: { x: Math.cos(face), y: Math.sin(face) }, slammed: false, skidFor: w.t.skidTime, drafted: false, shaken: 0,
-    speed: 0, tx: x, ty: y, sx: x, sy: y, stomp: false, bounces: 0,
+    speed: 0, tx: x, ty: y, sx: x, sy: y, stomp: false, bounces: 0, leap: false, aux: kind === 'compactor' ? w.t.bossCall : 0,
   };
   w.enemies.push(e);
   return e;

@@ -27,6 +27,7 @@ export function beginWindup(w: World, r: Enemy, near: boolean) {
   r.t = 0;
   r.locked = false;
   r.chargeLen = 0;
+  r.bounces = 0;
   r.windup = r.shove ? t.shoveWindup : near ? t.windupNear : t.windupFar;
   r.drafted = false;
   r.lock = r.shove ? t.shoveLock : near ? t.lockNear : t.lockFar;
@@ -44,6 +45,7 @@ export function ahead(w: World, T: number): { x: number; y: number } {
 /** How fast this enemy's lunge flies (px/s). */
 export function lungeSpeed(w: World, r: Enemy): number {
   const t = w.t;
+  if (r.kind === 'compactor') return r.shove ? t.bossShoveSpeed : t.bossChargeSpeed;
   return r.kind === 'bouncer' ? t.rollSpeed : r.kind === 'snapper' ? t.snapSpeed : r.shove ? t.shoveSpeed : t.chargeSpeed;
 }
 

@@ -8,7 +8,7 @@ import type { MountSlot } from './mounts';
 
 export type PartId = 'booster' | 'treads' | 'plow' | 'jaws' | 'jets' | 'springs';
 export type AttackMode = 'rip' | 'burn' | 'leap';
-export type EnemyKind = 'rammer' | 'snapper' | 'hopper' | 'bouncer';
+export type EnemyKind = 'rammer' | 'snapper' | 'hopper' | 'bouncer' | 'compactor';
 
 /** Which chassis stat a multiplier scales. */
 export type StatKey = 'topSpeed' | 'turnLow' | 'turnHigh' | 'scrubLat' | 'accHigh';

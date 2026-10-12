@@ -81,7 +81,7 @@ describe('the Hopper', () => {
     const w = openWorld();
     Object.assign(w.player, { x: 1000, y: 2000, heading: 0, speed: 150 });
     const h = addEnemy(w, 'hopper', 1030, 2000, Math.PI);
-    Object.assign(h, { state: 'windup', t: 0, windup: 0.6, lock: 0.25, cd: 99 });
+    Object.assign(h, { state: 'windup', leap: true, t: 0, windup: 0.6, lock: 0.25, cd: 99 });
     const ev = [...evs(w, 1, IN(1, 0, true)), ...evs(w, 4, EAST)];
     expect(ev).toContain('cancel');
     expect(h.state).toBe('stalk');

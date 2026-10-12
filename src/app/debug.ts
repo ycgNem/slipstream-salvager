@@ -5,6 +5,7 @@ import type { YardId } from '../data/yards';
 import { beginWindup } from '../sim/rammer';
 import { beginCrouch } from '../sim/hopper';
 import { beginRoll } from '../sim/bouncer';
+import { beginBossWindup } from '../sim/compactor';
 import { step } from '../sim/tick';
 import { NO_INPUT, type InputFrame } from '../sim/world';
 import type { App } from './app';
@@ -19,12 +20,14 @@ export const SCENES = [
   'hopper', 'bouncer', 'jets', 'leap', 'springs', 'yard-hurdles', 'yard-pinball',
   // M7: terrain and its yards
   'boost', 'oil', 'ramp', 'crusher', 'yard-slick', 'yard-jumps', 'yard-press',
+  // M8: The Compactor, its core open, its yard
+  'boss', 'boss-open', 'yard-compactor',
 ] as const;
 
 /** The yard a scene that isn't `yard-*` is set in (default: The Ring). */
 const SCENE_YARD: Partial<Record<string, YardId>> = {
   snapper: 'kennel', hopper: 'hurdles', jets: 'hurdles', leap: 'hurdles', bouncer: 'pinball', springs: 'pinball',
-  boost: 'slick', oil: 'slick', ramp: 'jumps', crusher: 'press',
+  boost: 'slick', oil: 'slick', ramp: 'jumps', crusher: 'press', boss: 'compactor', 'boss-open': 'compactor',
 };
 export type SceneName = (typeof SCENES)[number];
 
@@ -250,6 +253,31 @@ export function scene(app: App, name: SceneName) {
       run(play, 12, { x: 1, y: 0, rip: false, bolt: false });
       break;
     }
+    case 'boss': {
+      // winding up a charge at you from across the yard: the lane and the bounce off the wall
+      quiet(play);
+      play.hints.seen = { ...play.hints.seen, boss: false, crusher: true };
+      place(w, 470, 260, Math.PI, 150);
+      const b = addEnemy(w, 'compactor', 160, 140, 0, { parts: ['booster', 'springs', 'plow'] });
+      b.hp = 9;
+      beginBossWindup(w, b, false);
+      run(play, 40, { x: 0, y: 1, rip: false, bolt: false });
+      break;
+    }
+    case 'boss-open': {
+      // stripped to its core, crouching to leap: the ring on the floor, a Snapper it called in
+      quiet(play);
+      play.hints.seen = { ...play.hints.seen, boss: true, crusher: true };
+      giveBolted(w, 'booster');
+      place(w, 420, 250, 0, 200);
+      const b = addEnemy(w, 'compactor', 260, 150, 0, { parts: [] });
+      b.hp = 4;
+      beginCrouch(w, b, false);
+      const s = addEnemy(w, 'snapper', 560, 100, Math.PI);
+      s.cd = 99;
+      run(play, 30, { x: 1, y: 0, rip: false, bolt: false });
+      break;
+    }
     case 'exits':
       w.wave.index = w.waves.length - 1;
       w.wave.phase = 'fight';
@@ -277,6 +305,7 @@ export function scene(app: App, name: SceneName) {
     case 'yard-jumps':
     case 'yard-press':
     case 'yard-heap':
+    case 'yard-compactor':
       run(play, 240);
       break;
     case 'cleared':

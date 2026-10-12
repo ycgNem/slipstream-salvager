@@ -1,11 +1,12 @@
-// The yards of a run (PLAN.md 8.1, 8.5): each a layout, the salvage its enemies carry (shown on
-// the exit sign that leads to it), its waves at depth 2, and the one hint it teaches. The Ring is
-// always first and The Heap always last; three of the four middle yards are chosen on the way.
-import { CROSS, HEAP, HURDLES, JUMPS, KENNEL, LANES, PINBALL, PIT, PRESS, RING, SLICK, type ArenaDef } from './arena';
+// The yards of a run (PLAN.md 8.1, 8.5, 9.5): each a layout, the salvage its enemies carry (shown
+// on the exit sign that leads to it), its waves at depth 2, and the one hint it teaches. The Ring
+// is always first, then three of the nine middle yards chosen on the way, The Heap, and last The
+// Compactor's yard.
+import { CROSS, FOUNDRY, HEAP, HURDLES, JUMPS, KENNEL, LANES, PINBALL, PIT, PRESS, RING, SLICK, type ArenaDef } from './arena';
 import type { PartId } from './parts';
-import { BOUNCER, HOPPER, JAW_SNAPPER, PLOW_RAMMER, RAMMER, SNAPPER, SPRING_RAMMER, WAVES, type EnemySpec, type WaveDef } from './waves';
+import { BOUNCER, COMPACTOR, HOPPER, JAW_SNAPPER, PLOW_RAMMER, RAMMER, SNAPPER, SPRING_RAMMER, WAVES, type EnemySpec, type WaveDef } from './waves';
 
-export type YardId = 'ring' | 'kennel' | 'lanes' | 'pit' | 'jaws' | 'hurdles' | 'pinball' | 'slick' | 'jumps' | 'press' | 'heap';
+export type YardId = 'ring' | 'kennel' | 'lanes' | 'pit' | 'jaws' | 'hurdles' | 'pinball' | 'slick' | 'jumps' | 'press' | 'heap' | 'compactor';
 
 export interface YardDef {
   id: YardId;
@@ -64,17 +65,21 @@ export const YARDS: Record<YardId, YardDef> = {
       { enemies: [SPRING_RAMMER, RAMMER, PLOW_RAMMER, BOUNCER, SNAPPER, JAW_SNAPPER] },
     ],
   },
+  compactor: {
+    id: 'compactor', name: 'THE COMPACTOR', arena: FOUNDRY, salvage: ['booster', 'springs', 'plow'], extra: SNAPPER,
+    waves: [{ enemies: [COMPACTOR] }],
+  },
 };
 
 export const MIDDLE: YardId[] = ['kennel', 'lanes', 'pit', 'jaws', 'hurdles', 'pinball', 'slick', 'jumps', 'press'];
-/** how many yards a run has */
-export const RUN_LENGTH = 5;
+/** how many yards a run has: The Ring, three middle yards, The Heap, The Compactor */
+export const RUN_LENGTH = 6;
 
 /**
  * A yard's waves at a depth in the run: escalation is composition, never a clock (DECISIONS #22),
  * so a middle yard visited later sends one more enemy in its last wave per depth past 2.
  */
 export function wavesAt(y: YardDef, depth: number): WaveDef[] {
-  const extra = y.id === 'ring' || y.id === 'heap' ? 0 : Math.max(0, depth - 2);
+  const extra = y.id === 'ring' || y.id === 'heap' || y.id === 'compactor' ? 0 : Math.max(0, depth - 2);
   return y.waves.map((wv, i) => (i === y.waves.length - 1 && extra ? { ...wv, enemies: [...wv.enemies, ...Array(extra).fill(y.extra)] } : wv));
 }

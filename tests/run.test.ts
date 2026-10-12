@@ -45,7 +45,7 @@ describe('the run', () => {
     expect(w2.player.x).toBeLessThan(80);
   });
 
-  it('visits three of the middle yards, then The Heap, with no repeats', () => {
+  it('visits three of the middle yards, then The Heap, then The Compactor, with no repeats', () => {
     const r = newRun(11);
     while (r.depth < RUN_LENGTH) {
       const w = yardWorld(r);
@@ -54,7 +54,8 @@ describe('the run', () => {
       w.exitChoice = 0;
       finishYard(r, w);
     }
-    expect(r.yard).toBe('heap');
+    expect(r.path.slice(-2)).toEqual(['heap', 'compactor']);
+    expect(r.path.slice(1, -2).every((y) => MIDDLE.includes(y))).toBe(true);
     expect(new Set(r.path).size).toBe(RUN_LENGTH);
     expect(r.options).toEqual([]);
   });

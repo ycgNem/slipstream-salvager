@@ -157,6 +157,15 @@ export const PRESS = arena(
   [crusher(192, 128, 0), crusher(320, 128, 1.0), crusher(448, 128, 2.0), crusher(192, 240, 1.5), crusher(320, 240, 0.5), crusher(448, 240, 2.5)],
 );
 
+/** The Compactor's yard: an open floor round two pillars (to bounce it off, to hide behind), with a
+ * crusher plate in each corner. The plates hit it too. */
+export const FOUNDRY = arena(
+  'foundry',
+  [pillar(224, 180), pillar(416, 180)],
+  { x: 320, y: 184, heading: 0 },
+  [crusher(96, 80, 0), crusher(544, 80, 1.5), crusher(96, 280, 0.75), crusher(544, 280, 2.25)],
+);
+
 /** The Heap: a broken ring of scrap piles, pillars and posts, round the middle. */
 export const HEAP = arena('heap', [
   pillar(192, 120), pillar(448, 120), pillar(192, 240), pillar(448, 240),

@@ -58,7 +58,7 @@ function snapper(d: number, pose: SPose) {
 // Salvage gold on steel, like the booster, so a part reads as "take this" on any body.
 
 const GOLD = 0, STEEL = 1, RUBBER = 2, TOOTH = 3;
-const PART_MATS: Mat[] = [];
+export const PART_MATS: Mat[] = [];
 PART_MATS[GOLD] = { ramp: [17, 18, 18, 28], ink: 17 };
 PART_MATS[STEEL] = { ramp: [2, 6, 7, 8], ink: 2 };
 PART_MATS[RUBBER] = { ramp: [0, 1, 1, 2], ink: 0 };
@@ -73,7 +73,7 @@ const treadsScene: Scene = (h, x, y, z) => {
 };
 
 /** The Plow at the front mount (origin at the mount, +x forward): a curved scoop blade. */
-const plowScene: Scene = (h, x, y, z) => {
+export const plowScene: Scene = (h, x, y, z) => {
   const ay = Math.abs(y);
   // the blade curves back at its ends
   const bx = x - 1.2 + ay * ay * 0.05;

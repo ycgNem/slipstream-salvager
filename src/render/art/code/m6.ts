@@ -142,12 +142,12 @@ const jetsScene: Scene = (h, x, y, z) => {
 };
 
 /** One coil bumper of the Springs: a striped capsule (gold coils on a steel core). */
-function coil(h: Hit, x: number, y: number, z: number, cx: number, cy: number, cz: number, len: number) {
+export function coil(h: Hit, x: number, y: number, z: number, cx: number, cy: number, cz: number, len: number) {
   h.add(sdCapsule(x, y, z, cx - len, cy, cz, cx + len, cy, cz, 2.5), GOLD, x - cx, y, z);
   h.add(sdCapsule(x, y, z, cx - len - 0.6, cy, cz, cx + len + 0.6, cy, cz, 1.2), STEEL, x - cx, y, z);
 }
 
-const SPRING_MATS: Mat[] = [...PART_MATS];
+export const SPRING_MATS: Mat[] = [...PART_MATS];
 SPRING_MATS[GOLD] = {
   ramp: [17, 18, 18, 28],
   ink: 17,

@@ -177,4 +177,5 @@ export function registerFx() {
   defSprite('fx:shadow:s', shadow(16, 6));
   defSprite('fx:shadow:m', shadow(24, 8));
   defSprite('fx:shadow:l', shadow(32, 10));
+  defSprite('fx:shadow:xl', shadow(56, 16));
 }
