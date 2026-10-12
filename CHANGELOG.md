@@ -1,5 +1,32 @@
 # Patch notes
 
+## 0.3.0 — The expansion (draft, not released)
+
+A bigger run, new salvage, terrain and a boss.
+
+**The run**
+- Six yards now: The Ring, three of nine middle yards, The Heap, and The Compactor.
+
+**Two new enemies, two new parts**
+- **The Hopper** crouches, paints a red ring where it will land, leaps over everything and slams
+  down. Then it's stuck: hit its back to take its **Jump Jets**. With the jets, hold Rip to crouch
+  and let go to leap over charges and walls. The landing is a hit.
+- **The Bouncer** rolls at you, bouncing off walls and getting faster. Cut across it to take its
+  **Springs**. With the springs, you bounce off walls instead of clanking.
+- **The Spring Rammer**: its charge bounces off the first wall.
+
+**Terrain**
+- Boost strips (drive along the arrows), oil (no grip), jump ramps (jump the low walls at speed),
+  crusher plates (lure enemies onto them before they slam).
+
+**Five new yards**
+- The Hurdles, The Pinball, The Slick, The Jumps, The Press.
+
+**The Compactor**
+- The last yard is a boss. It wears a Booster, Springs and a Plow, and each part is one of its
+  moves: tear one off and that move is gone, and the part is yours. Strip it bare and it leaps.
+  It calls Snappers in to help.
+
 ## 0.2.0 — A short run (2026-10-12)
 
 The one arena is now the first of five. Rip, bolt on and drive on.
