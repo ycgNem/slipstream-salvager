@@ -2,7 +2,20 @@
 
 What's built. Newest first.
 
-## 2026-10-12 — M3 reviews fixed, M4 art, 0.2.0 ready to publish
+## 2026-10-12 — M5: 0.2.0 published
+
+- **Live:** the owner said to push live. `main` was fast-forwarded to `works` and both were
+  pushed, and the Pages workflow deployed 0.2.0 to https://ycgnem.github.io/slipstream-salvager/
+  (DECISIONS #81).
+- **The final visual QA pass is fixed** (DECISIONS #80):
+  - Exit signs are tested clear of every wall in every yard.
+  - The side gates sit on the wall grid.
+  - The tier is right when you enter a yard.
+  - The treads show on the diagonals.
+- **Checks:** 86 tests.
+- **Windows:** the installer and portable `.exe` for 0.2.0 are built in `release/`, not uploaded.
+
+## 2026-10-12 — M3 reviews fixed, M4 art, 0.2.0 built
 
 - **The critic's review of the run** (DECISIONS #79). Every fix was re-checked with its scripts.
   - Rammers no longer stall at corners: 0 stalls in every layout, against 54-60% of placements in
@@ -38,7 +51,6 @@ What's built. Newest first.
 - **0.2.0:** the version shows on the title screen, the service worker cache is v2, and the patch
   notes are in `CHANGELOG.md`.
   - The web build is 182 KB.
-  - Pushing waits for the owner (HANDOFF.md "Releasing").
 
 ## 2026-10-12 — M3: a short run
 
@@ -188,4 +200,4 @@ The owner said "looks good, continue as planned" with no notes, so M2 took the c
 | M2 — Tune the loop | done (critic's points as defaults) |
 | M3 — A short run | done (5 yards, 4 parts, the Snapper) |
 | M4 — Art overhaul | done (147 imported; robots kept from the sculptor) |
-| M5 — First public build | 0.2.0 built; the push waits for the owner |
+| M5 — First public build | done (0.2.0 live on GitHub Pages) |

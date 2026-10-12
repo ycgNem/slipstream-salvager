@@ -416,4 +416,11 @@ a number in the tuning panel, and the M1 rule is one setting away (given with ea
       - A Plow Rammer facing east or west shows two small gold blocks, one at each end. A broader
         blade would separate front from back.
       - A Jaw Snapper on a diagonal is four similar gold pieces.
+81. **0.2.0 is published** (2026-10-12; the owner: "commit and push live").
+    - `main` was fast-forwarded to `works` and both pushed. The Pages workflow tests, builds and
+      deploys.
+    - The service worker cache is `salvager-v2`, so players who already had 0.1.0 open get the new
+      build after a reload.
+    - The Windows builds stay local in `release/`. Uploading them to a GitHub release is a separate
+      call for the owner.
 

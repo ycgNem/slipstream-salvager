@@ -1,6 +1,6 @@
 # Patch notes
 
-## 0.2.0 — A short run
+## 0.2.0 — A short run (2026-10-12)
 
 The one arena is now the first of five. Rip, bolt on and drive on.
 

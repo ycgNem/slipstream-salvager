@@ -4,23 +4,27 @@ Read this first, every session.
 
 ## Where things stand (2026-10-12)
 
-- **M0-M4 are built, and 0.2.0 is ready to publish (M5).** The owner said M1 "looks good, continue
-  as planned". So:
+- **M0-M5 are done: 0.2.0 is live.** The owner said M1 "looks good, continue as planned", and
+  then to commit and push 0.2.0 live. So:
   - M2 took the critic's open points as defaults.
   - M3 built the short run from PLAN.md section 8, and both reviewers' findings are fixed.
   - M4 replaced the arena, the Snapper and the new parts with pixel-art-studio art.
-  - Every call is in DECISIONS.md: #55-#63 are M2, #64-#75 M3, #76-#77 M4, #78-#79 the review
-    fixes.
-- **What the live site shows is still M1.** The site at https://ycgnem.github.io/slipstream-salvager/
-  updates only when `main` is pushed, and **pushing waits for the owner**. "Releasing" below has
-  the exact steps; the patch notes are in `CHANGELOG.md`.
+  - M5 published 0.2.0 to https://ycgnem.github.io/slipstream-salvager/ (2026-10-12). The patch
+    notes are in `CHANGELOG.md`.
+  - Every call is in DECISIONS.md: #55-#63 are M2, #64-#75 M3, #76-#77 M4, #78-#80 the review
+    fixes, #81 the release.
+- **`main` and `works` are pushed and identical.** The Windows 0.2.0 installer and portable `.exe`
+  are built in `release/` (not uploaded anywhere yet; see Releasing).
 - Repo: https://github.com/ycgNem/slipstream-salvager (public; DECISIONS #54). Day-to-day work is on
   `works`.
 
 ## How to play the current build (for the owner)
 
-1. Double-click **`Play.bat`** (it runs the game at `http://localhost:5173`; keep the black window
-   open while you play). The tuning panel is always on there: press **`** (backtick) or **F1** in play.
+1. Play it at **https://ycgnem.github.io/slipstream-salvager/** (add `?debug` for the tuning panel),
+   or double-click **`Play.bat`** to run it locally at `http://localhost:5173` (keep the black window
+   open while you play). The tuning panel is always on locally: press **`** (backtick) or **F1** in
+   play. If the site still shows the old version, reload once: the service worker swaps to the new
+   cache.
 2. Controls:
 
    | | Keyboard | Gamepad |
@@ -79,13 +83,14 @@ The Windows app also builds: double-click `Build desktop app.bat`. The installer
 
 - **The owner's playtest of the run.** Start the session with: *"Read ROADMAP.md and HANDOFF.md.
   Here are my playtest notes: …"*. Each note becomes one commit ending "DECISIONS #N".
-- **M4, the art overhaul** (ROADMAP section 4). It uses the pixel-art-studio skill (the owner's
-  call, DECISIONS #65). Each family is a `pixel-art/<family>/build.py` that draws the sprites; its
-  `sprites.json` maps them to game names, and `node scripts/sprites-import.mjs` packs them into
-  `src/art/`. Imported art replaces the code-drawn placeholder of the same name, so the game works
-  with any subset.
-- **M5, the first public build:** the version, the service worker cache, patch notes and a push.
-  It waits for the owner's go-ahead.
+- **More art** (the list under open points). The art tool is the pixel-art-studio skill (the
+  owner's call, DECISIONS #65). Each family is a `pixel-art/<family>/build.py` that draws the
+  sprites; its `sprites.json` maps them to game names, and `node scripts/sprites-import.mjs` packs
+  them into `src/art/`. Imported art replaces the code-drawn placeholder of the same name, so the
+  game works with any subset.
+- **What comes after the short run isn't planned yet.** ROADMAP section 4 ends at M5. Once the
+  owner has played 0.2.0, the next step is to plan the next milestone in ROADMAP and PLAN, for
+  example more parts and enemies, meta-progression, or polish.
 
 Open points for the owner (also in DECISIONS):
 - **Bot balance:** the rule bots in `src/sim/bots.ts` are weaker than a person. They rarely survive
@@ -190,13 +195,17 @@ read-only).
   deploys `dist/` to GitHub Pages (source: GitHub Actions). Check a run with `gh run list`.
 - Day-to-day work happens on `works`. To release, fast-forward `main` to `works` and push both.
   **Push only when the owner says so.**
-- **To publish 0.2.0** (when the owner says so), from `works` with everything committed:
-  1. `git checkout main`
-  2. `git merge --ff-only works`
-  3. `git push origin main works`
-  4. `git checkout works`
-  5. `gh run list` to watch the deploy.
-  - Optionally attach the Windows builds in `release/` to a GitHub release:
-    `gh release create v0.2.0 release/*0.2.0.exe --notes-file CHANGELOG.md`.
+- **To publish a release** (when the owner says so), from `works` with everything committed:
+  1. Bump `version` in `package.json` and the cache name in `public/sw.js`.
+  2. Add the patch notes to `CHANGELOG.md`.
+  3. `git checkout main`
+  4. `git merge --ff-only works`
+  5. `git push origin main works`
+  6. `git checkout works`
+  7. `gh run list` to watch the deploy.
+- **0.2.0 was published this way on 2026-10-12** (DECISIONS #81).
+- **The Windows builds aren't uploaded anywhere.** To attach them to a GitHub release, only with
+  the owner's go-ahead:
+  `gh release create v0.2.0 release/Slipstream-Salvager-Setup-0.2.0.exe release/Slipstream-Salvager-Portable-0.2.0.exe --notes-file CHANGELOG.md`
 - The service worker caches the game (`public/sw.js`). Bump the cache name when a release must
   reach players who already have it open.
