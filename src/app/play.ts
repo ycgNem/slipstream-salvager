@@ -22,7 +22,8 @@ import { drawHud } from '../ui/hud';
 import { Hints } from '../ui/hints';
 import type { UI } from '../ui/ui';
 import { LIVE, liveOverrides, TuningPanel } from './tuning';
-import { loadBest, loadSeenHints, saveBest, saveSeenHints, type Settings } from './settings';
+import { loadBest, loadDaily, loadLog, loadSeenHints, saveBest, saveDaily, saveLog, saveSeenHints, type LogBook, type Settings } from './settings';
+import { dailySeed, MODS, type ModId } from '../data/unlocks';
 
 /** seconds the wipe between yards takes */
 const WIPE = 0.8;
@@ -42,6 +43,16 @@ function startYard(): YardId {
   if (!DEBUG_KEYS || typeof location === 'undefined') return 'ring';
   const y = new URLSearchParams(location.search).get('yard');
   return y && y in YARDS ? (y as YardId) : 'ring';
+}
+
+/** How a run starts: from the Garage (a chassis and modifiers), the daily run, or a debug scene. */
+export interface PlayOpts {
+  seed?: number;
+  yard?: YardId;
+  chassis?: ChassisId;
+  mods?: ModId[];
+  /** the daily run's date: its seed, the Scrapper, no modifiers */
+  daily?: string;
 }
 
 /** ?chassis=skiff (debug builds): drive that body */
@@ -80,8 +91,13 @@ export class Play {
   /** a scripted player (src/sim/bots.ts) drives instead of the input, for e2e and the critic */
   autopilot: ((w: World) => InputFrame) | null = null;
 
-  constructor(private host: PlayHost, seed = (Math.random() * 1e9) | 0, start: YardId = startYard(), chassis: ChassisId = startChassis()) {
-    this.run = newRun(seed, start, { chassis });
+  /** what you've met and done, kept up as it happens (M9's Log) */
+  private log: LogBook = loadLog();
+
+  constructor(private host: PlayHost, readonly opts: PlayOpts = {}) {
+    const daily = opts.daily;
+    const seed = daily ? dailySeed(daily) : opts.seed ?? (Math.random() * 1e9) | 0;
+    this.run = newRun(seed, opts.yard ?? startYard(), daily ? {} : { chassis: opts.chassis ?? startChassis(), mods: opts.mods });
     this.world = yardWorld(this.run, { tuning: liveOverrides(), flat: LIVE.flat });
     for (const id of LIVE.parts) giveBolted(this.world, id);
     this.hints = new Hints(loadSeenHints(), host.settings.hints);
@@ -90,6 +106,7 @@ export class Play {
 
   /** The next yard: fold this one into the run and build the next world (mid-wipe). */
   private nextYard() {
+    this.bank();
     finishYard(this.run, this.world);
     this.world = yardWorld(this.run, { tuning: liveOverrides(), flat: LIVE.flat });
     this.fx.parts.length = 0;
@@ -103,6 +120,7 @@ export class Play {
   private endRun() {
     if (this.runDone) return;
     this.runDone = true;
+    this.bank();
     finishYard(this.run, this.world);
     if (!this.record) return;
     const b = loadBest(), r = this.run;
@@ -113,6 +131,27 @@ export class Play {
       if (!b.bestWinTicks || r.totals.ticks < b.bestWinTicks) b.bestWinTicks = r.totals.ticks;
     }
     saveBest(b);
+    if (this.opts.daily) {
+      // the day's best: more yards, or the same yards faster
+      const d = loadDaily(), mine = { date: this.opts.daily, yards, ticks: r.totals.ticks, won: r.over === 'won' };
+      if (d.date !== mine.date || yards > d.yards || (yards === d.yards && mine.ticks < d.ticks)) saveDaily(mine);
+    }
+  }
+
+  /** Bank a finished yard's tears and jousts into the lifetime counts (the unlocks read them). */
+  private bank() {
+    if (!this.record) return;
+    const b = loadBest(), s = this.world.stats;
+    b.tearsTotal += s.tears;
+    b.joustsTotal += s.jousts;
+    saveBest(b);
+  }
+
+  /** Count one thing into the Log. */
+  private note(book: keyof LogBook, key: string) {
+    if (!this.record) return;
+    this.log[book][key] = (this.log[book][key] ?? 0) + 1;
+    saveLog(this.log);
   }
 
   get keys() {
@@ -325,6 +364,7 @@ export class Play {
         break;
       case 'scrape': fx.sparks(e.x, e.y, 2, 0, Math.PI * 2, 50); a.sfx('scrape', 0.6); break;
       case 'tear':
+        this.note('torn', e.part);
         fx.dots(e.x, e.y, 18, [C.gold, C.gold2, C.gold3, C.white], 150, 0.6);
         fx.sparks(e.x, e.y, 8);
         fx.text(e.x, e.y - 18, 'TORN OFF!', C.gold3);
@@ -332,6 +372,7 @@ export class Play {
         a.sfx('tear');
         break;
       case 'wreck':
+        this.note('wrecked', e.kind);
         if (e.kind === 'compactor') {
           // the boss comes apart: a bigger burst, smoke and a long shake
           fx.dots(e.x, e.y, 40, [C.steel1, C.steel3, C.violet, C.mist, C.white], 220, 1.0);
@@ -392,6 +433,7 @@ export class Play {
       case 'bolt-start': a.sfx('bolt_tick'); break;
       case 'bolt-tick': a.sfx('bolt_tick', 1, 1 + e.n * 0.15); break;
       case 'bolted':
+        this.note('bolted', e.part);
         fx.dots(p.x, p.y, 10, [C.gold2, C.gold3, C.white], 80, 0.4);
         fx.text(p.x, p.y - 24, 'BOLTED ON!', C.gold3);
         a.sfx('bolted');
@@ -405,7 +447,11 @@ export class Play {
         break;
       }
       case 'gate': a.sfx('gate'); break;
-      case 'enter': break;
+      case 'enter': {
+        const en = this.world.enemies.find((q) => q.id === e.id);
+        if (en) this.note('met', en.kind);
+        break;
+      }
       case 'yard-clear':
         fx.showBanner('YARD CLEARED', e.patched ? '+1 HULL   DRIVE OUT THROUGH A GATE' : 'DRIVE OUT THROUGH A GATE', 2.4);
         a.sfx('cleared');
@@ -516,7 +562,8 @@ export class Play {
   }
 
   restart() {
-    const fresh = new Play(this.host);
+    // the same chassis and modifiers (and the same daily seed), a new run
+    const fresh = new Play(this.host, { chassis: this.run.chassis, mods: this.run.mods, daily: this.opts.daily });
     Object.assign(this, { run: fresh.run, world: fresh.world, fx: fresh.fx, hints: fresh.hints, paused: false, endT: 0, time: 0, recent: [], wipe: null, runDone: false, counted: false });
   }
 
@@ -534,12 +581,13 @@ export class Play {
   private drawResults(ui: UI) {
     const r = this.run, T = r.totals, won = r.over === 'won';
     ui.dim();
-    const x = 200, y = 60, pw = 240, ph = 236;
+    const x = 200, y = 54, pw = 240, ph = 248;
     ui.panel(x, y, pw, ph, 'dark');
     ui.text(won ? 'RUN CLEARED' : 'SCRAPPED', x + pw / 2, y + 10, won ? C.white : C.mist, { align: 'center', scale: 2 });
     ui.text(won ? 'ALL SIX YARDS - COMPACTOR WRECKED' : `IN ${YARDS[r.yard].name}, YARD ${r.depth} OF ${RUN_LENGTH}`, x + pw / 2, y + 30, C.mist, { align: 'center' });
     const secs = T.ticks / 60;
     const rows: [string, string][] = [
+      [this.opts.daily ? `DAILY ${this.opts.daily}` : 'CHASSIS', `${CHASSIS[r.chassis].name}${r.mods.length ? ' + ' + r.mods.map((m) => MODS[m].name).join(' + ') : ''}`],
       ['TIME', `${Math.floor(secs / 60)}:${String(Math.floor(secs % 60)).padStart(2, '0')}`],
       ['YARDS CLEARED', `${won ? RUN_LENGTH : r.depth - 1}/${RUN_LENGTH}`],
       ['PARTS TORN OFF', String(T.tears)],
@@ -552,18 +600,21 @@ export class Play {
       ui.text(v, x + pw - 16, y + 46 + i * 12, C.white, { align: 'right' });
     });
     // the build you finished with
-    ui.text('BUILD', x + 16, y + 122, C.mist);
+    ui.text('BUILD', x + 16, y + 134, C.mist);
     const parts = (['rear', 'sides', 'front'] as const).map((m) => r.loadout?.parts[m]).filter((b): b is Bolted => !!b);
-    if (!parts.length) ui.text('BARE CHASSIS', x + pw - 16, y + 122, C.lilac, { align: 'right' });
+    if (!parts.length) ui.text('BARE CHASSIS', x + pw - 16, y + 134, C.lilac, { align: 'right' });
     parts.forEach((b, i) => {
       const ix = x + pw - 16 - (parts.length - i) * 18 + 2;
-      drawSprite(ui.ctx, sprite(`icon:part:${b.id}`), ix, y + 118);
-      if (b.cracked) crack(ui.ctx, ix + 8, y + 126);
+      drawSprite(ui.ctx, sprite(`icon:part:${b.id}`), ix, y + 130);
+      if (b.cracked) crack(ui.ctx, ix + 8, y + 138);
     });
-    const b = loadBest();
-    const best = b.wins ? `BEST WIN ${Math.floor(b.bestWinTicks / 3600)}:${String(Math.floor((b.bestWinTicks / 60) % 60)).padStart(2, '0')}   WINS ${b.wins}` : `BEST: ${b.bestYards} YARD${b.bestYards === 1 ? '' : 'S'} CLEARED`;
-    ui.text(best, x + pw / 2, y + 146, C.lilac, { align: 'center' });
-    if (ui.button('r-again', x + 16, y + 168, pw - 32, 20, 'AGAIN')) this.restart();
-    if (ui.button('r-title', x + 16, y + 194, pw - 32, 20, 'TITLE')) this.host.toTitle();
+    const b = loadBest(), d = loadDaily();
+    const clock = (t: number) => `${Math.floor(t / 3600)}:${String(Math.floor((t / 60) % 60)).padStart(2, '0')}`;
+    const best = this.opts.daily && d.date === this.opts.daily
+      ? `TODAY'S BEST: ${d.won ? 'WON IN ' + clock(d.ticks) : `${d.yards} YARD${d.yards === 1 ? '' : 'S'}`}`
+      : b.wins ? `BEST WIN ${clock(b.bestWinTicks)}   WINS ${b.wins}` : `BEST: ${b.bestYards} YARD${b.bestYards === 1 ? '' : 'S'} CLEARED`;
+    ui.text(best, x + pw / 2, y + 158, C.lilac, { align: 'center' });
+    if (ui.button('r-again', x + 16, y + 180, pw - 32, 20, this.opts.daily ? 'TRY THE DAILY AGAIN' : 'AGAIN')) this.restart();
+    if (ui.button('r-title', x + 16, y + 206, pw - 32, 20, 'TITLE')) this.host.toTitle();
   }
 }

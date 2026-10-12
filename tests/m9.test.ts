@@ -2,6 +2,8 @@
 // not numbers: the Skiff holds a full-lock turn at Slipstream, the Hauler's bump is a shove.
 import { describe, expect, it } from 'vitest';
 import { CHASSIS } from '../src/data/chassis';
+import { dailySeed, isUnlocked, unlockText, type Career } from '../src/data/unlocks';
+import { RUN_LENGTH } from '../src/data/yards';
 import { playerStats } from '../src/sim/body';
 import { beginWindup } from '../src/sim/rammer';
 import { finishYard, newRun, yardWorld } from '../src/sim/run';
@@ -96,3 +98,45 @@ describe('the chassis', () => {
     expect(CHASSIS.scrapper.bump).toBe('bounce');
   });
 });
+
+describe('the Garage: unlocks and modifiers', () => {
+  const none: Career = { tears: 0, jousts: 0, bestYards: 0, wins: 0 };
+  it('unlock by playing: 20 tears for the Skiff, 10 jousts for the Hauler, The Heap and a win for the modifiers', () => {
+    expect(isUnlocked('scrapper', none)).toBe(true);
+    for (const id of ['skiff', 'hauler', 'bare', 'rush'] as const) expect(isUnlocked(id, none)).toBe(false);
+    expect(isUnlocked('skiff', { ...none, tears: 20 })).toBe(true);
+    expect(isUnlocked('hauler', { ...none, jousts: 10 })).toBe(true);
+    expect(isUnlocked('bare', { ...none, bestYards: RUN_LENGTH - 1 })).toBe(true);
+    expect(isUnlocked('rush', { ...none, wins: 1 })).toBe(true);
+    expect(unlockText('skiff', { ...none, tears: 12 })).toBe('TEAR 20 PARTS OFF  12/20');
+    expect(unlockText('rush', none)).toBe('WIN A RUN');
+  });
+
+  it("Bare Bones: your parts don't carry to the next yard; your hull does", () => {
+    const r = newRun(6, 'ring', { mods: ['bare'] });
+    const w = yardWorld(r);
+    giveBolted(w, 'booster');
+    w.player.hull = 3;
+    w.result = 'exit';
+    w.exits = w.exitPlan;
+    w.exitChoice = 0;
+    finishYard(r, w);
+    const w2 = yardWorld(r);
+    expect(w2.player.parts).toEqual({});
+    expect(w2.player.hull).toBe(3);
+  });
+
+  it('No Breather: the next wave comes in as soon as one is cleared', () => {
+    expect(yardWorld(newRun(6, 'ring', { mods: ['rush'] })).t.breather).toBe(0);
+    expect(yardWorld(newRun(6, 'ring')).t.breather).toBeGreaterThan(0);
+  });
+
+  it('the daily seed is the same all day and different the next', () => {
+    expect(dailySeed('2026-10-12')).toBe(dailySeed('2026-10-12'));
+    expect(dailySeed('2026-10-12')).not.toBe(dailySeed('2026-10-13'));
+    // the same seed is the same run: the same choices at every exit
+    const a = newRun(dailySeed('2026-10-12')), b = newRun(dailySeed('2026-10-12'));
+    expect(a.options).toEqual(b.options);
+  });
+});
+

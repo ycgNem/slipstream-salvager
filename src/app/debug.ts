@@ -22,9 +22,22 @@ export const SCENES = [
   'boost', 'oil', 'ramp', 'crusher', 'yard-slick', 'yard-jumps', 'yard-press',
   // M8: The Compactor, its core open, its yard
   'boss', 'boss-open', 'yard-compactor',
-  // M9: the chassis
-  'skiff', 'hauler',
+  // M9: the chassis, the Garage, the Log
+  'skiff', 'hauler', 'garage', 'log',
 ] as const;
+
+/** The Garage and the Log with made-up progress: the Skiff and Bare Bones unlocked, the Hauler
+ * part way, and a Log that has met some things and not others. */
+function previewScreen(app: App, name: 'garage' | 'log') {
+  app.toTitle();
+  app.preview = {
+    career: { tears: 24, jousts: 6, bestYards: 5, wins: 0 },
+    log: { met: { rammer: 31, snapper: 12, hopper: 4 }, wrecked: { rammer: 9, snapper: 7, hopper: 1 }, torn: { booster: 14, treads: 6, jets: 2 }, bolted: { booster: 9, treads: 3 } },
+  };
+  app.garage.chassis = 'skiff';
+  app.garage.mods = ['bare'];
+  app.screen = name;
+}
 
 /** The yard a scene that isn't `yard-*` is set in (default: The Ring). */
 const SCENE_YARD: Partial<Record<string, YardId>> = {
@@ -64,7 +77,8 @@ export function scene(app: App, name: SceneName) {
     app.toTitle();
     return app.openSettings();
   }
-  app.startPlay(3, name.startsWith('yard-') ? (name.slice(5) as YardId) : SCENE_YARD[name] ?? 'ring', name === 'skiff' || name === 'hauler' ? name : undefined);
+  if (name === 'garage' || name === 'log') return previewScreen(app, name);
+  app.startPlay({ seed: 3, yard: name.startsWith('yard-') ? (name.slice(5) as YardId) : SCENE_YARD[name] ?? 'ring', chassis: name === 'skiff' || name === 'hauler' ? name : undefined });
   const play = app.play!;
   // scripted scenes never touch the player's best record
   play.record = false;

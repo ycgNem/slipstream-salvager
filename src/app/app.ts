@@ -12,16 +12,18 @@ import { registerCodeArt } from '../render/art/code/index';
 import { registerImportedArt } from '../render/art/imported';
 import { resetBackground } from '../render/renderer';
 import { UI } from '../ui/ui';
-import { Play } from './play';
-import { loadBest, loadSettings, saveSettings, type Settings } from './settings';
+import { Play, type PlayOpts } from './play';
+import { loadBest, loadDaily, loadLog, loadSettings, saveSettings, today, type LogBook, type Settings } from './settings';
 import { scene, SCENES, type SceneName } from './debug';
-import type { YardId } from '../data/yards';
-import type { ChassisId } from '../data/chassis';
+import { RUN_LENGTH } from '../data/yards';
+import type { Career } from '../data/unlocks';
+import { Garage } from './garage';
+import { drawLog } from './log';
 
 export const VIEW_W = 640;
 export const VIEW_H = 360;
 
-type Screen = 'title' | 'play' | 'settings';
+type Screen = 'title' | 'play' | 'settings' | 'garage' | 'log';
 
 export class App {
   canvas: HTMLCanvasElement;
@@ -101,6 +103,8 @@ export class App {
     this.ui.begin(ctx, this.input, mx, my, dt, !inPlay || this.play!.paused || !!this.play!.world.result || this.play!.tuning.open);
     if (this.screen === 'title') this.drawTitle();
     else if (this.screen === 'settings') this.drawSettings();
+    else if (this.screen === 'garage') this.garage.draw(this.ui, this, this.time);
+    else if (this.screen === 'log') drawLog(this.ui, this.preview.log ?? loadLog(), () => this.toTitle(), this.backPressed());
     else if (this.play) {
       this.play.update(dt);
       this.play.draw(this.ui, dt);
@@ -126,9 +130,27 @@ export class App {
     return SCENES;
   }
 
-  startPlay(seed?: number, yard?: YardId, chassis?: ChassisId) {
-    this.play = new Play(this, seed, yard, chassis);
+  startPlay(opts: PlayOpts = {}) {
+    this.play = new Play(this, opts);
     this.screen = 'play';
+  }
+
+  garage = new Garage();
+  /** debug scenes show the Garage and the Log with made-up progress instead of the save */
+  preview: { career?: Career; log?: LogBook } = {};
+
+  /** Your lifetime counts, as the unlocks read them. */
+  career(): Career {
+    if (this.preview.career) return this.preview.career;
+    const b = loadBest();
+    return { tears: b.tearsTotal, jousts: b.joustsTotal, bestYards: b.bestYards, wins: b.wins };
+  }
+
+  backPressed(): boolean {
+    if (!this.input.wasPressed('back')) return false;
+    this.input.consume('back');
+    this.input.consume('pause');
+    return true;
   }
 
   toTitle() {
@@ -168,15 +190,20 @@ export class App {
     drawFit(ui.ctx, sprite(`pl:scrapper:drive:e:${bob}`), 150, 150, 96, 96);
     drawFit(ui.ctx, sprite('en:rammer:stalk:w:0'), 394, 140, 120, 120);
     drawFit(ui.ctx, sprite('part:booster:w'), 470, 160, 48, 48);
-    if (ui.button('t-play', 260, 168, 120, 22, 'PLAY')) this.startPlay();
-    if (ui.button('t-settings', 260, 196, 120, 18, 'SETTINGS')) this.openSettings();
+    // PLAY opens the Garage (chassis and modifiers); DAILY is today's seed, the same for everyone
+    if (ui.button('t-play', 260, 162, 120, 20, 'PLAY')) this.screen = 'garage';
+    if (ui.button('t-daily', 260, 186, 120, 16, 'DAILY RUN')) this.startPlay({ daily: today() });
+    if (ui.button('t-log', 260, 206, 120, 16, 'THE LOG')) this.screen = 'log';
+    if (ui.button('t-settings', 260, 226, 120, 16, 'SETTINGS')) this.openSettings();
     const pad = this.input.usingPad;
     const lines = pad
       ? ['STICK  STEER', 'A  RIP (HOLD WITH A BOOSTER)', 'Y  BOLT ON', 'START  PAUSE']
       : ['WASD / ARROWS  STEER', `${keyLabel(this.input.binds.rip[0]).toUpperCase()} / J  RIP (HOLD WITH A BOOSTER)`, 'E / K  BOLT ON', 'ESC  PAUSE    N  MUSIC'];
     lines.forEach((l, i) => ui.text(l, 320, 254 + i * 11, C.mist, { align: 'center' }));
-    const b = loadBest();
-    if (b.runs) ui.text(b.wins ? `RUNS ${b.runs}   WINS ${b.wins}   BEST WIN ${Math.floor(b.bestWinTicks / 3600)}:${String(Math.floor((b.bestWinTicks / 60) % 60)).padStart(2, '0')}` : `RUNS ${b.runs}   BEST ${b.bestYards}/5 YARDS`, 320, 304, C.lilac, { align: 'center' });
+    const b = loadBest(), d = loadDaily();
+    const clock = (t: number) => `${Math.floor(t / 3600)}:${String(Math.floor((t / 60) % 60)).padStart(2, '0')}`;
+    if (b.runs) ui.text(b.wins ? `RUNS ${b.runs}   WINS ${b.wins}   BEST WIN ${clock(b.bestWinTicks)}` : `RUNS ${b.runs}   BEST ${b.bestYards}/${RUN_LENGTH} YARDS`, 320, 304, C.lilac, { align: 'center' });
+    if (d.date === today()) ui.text(`TODAY'S DAILY: ${d.won ? 'WON IN ' + clock(d.ticks) : `${d.yards}/${RUN_LENGTH} YARDS`}`, 320, 316, C.lilac, { align: 'center' });
     ui.text('A SHORT RUN - SIX YARDS, SIX PARTS, ONE COMPACTOR', 320, 340, C.slate, { align: 'center' });
     ui.text(`V${version}`, 4, 350, C.slate);
     if (DEBUG_KEYS) ui.text('` TUNING IN PLAY', 636, 350, C.slate, { align: 'right' });

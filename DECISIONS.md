@@ -604,3 +604,19 @@ a number in the tuning panel, and the M1 rule is one setting away (given with ea
       wedge on skids with a fin, the Hauler a slab on wide treads with a steel push plate.
     - The boss bar packs its pips 3 px apart, so it fits beside the Hauler's seven hull pips.
     - `?chassis=skiff` (debug builds) and `CHASSIS=` for `hrun.ts`.
+95. **M9b-d: the Garage, unlocks, the Log, the daily run, as built.**
+    - The title has PLAY (the Garage), DAILY RUN, THE LOG and SETTINGS. The Garage has a card per
+      chassis (a locked one is a dark silhouette with its unlock and your progress) and the
+      modifiers; START starts the run. AGAIN after a run keeps the chassis and modifiers.
+    - Unlocks (`src/data/unlocks.ts`, pure) read lifetime counts: tears and jousts are banked per
+      yard as it ends (`tearsTotal`, `joustsTotal` in the save), plus the existing most-yards and
+      wins. A run quit mid-yard loses only that yard's counts.
+    - **Bare Bones** clears your parts and tow when a yard ends (the hull carries); **No Breather**
+      sets the breather between waves to 0. Both are run state, so the bots and tests see them.
+    - The Log (`salvager.log`) counts met (an enemy coming in), wrecked, torn and bolted, by kind
+      and part. Scripted scenes don't write it.
+    - The daily run: the seed is a hash of the local date, always the Scrapper with no modifiers;
+      the day's best (most yards, then fastest) is kept and shown on the title and the results.
+      "The same for everyone" holds for anyone on the same build (the seed drives the yard choices
+      and every wave; a balance change changes the run).
+    - The debug scenes `garage` and `log` show made-up progress (`app.preview`), not the save.

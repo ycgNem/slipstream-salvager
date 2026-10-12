@@ -9,6 +9,7 @@ import type { PartId } from '../data/parts';
 import type { Tuning } from '../data/tuning';
 import { MIDDLE, RUN_LENGTH, YARDS, wavesAt, type YardId } from '../data/yards';
 import type { ChassisId } from '../data/chassis';
+import type { ModId } from '../data/unlocks';
 import { createWorld, tierOf, type Bolted, type World } from './world';
 
 export interface Loadout {
@@ -33,6 +34,8 @@ export interface Run {
   rng: Rng;
   /** the body you drive, all run */
   chassis: ChassisId;
+  /** run modifiers (PLAN.md 9.6): Bare Bones, No Breather */
+  mods: ModId[];
   /** which yard of the run (1 = The Ring .. RUN_LENGTH - 1 = The Heap, RUN_LENGTH = The Compactor) */
   depth: number;
   yard: YardId;
@@ -59,9 +62,9 @@ function nextOptions(run: Run): YardId[] {
   return run.rng.shuffle([...left]).slice(0, 2);
 }
 
-export function newRun(seed: number, start: YardId = 'ring', opts: { chassis?: ChassisId } = {}): Run {
+export function newRun(seed: number, start: YardId = 'ring', opts: { chassis?: ChassisId; mods?: ModId[] } = {}): Run {
   const run: Run = {
-    seed, rng: new Rng(seed ^ 0x5eed), chassis: opts.chassis ?? 'scrapper', depth: start === 'ring' ? 1 : start === 'compactor' ? RUN_LENGTH : start === 'heap' ? RUN_LENGTH - 1 : 2, yard: start, path: [start], options: [], entry: null, loadout: null,
+    seed, rng: new Rng(seed ^ 0x5eed), chassis: opts.chassis ?? 'scrapper', mods: [...(opts.mods ?? [])], depth: start === 'ring' ? 1 : start === 'compactor' ? RUN_LENGTH : start === 'heap' ? RUN_LENGTH - 1 : 2, yard: start, path: [start], options: [], entry: null, loadout: null,
     totals: { ticks: 0, tears: 0, wrecks: 0, slipHits: 0, hitsTaken: 0, jousts: 0, partsShattered: 0, topSpeed: 0 },
     over: null,
   };
@@ -76,7 +79,8 @@ export function yardWorld(run: Run, opts: { tuning?: Partial<Tuning>; flat?: boo
   const w = createWorld({
     seed: (run.seed * 31 + run.depth * 7919) >>> 0,
     chassis: run.chassis,
-    tuning: opts.tuning,
+    // No Breather: the next wave comes in as soon as one is cleared
+    tuning: run.mods.includes('rush') ? { breather: 0, ...opts.tuning } : opts.tuning,
     flat: opts.flat,
     arena: y.arena,
     waves: wavesAt(y, run.depth),
@@ -113,6 +117,8 @@ export function finishYard(run: Run, w: World) {
   T.topSpeed = Math.max(T.topSpeed, s.topSpeed);
   const p = w.player;
   run.loadout = { hull: p.hull, parts: { ...p.parts }, tow: p.tow ? { part: p.tow.part, cracked: p.tow.cracked } : null };
+  // Bare Bones: only your hull carries; every yard starts with no parts
+  if (run.mods.includes('bare')) run.loadout = { hull: p.hull, parts: {}, tow: null };
   if (w.result === 'scrapped') {
     run.over = 'scrapped';
     return;

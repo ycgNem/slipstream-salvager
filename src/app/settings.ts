@@ -19,6 +19,25 @@ export interface Best {
   wins: number;
   bestYards: number;
   bestWinTicks: number;
+  /** lifetime counts for the unlocks (M9) */
+  tearsTotal: number;
+  joustsTotal: number;
+}
+
+/** The Log (M9): what you've met and done, by enemy kind and by part. */
+export interface LogBook {
+  met: Record<string, number>;
+  wrecked: Record<string, number>;
+  torn: Record<string, number>;
+  bolted: Record<string, number>;
+}
+
+/** The daily run's best for a date. */
+export interface DailyBest {
+  date: string;
+  yards: number;
+  ticks: number;
+  won: boolean;
 }
 
 const KEY = 'salvager.settings';
@@ -50,5 +69,18 @@ export const saveSettings = (s: Settings) => write(KEY, s);
 export const loadSeenHints = () => read<Record<string, boolean>>(SEEN, {});
 export const saveSeenHints = (h: Record<string, boolean>) => write(SEEN, h);
 
-export const loadBest = () => read<Best>(BEST, { clears: 0, bestTicks: 0, bestHull: 0, runs: 0, wins: 0, bestYards: 0, bestWinTicks: 0 });
+export const loadBest = () => read<Best>(BEST, { clears: 0, bestTicks: 0, bestHull: 0, runs: 0, wins: 0, bestYards: 0, bestWinTicks: 0, tearsTotal: 0, joustsTotal: 0 });
 export const saveBest = (b: Best) => write(BEST, b);
+
+const LOG = 'salvager.log';
+const DAILY = 'salvager.daily';
+export const loadLog = () => read<LogBook>(LOG, { met: {}, wrecked: {}, torn: {}, bolted: {} });
+export const saveLog = (l: LogBook) => write(LOG, l);
+export const loadDaily = () => read<DailyBest>(DAILY, { date: '', yards: 0, ticks: 0, won: false });
+export const saveDaily = (d: DailyBest) => write(DAILY, d);
+
+/** Today, local time, as YYYY-MM-DD (the daily run's key). */
+export function today(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}

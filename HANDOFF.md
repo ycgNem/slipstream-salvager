@@ -14,9 +14,10 @@ Read this first, every session.
     (#87-#88).
   - **M8, The Compactor:** a boss you take apart at the end of a six-yard run (#90), and the
     critic's M6 review fixed (#91-#92).
-  - **Next:** 8c, the visual QA and the critic on M7-M8 and the art agent on the boss and the
-    terrain (all three were running as background agents when this was written), then M9 (The
-    Garage).
+  - **M9, The Garage:** two more chassis (the Skiff and the Hauler), the Garage screen with
+    unlocks and two run modifiers, the Log, the daily run (#93-#95).
+  - **Next:** 8c/9e, the visual QA and the critic on M7-M9 and the art agent on the boss and the
+    terrain (background agents), and their fixes.
 - **`works` is ahead of `main` and not pushed.** `main` is still 0.2.0, and the site with it.
   Nothing goes live until the owner says so (Releasing, below).
 - Repo: https://github.com/ycgNem/slipstream-salvager (public; DECISIONS #54). Day-to-day work is on
@@ -39,7 +40,10 @@ Read this first, every session.
    | Pause | Esc or P | Start |
    | Music on/off | N | |
 
-3. **The run** (PLAN.md sections 8 and 9): six yards in a row.
+3. **PLAY opens the Garage:** pick a chassis (the Scrapper; the Skiff and the Hauler unlock by
+   playing) and any unlocked run modifiers, then START. **DAILY RUN** is today's seed, the same
+   for everyone on this build. **THE LOG** lists every enemy and part you've met.
+   **The run** (PLAN.md sections 8 and 9): six yards in a row.
    - **The Ring** first (three waves of Rammers).
    - Then three of the nine middle yards, picked by **driving out through one of two exit gates**.
      The sign under each gate shows the yard's salvage.
@@ -69,7 +73,8 @@ Read this first, every session.
    - Your parts are armor: a hit knocks one loose (cracked), and a second hit shatters it.
 6. **Dev shortcuts (local dev server, or `?debug` on a debug build):**
    - `?yard=kennel` (or `lanes`, `pit`, `jaws`, `hurdles`, `pinball`, `slick`, `jumps`, `press`,
-     `heap`, `compactor`) starts a run in that yard.
+     `heap`, `compactor`) starts a run in that yard; `?chassis=skiff` (or `hauler`) drives that
+     body. (These apply to a run started with PLAY -> START too.)
    - The tuning panel has **START WITH** toggles for each part, flat mode, every number and **COPY**.
 7. **Defaults I chose for you, all reversible in the tuning panel** (DECISIONS #55-#75):
    - A Rammer's front is armored: a teal hit there does 1, a side does 2, the back tears or does 4.

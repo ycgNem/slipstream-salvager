@@ -27,6 +27,24 @@ A bigger run, new salvage, terrain and a boss.
   moves: tear one off and that move is gone, and the part is yours. Strip it bare and it leaps.
   It calls Snappers in to help.
 
+**The Garage**
+- PLAY now opens the Garage. Pick your chassis and any run modifiers you've unlocked.
+- Two new chassis, unlocked by playing. **The Skiff** holds its speed through any turn and glides,
+  but it has 3 hull and can hardly brake. **The Hauler** shoves enemies out of their windups just
+  by bumping them and has 7 hull, but it's slow to get up to speed.
+- Two run modifiers: **Bare Bones** (your parts don't carry between yards) and **No Breather** (the
+  next wave comes in at once).
+- **The Log**: every enemy and part you've met, with what to do about it.
+- **The daily run**: one seed a day, the same for everyone. Your best for the day shows on the
+  title.
+
+**Balance**
+- Holding Rip with the Booster now launches the Burn on its own after a second.
+- A Jump Jets leap hits the side you came from, not where you land.
+- The Hopper's ring leads you all the way: dodge it by turning, not by going fast.
+- Bouncers keep their distance, and their round front glances off unless you meet their roll
+  head-on at full speed.
+
 ## 0.2.0 — A short run (2026-10-12)
 
 The one arena is now the first of five. Rip, bolt on and drive on.
